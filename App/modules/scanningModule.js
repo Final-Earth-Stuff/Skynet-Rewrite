@@ -132,7 +132,7 @@ function scanningModule() {
 
         for (i = 0, len = Object.keys(co1s).length; i < len; i++) {
             let co1 = co1s[Object.keys(co1s)[i]];
-            if (co1.axChg != 0 || co1.allChg != 0) {
+            if (co1.axChg != 0 || co1.allChg != 0 || co1.adChg != 0 || co1.gdChg != 0 || co1.facChg != 0 || co1.mineChg != 0) {
                 changes.push(co1);
             }
         }
