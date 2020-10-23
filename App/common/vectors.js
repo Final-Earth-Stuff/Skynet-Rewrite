@@ -1,5 +1,5 @@
 function vectorCalculator() {
-    const dbConnect = require('../connectors/dbConnect.js');
+    const dbConnect = require('../connectors/dbConnect');
 
     return {
         haversine,

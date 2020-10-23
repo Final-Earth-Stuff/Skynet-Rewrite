@@ -1,5 +1,5 @@
 function countryInfo() {
-    const dbConnect = require('../connectors/dbConnect.js');
+    const dbConnect = require('../connectors/dbConnect');
 
     return {
         control,

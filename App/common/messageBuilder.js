@@ -1,5 +1,5 @@
 function commandsHandler() {
-    const commands = require('../commands/list.js');
+    const commands = require('../commands/list');
     const discord = require('discord.js');
 
     return {

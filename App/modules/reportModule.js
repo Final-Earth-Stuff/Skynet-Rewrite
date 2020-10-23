@@ -1,11 +1,11 @@
 function reportModule() {
-    const discordConfig = require('../config_files/discord.js');
+    const discordConfig = require('../config_files/discord');
 
-    const messageBuilder = require('../common/messageBuilder.js');
-    const vectorCalculator = require('../common/vectors.js');
-    const countryInfo = require('../common/countryInfo.js');
+    const messageBuilder = require('../common/messageBuilder');
+    const vectorCalculator = require('../common/vectors');
+    const countryInfo = require('../common/countryInfo');
 
-    const dbConnect = require('../connectors/dbConnect.js');
+    const dbConnect = require('../connectors/dbConnect');
 
     const discord = require('discord.js');
 
@@ -28,7 +28,7 @@ function reportModule() {
         ) {
             return;
         }
-        if (shortRegions.indexOf(pCommand) > -1) {
+        if (shortRegions.includes(pCommand)) {
             return continentMessageBuilder(fullMsg, shortRegions.indexOf(pCommand), xMsg);
         }
         if (pCommand == 'totals') {
@@ -170,9 +170,10 @@ function reportModule() {
                 axMsg += `${controlInfo.text} - ${active.allUnits} vs ${active.axUnits}\n`;
             }
         }
-        embedMessage.addField('Allies', alMsg, false);
-        embedMessage.addField('Axis', axMsg, false);
-        if (Msg != '\n') {
+        if (alMsg != '\n') {
+            embedMessage.addField('Allies', alMsg, false);
+        }
+        if (axMsg != '\n') {
             embedMessage.addField('Axis', axMsg, false);
         }
         messageBuilder.rawChannelSend(xMsg, embedMessage);

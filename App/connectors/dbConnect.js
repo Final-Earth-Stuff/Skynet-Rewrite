@@ -1,7 +1,7 @@
 function dbConnect() {
     const secure = require('../../secure.json');
     const mysql = require('mysql');
-    const db = require('../config_files/db.js');
+    const db = require('../config_files/db');
 
     var pool = mysql.createPool({
         connectionLimit: 10,

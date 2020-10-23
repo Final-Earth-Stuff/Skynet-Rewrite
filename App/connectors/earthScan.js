@@ -1,6 +1,6 @@
 function earthScan() {
     const fetch = require('node-fetch');
-    const urls = require('../config_files/url.js');
+    const urls = require('../config_files/url');
 
     return {
         getEarth,

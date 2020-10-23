@@ -1,13 +1,13 @@
 function scanningModule() {
-    const discordConfig = require('../config_files/discord.js');
+    const discordConfig = require('../config_files/discord');
     const secure = require('../../secure.json');
     
-    const messageBuilder = require('../common/messageBuilder.js');
-    const vectorCalculator = require('../common/vectors.js');
-    const countryInfo = require('../common/countryInfo.js');
+    const messageBuilder = require('../common/messageBuilder');
+    const vectorCalculator = require('../common/vectors');
+    const countryInfo = require('../common/countryInfo');
 
-    const earthScan = require('../connectors/earthScan.js');
-    const dbConnect = require('../connectors/dbConnect.js');
+    const earthScan = require('../connectors/earthScan');
+    const dbConnect = require('../connectors/dbConnect');
 
     const discord = require('discord.js');
     const client = new discord.Client();
