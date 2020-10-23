@@ -6,6 +6,7 @@ function FinalEarth() {
     const scanningModule = require('./modules/scanningModule');
     const utilityModule = require('./modules/utilityModule');
     const reportModule = require('./modules/reportModule');
+    const adminModule = require('./modules/adminModule')
 
     const moment = require('moment');
     const discord = require('discord.js');
@@ -38,6 +39,11 @@ function FinalEarth() {
         }
         if (commandType === 'utility') {
             let msg = await utilityModule.execute(commands.pCommand, commands.fullMsg, xMsg);
+            messageBuilder.rawChannelSend(xMsg, msg);
+            return;
+        }
+        if (commandType === 'admin') {
+            let msg = await adminModule.execute(commands.pCommand, commands.fullMsg, xMsg);
             messageBuilder.rawChannelSend(xMsg, msg);
             return;
         }

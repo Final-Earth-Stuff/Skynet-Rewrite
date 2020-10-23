@@ -3,6 +3,7 @@ function List() {
         scanning: ['init', 'scan'],
         report: ['europe', 'middle', 'north', 'south', 'africa', 'asia', 'aust', 'carib', 'totals', 'proximity', 'prox', 'oil', 'factories', 'facs'],
         utility: ['distance', 'dis', 'remind', 'route', 'verify', 'autoverify'],
+        admin: ['newround']
     };
 
     let loadedModules = ['scanning'];
