@@ -17,8 +17,8 @@ function adminModule() {
 
     async function newRound(fullMsg, xMsg) {
         let xGld = await xMsg.guild.fetch();
-        let guildMembers = xGld.members.fetch();
-        let xRle = await discordProcessHandler.resolveRoleID(['Verified'], xGld);
+        let guildMembers = await xGld.members;
+        let xRle = await discordProcessHandler.resolveRoleID('Verified', xGld);
         guildMembers.forEach(async (guildMember, guildIndex) => {
             console.log(`${guildMember.id} => ${guildMember.roles.cache.has(xRle)}`);
             if (guildMember.roles.cache.has(xRle)) {
