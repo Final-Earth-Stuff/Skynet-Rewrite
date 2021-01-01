@@ -8,19 +8,13 @@ function earthScan() {
 
     async function getEarth() {
         url = urls.map;
-        let response = new Promise((resolve, reject) => {
-            try { 
-                fetch(url)
+        let response = await fetch(url)
                 .then((data) => {
                     return data.json();
                 })
                 .then((res) => {
-                    resolve(res);
+                    return res;
                 });
-            } catch(err) {
-                reject(err)
-            }
-        });
         return response;
     }
 }

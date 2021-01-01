@@ -17,19 +17,20 @@ function adminModule() {
 
     async function newRound(fullMsg, xMsg) {
         let xGld = await xMsg.guild.fetch();
-        let guildMembers = await xGld.members.fetch();
         let xRle = await discordProcessHandler.resolveRoleID('Verified', xGld);
-        guildMembers.forEach(async (guildMember, guildIndex) => {
-            console.log(`${guildMember.id} => ${guildMember.roles.cache.has(xRle)}`);
+        let guildMembers = await xMsg.guild.members.fetch()
+        let x = 1
+        guildMembers.forEach(async (guildMember) => {
             if (guildMember.roles.cache.has(xRle)) {
                 setTimeout(async () => {
                     await discordProcessHandler.setUserRole(xMsg, guildMember, ['Spectator', 'Verified'], undefined);
-                }, 250 * roleIndex * guildIndex);
+                }, 500 * x);
             } else {
                 setTimeout(async () => {
                     await discordProcessHandler.setUserRole(xMsg, guildMember, [], undefined);
-                }, 250 * roleIndex * guildIndex);
+                }, 500 * x);
             }
+            x++
         });
         return `Purged!`;
     }
