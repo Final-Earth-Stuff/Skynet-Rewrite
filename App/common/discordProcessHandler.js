@@ -1,6 +1,7 @@
 function discordProcessHandler() {
     return {
         addUserRole,
+        setUserRole,
         removeUserRole,
         resolveRoleID,
     };
@@ -13,6 +14,16 @@ function discordProcessHandler() {
             roleID = await resolveRoleID(roleName, xMsg.guild);
         }
         await usr.roles.add(roleID).catch();
+    }
+
+    async function setUserRole(xMsg, usr, roleName, roleID) {
+        if (Array.isArray(roleName)) {
+            roleID = await resolveRoleID(roleName, xMsg.guild);
+        }
+        if (roleID == null) {
+            roleID = await resolveRoleID(roleName, xMsg.guild);
+        }
+        await usr.roles.set(roleID).catch();
     }
 
     async function removeUserRole(xMsg, usr, roleName, roleID) {

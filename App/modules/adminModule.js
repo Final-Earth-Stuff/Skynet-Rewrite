@@ -1,7 +1,6 @@
 function adminModule() {
-
-    const discordConfig = require('../config_files/discord')
-    const discordProcessHandler = require('../common/discordProcessHandler')
+    const discordConfig = require('../config_files/discord');
+    const discordProcessHandler = require('../common/discordProcessHandler');
 
     return {
         execute,
@@ -18,21 +17,17 @@ function adminModule() {
 
     async function newRound(fullMsg, xMsg) {
         let xGld = await xMsg.guild.fetch();
-        let guildMembers = xGld.members.cache;
-        let roles = [discordConfig.roles.allies, discordConfig.roles.axis];
-        let roleNames = ['Allies', 'Axis']
-        roles.forEach(async (role, roleIndex) => {
-            let xRle = await discordProcessHandler.resolveRoleID(roleNames[roles.indexOf(role)], xGld)
-            guildMembers.forEach(async (guildMember, guildIndex) => {
-                if (guildMember.roles.cache.has(xRle)) {
-                    setTimeout(() => {
-                        await discordProcessHandler.removeUserRole(xMsg, guildMember, roleNames[roles.indexOf(role)], undefined)
-                        await discordProcessHandler.addUserRole(xMsg, guildMember, 'Spectator', undefined)
-                    }, 250 * roleIndex * guildIndex)
-                }
-            });
+        let guildMembers = xGld.members.fetch();
+        let xRle = await discordProcessHandler.resolveRoleID(['Verified'], xGld);
+        guildMembers.forEach(async (guildMember, guildIndex) => {
+            console.log(`${guildMember.id} => ${guildMember.roles.cache.has(xRle)}`);
+            if (guildMember.roles.cache.has(xRle)) {
+                setTimeout(async () => {
+                    await discordProcessHandler.setUserRole(xMsg, guildMember, ['Spectator', 'Verified'], undefined);
+                }, 250 * roleIndex * guildIndex);
+            }
         });
-        return `Purged!`
+        return `Purged!`;
     }
 }
 
