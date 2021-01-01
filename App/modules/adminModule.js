@@ -21,12 +21,14 @@ function adminModule() {
         let guildMembers = xGld.members.cache;
         let roles = [discordConfig.roles.allies, discordConfig.roles.axis];
         let roleNames = ['Allies', 'Axis']
-        roles.forEach(async (role) => {
+        roles.forEach(async (role, roleIndex) => {
             let xRle = await discordProcessHandler.resolveRoleID(roleNames[roles.indexOf(role)], xGld)
-            guildMembers.forEach(async (guildMember) => {
+            guildMembers.forEach(async (guildMember, guildIndex) => {
                 if (guildMember.roles.cache.has(xRle)) {
-                    await discordProcessHandler.removeUserRole(xMsg, guildMember, roleNames[roles.indexOf(role)], undefined)
-                    await discordProcessHandler.addUserRole(xMsg, guildMember, 'Spectator', undefined)
+                    setTimeout(() => {
+                        await discordProcessHandler.removeUserRole(xMsg, guildMember, roleNames[roles.indexOf(role)], undefined)
+                        await discordProcessHandler.addUserRole(xMsg, guildMember, 'Spectator', undefined)
+                    }, 250 * roleIndex * guildIndex)
                 }
             });
         });
