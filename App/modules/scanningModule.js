@@ -14,13 +14,13 @@ function scanningModule() {
     client.login(secure.discord.token);
 
     const cron = require('node-cron');
-    // cron.schedule('* * * * *', function () {
-    //     try {
-    //         scanEarth();
-    //     } catch (err) {
-    //         console.log(err);
-    //     }
-    // });
+    cron.schedule('* * * * *', function () {
+         try {
+             scanEarth();
+         } catch (err) {
+             console.log(err);
+         }
+     });
 
     return {
         execute,
