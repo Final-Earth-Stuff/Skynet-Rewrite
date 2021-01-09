@@ -1,5 +1,5 @@
 function dbConnect() {
-    const secure = require('../../../../fe_secure.json');
+    const secure = require('../../../fe_secure.json');
     const mysql = require('mysql');
     const db = require('../config_files/db');
 
