@@ -1,6 +1,6 @@
 function scanningModule() {
     const discordConfig = require('../config_files/discord');
-    const secure = require('../secure.json');
+    const secure = require('../../../secure.json');
     
     const messageBuilder = require('../common/messageBuilder');
     const vectorCalculator = require('../common/vectors');
