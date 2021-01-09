@@ -1,5 +1,5 @@
 function FinalEarth() {
-    const secure = require('../../fe_secure.json');
+    const secure = require('../../../fe_secure.json');
     const handler = require('./commands/commands');
     const messageBuilder = require('./common/messageBuilder');
 
