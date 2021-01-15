@@ -1,6 +1,6 @@
 function db() {
     return {
-        host: '46.101.26.154',
+        host: 'localhost',
         user: 'unleashed',
         database: 'FE',
     };
