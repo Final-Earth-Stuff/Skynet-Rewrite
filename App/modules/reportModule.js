@@ -114,28 +114,30 @@ function reportModule() {
             ca = await dbConnect.viewEarthActive(),
             hotspots = [];
         for (var i = 0; i < Object.keys(ca).length; i++) {
-            let country = ca[Object.keys(ca)[i]],
-                key = teams[country.team],
-                cont = cm[Object.keys(ca)[i]].continent_id,
-                units = country.allUnits + country.axUnits;
-            if (cont == continentID) {
-                if (country.team != 0 && (country.control == 0 || country.control == 100)) {
-                    totals[key].factories = totals[key].factories + Math.round(country.factories);
-                    totals[key].mines = totals[key].mines + Math.round(country.mines);
-                    totals[key].rigs = totals[key].rigs + Math.round(country.oilrigs);
-                    totals[key].capped = totals[key].capped + 1;
-                    totals[key].income =
-                        totals[key].income +
-                        (Math.round(country.factories) * factory$ + Math.round(country.mines) * mine$ + Math.round(country.oilrigs) * rig$);
+            try {
+                let country = ca[Object.keys(ca)[i]],
+                    key = teams[country.team],
+                    cont = cm[Object.keys(ca)[i]].continent_id,
+                    units = country.allUnits + country.axUnits;
+                if (cont == continentID) {
+                    if (country.team != 0 && (country.control == 0 || country.control == 100)) {
+                        totals[key].factories = totals[key].factories + Math.round(country.factories);
+                        totals[key].mines = totals[key].mines + Math.round(country.mines);
+                        totals[key].rigs = totals[key].rigs + Math.round(country.oilrigs);
+                        totals[key].capped = totals[key].capped + 1;
+                        totals[key].income =
+                            totals[key].income +
+                            (Math.round(country.factories) * factory$ + Math.round(country.mines) * mine$ + Math.round(country.oilrigs) * rig$);
+                    }
+                    if (country.control != 50) {
+                        totals[key].control = totals[key].control + 1;
+                    }
+                    if ((units > 0 && team == 'neutral') || (country.allUnits > 0 && team == 'allies') || (country.axUnits > 0 && team == 'axis')) {
+                        hotspots.push(Object.keys(ca)[i]);
+                    }
+                    (totals.axis.units = totals.axis.units + country.axUnits), (totals.allies.units = totals.allies.units + country.allUnits);
                 }
-                if (country.control != 50) {
-                    totals[key].control = totals[key].control + 1;
-                }
-                if ((units > 0 && team == 'neutral') || (country.allUnits > 0 && team == 'allies') || (country.axUnits > 0 && team == 'axis')) {
-                    hotspots.push(Object.keys(ca)[i]);
-                }
-                (totals.axis.units = totals.axis.units + country.axUnits), (totals.allies.units = totals.allies.units + country.allUnits);
-            }
+            } catch {}
         }
         (totals.axis.income = Math.round(totals.axis.income / 100000000) / 10), (totals.allies.income = Math.round(totals.allies.income / 100000000) / 10);
         let embedMessage = new discord.MessageEmbed()
