@@ -43,7 +43,7 @@ function utilityModule() {
     }
 
     async function verification(fullMsg, xMsg) {
-        let teams = ['Allies', 'Axis'],
+        let teams = ['Allies', 'Axis', 'None'],
             team = 'Spectator',
             whois,
             guildMember;
@@ -66,9 +66,9 @@ function utilityModule() {
         if (whois.discord_id > 0) {
             guildMember = await xMsg.guild.members.fetch(whois.discord_id);
             if (teams.indexOf(whois.team) > -1) {
-                team = teams[teams.indexOf(whois.team)];
+                team = teams[teams.indexOf(whois.team)].replace('None','Auto');
             }
-            await discordProcessHandler.removeUserRole(xMsg, guildMember, ['Allies', 'Axis', 'Spectator'], null);
+            await discordProcessHandler.removeUserRole(xMsg, guildMember, ['Allies', 'Axis', 'Auto', 'Spectator'], null);
             await discordProcessHandler.addUserRole(xMsg, guildMember, [team, 'Verified'], null);
             await guildMember.setNickname(whois.name).catch();
         }
