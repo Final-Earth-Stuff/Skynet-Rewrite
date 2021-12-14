@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "target": "es2021",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "lib": ["es2019", "dom"],
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "plugins": [
+            {
+                "name": "typescript-eslint-language-service"
+            }
+        ]
+    },
+    "exclude": [
+        "./node_modules"
+    ]
+}

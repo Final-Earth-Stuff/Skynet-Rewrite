@@ -1,10 +1,11 @@
 {
   "name": "finalearth",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "ts-node src/index.ts",
+    "watch": "nodemon src/index.ts",
+    "prod": "ts-node --transpile-only src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -17,10 +18,25 @@
   },
   "homepage": "https://github.com/boo1544641/FinalEarth#readme",
   "dependencies": {
-    "discord.js": "^12.5.1",
-    "moment": "^2.29.1",
+    "bufferutil": "^4.0.5",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "erlpack": "discord/erlpack",
     "mysql": "^2.18.1",
-    "node-cron": "^2.0.3",
-    "node-fetch": "^2.6.1"
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.41",
+    "utf-8-validate": "^5.0.7",
+    "zlib-sync": "^0.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.13",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
+    "eslint": "^8.4.1",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4",
+    "typescript-eslint-language-service": "^5.0.0"
   }
 }

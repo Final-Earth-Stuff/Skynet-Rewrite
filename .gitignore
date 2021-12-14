@@ -1,2 +1,14 @@
 secure.json
 node_modules/
+
+.DS_STORE
+*.swp
+
+ormconfig.yml
+ormconfig.json
+ormconfig.js
+ormconfig.ts
+ormconfig.env
+ormconfig.xml
+
+.env
