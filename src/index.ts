@@ -9,7 +9,7 @@ dotenv.config();
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
-//this is a test
+
 client.on("ready", async (client) => {
     const guilds = await client.guilds.fetch();
     for (const partialGuild of guilds.values()) {
