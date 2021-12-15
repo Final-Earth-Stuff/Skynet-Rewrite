@@ -4,32 +4,21 @@
 name: Node.js CI
 
 on:
-  push:
-    branches:
-      - v2
   pull_request:
     branches: 
-      - v2
+      - master
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 17
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
-    - name: Run ESLint
-      run: eslint . --ext .js,.jsx,.ts,.tsx
+        node-version: 17
+        cache: 'yarn'
+    - run: yarn install
+    - run: yarn lint
