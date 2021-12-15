@@ -7,7 +7,8 @@
     "watch": "NODE_ENV=development nodemon src/index.ts",
     "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --check \"**/*.ts\""
+    "format": "prettier --check \"**/*.ts\"",
+    "cli": "ts-node ./node_modules/typeorm/cli.js"
   },
   "repository": {
     "type": "git",
