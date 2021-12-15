@@ -12,7 +12,7 @@ import {
 } from "discord.js";
 
 dotenv.config();
-
+//this is a test
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
