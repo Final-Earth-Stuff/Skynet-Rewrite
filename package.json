@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "NODE_ENV=development ts-node src/index.ts",
     "watch": "NODE_ENV=development nodemon src/index.ts",
-    "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts"
+    "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts",
+    "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
