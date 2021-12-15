@@ -13,12 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/boo1544641/FinalEarth.git"
   },
-  "author": "",
+  "author": "Pyrit [29406], Natty_Boh [29066]",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/boo1544641/FinalEarth/issues"
+    "url": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite/issues"
   },
-  "homepage": "https://github.com/boo1544641/FinalEarth#readme",
+  "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
   "dependencies": {
     "@discordjs/builders": "^0.9.0",
     "bufferutil": "^4.0.5",

@@ -12,7 +12,7 @@ export class UnitChange {
     @Column({ nullable: true })
     previous_country?: number;
 
-     @Column()
+    @Column()
     axis!: number;
 
     @Column()
