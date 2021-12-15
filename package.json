@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "description": "",
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "watch": "nodemon src/index.ts",
-    "prod": "ts-node --transpile-only src/index.ts"
+    "dev": "NODE_ENV=development ts-node src/index.ts",
+    "watch": "NODE_ENV=development nodemon src/index.ts",
+    "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/boo1544641/FinalEarth#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.9.0",
     "bufferutil": "^4.0.5",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
