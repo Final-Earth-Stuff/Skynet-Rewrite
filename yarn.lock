@@ -252,14 +252,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 16.11.12
-  resolution: "@types/node@npm:16.11.12"
-  checksum: a3feb346d61a56f5a137c29bb8c63cfa3cc02e184b9dffdc18ef1528dcce55596e570575215a2e39e6ce69343eeb2a5ba71c271938f1dc8db4cc393902855412
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^16.11.13":
+"@types/node@npm:*, @types/node@npm:^16.11.13":
   version: 16.11.13
   resolution: "@types/node@npm:16.11.13"
   checksum: 7c9d62c024537d7c9f2229097b9e7a93a60bc60efbc9171977f172819e229b01d0b6ed276d335996d39b0096aed2cefa58c4a34b264d712ae3595449e8d96ab7
@@ -1100,7 +1093,7 @@ erlpack@discord/erlpack:
   dependencies:
     bindings: ^1.5.0
     nan: ^2.15.0
-  checksum: 37d85a27f0e15c7cc10f5b605e7b860d38a291f616dadb1e2ff2a49215c56fa8724ca53923615e355229c85cc84713c762b04f8038f74789ce8e52504eaf7e1f
+  checksum: 3f3ac10deb54c46021179eb02367d383c96b9db1d1376c3a352ea8e7984f8bf0347cfa447f956ea5f12a9848c5e6a77261ed1e136d87de4c5fca709c1b52636c
   languageName: node
   linkType: hard
 

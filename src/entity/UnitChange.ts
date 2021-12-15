@@ -1,30 +1,29 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 
-
 @Entity()
 @Index(["country", "timestamp"])
 export class UnitChange {
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
     
     @Column()
-    country: number;
+    country!: number;
+
+    @Column({ nullable: true })
+    previous_country?: number;
 
     @Column()
-    previous_country: number | null;
-
-    @Column ()
-    axis: number;
+    axis!: number;
 
     @Column()
-    allies: number;
+    allies!: number;
 
     @Column()
-    delta_axis: number;
+    delta_axis!: number;
 
     @Column()
-    delta_allies: number;
+    delta_allies!: number;
 
     @Column()
-    timestamp: Date;
+    timestamp!: Date;
 }
