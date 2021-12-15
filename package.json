@@ -6,18 +6,19 @@
     "dev": "NODE_ENV=development ts-node src/index.ts",
     "watch": "NODE_ENV=development nodemon src/index.ts",
     "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --check \"**/*.ts\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/boo1544641/FinalEarth.git"
   },
-  "author": "",
+  "author": "Pyrit [29406], Natty_Boh [29066]",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/boo1544641/FinalEarth/issues"
+    "url": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite/issues"
   },
-  "homepage": "https://github.com/boo1544641/FinalEarth#readme",
+  "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
   "dependencies": {
     "@discordjs/builders": "^0.9.0",
     "bufferutil": "^4.0.5",

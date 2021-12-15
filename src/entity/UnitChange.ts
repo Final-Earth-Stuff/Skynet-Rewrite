@@ -5,7 +5,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 export class UnitChange {
     @PrimaryGeneratedColumn()
     id!: number;
-    
+
     @Column()
     country!: number;
 
