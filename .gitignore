@@ -1,5 +1,7 @@
 secure.json
 node_modules/
+.yarn
+.yarnrc.yml
 
 .DS_STORE
 *.swp
@@ -7,7 +9,6 @@ node_modules/
 ormconfig.yml
 ormconfig.json
 ormconfig.js
-ormconfig.ts
 ormconfig.env
 ormconfig.xml
 
