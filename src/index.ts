@@ -1,6 +1,5 @@
 import "reflect-metadata";
 
-import dotenv from "dotenv";
 import { readdirSync } from "fs";
 
 import {
@@ -10,15 +9,13 @@ import {
     Collection,
     ApplicationCommandData,
 } from "discord.js";
+import { createConnection } from "typeorm";
 
-dotenv.config();
+import { config } from "./config";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
-
-const UPDATE_GLOBAL_COMMANDS = process.argv.includes("--update-globals");
-const UPDATE_GUILDS_COMMANDS = process.argv.includes("--update-guilds");
 
 type CommandHandler = {
     data: ApplicationCommandData;
@@ -52,20 +49,22 @@ const applicationCommandData = [...applicationCommands.values()].map(
 );
 
 client.on("ready", async (client) => {
-    if (UPDATE_GLOBAL_COMMANDS && process.env.NODE_ENV !== "development") {
+    await createConnection();
+
+    if (config.updateGlobals && !config.debug) {
         await client.application.commands
             .set(applicationCommandData)
             .then(console.log);
         console.log("[index.ts]: Updated application commands");
     }
 
-    if (UPDATE_GUILDS_COMMANDS) {
+    if (config.updateGuilds) {
         const guilds = await client.guilds.fetch();
         const data = [...guildCommands.values()]
             .filter((command) => command.always_register !== false)
             .map((handler) => handler.data);
 
-        if (process.env.NODE_ENV === "development") {
+        if (config.debug) {
             data.push(...applicationCommandData);
         }
 
@@ -96,4 +95,4 @@ client.on("interactionCreate", (interaction) => {
     }
 });
 
-client.login(process.env.BOT_TOKEN);
+client.login(config.botToken);
