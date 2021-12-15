@@ -21,4 +21,7 @@ jobs:
         node-version: 17
         cache: 'yarn'
     - run: yarn install
-    - run: yarn lint
+    - name: Lint
+      run: yarn lint
+    - name: Prettify
+      run: yarn format
