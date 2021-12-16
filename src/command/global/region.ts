@@ -12,13 +12,14 @@ export const data = new SlashCommandBuilder()
             .setDescription("Region which should be summarized")
             .setRequired(true)
             .addChoices([
-                ["Europe", "eu"],
-                ["North America", "north"],
-                ["South America", "south"],
-                ["Asia", "asia"],
-                ["Australasia", "aust"],
-                ["Caribbean", "carib"],
-                ["Africa", "africa"],
+                ["Europe", "Europe"],
+                ["Middle East", "Middle East"],
+                ["Asia", "Asia"],
+                ["North America", "North America"],
+                ["South America", "South America"],
+                ["Australasia", "Australasia"],
+                ["Caribbean", "Carribean"],
+                ["Africa", "Africa"],
             ])
     )
     .addStringOption((option) =>
