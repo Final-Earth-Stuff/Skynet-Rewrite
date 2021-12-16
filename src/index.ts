@@ -89,9 +89,12 @@ client.on("guildCreate", async (guild) => {
     await guild.commands.set(data);
 });
 
-client.on("interactionCreate", (interaction) => {
+client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
-        commands.get(interaction.commandName)?.handler(interaction);
+        console.log(
+            `[index.ts]: Received command '${interaction.commandName}'`
+        );
+        await commands.get(interaction.commandName)?.handler(interaction);
     }
 });
 
