@@ -8,4 +8,3 @@ export const data = new SlashCommandBuilder()
 export const handler = async (interaction: CommandInteraction) => {
     await interaction.reply({ content: "Not implemented" });
 };
-
