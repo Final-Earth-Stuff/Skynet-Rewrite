@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
 export const data = new SlashCommandBuilder()
-    .setName("reminder")
+    .setName("remind")
     .setDescription("Schedule a reminder")
     .addIntegerOption((option) =>
         option
