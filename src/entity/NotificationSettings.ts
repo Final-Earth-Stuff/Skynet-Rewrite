@@ -50,7 +50,13 @@ export class NotificationSettings {
     prev_war_notification?: Date;
 
     @Column({ nullable: true })
+    prev_queue_notification?: Date;
+
+    @Column({ nullable: true })
     prev_reimb_notification?: Date;
+
+    @Column({ nullable: true })
+    prev_enemies_notification?: Date;
 
     @Column({ nullable: true, type: "int2" })
     prev_num_events?: number;
@@ -60,7 +66,4 @@ export class NotificationSettings {
 
     @Column({ nullable: true })
     prev_num_enemies?: number;
-
-    @Column({ nullable: true })
-    prev_enemies_notification?: Date;
 }
