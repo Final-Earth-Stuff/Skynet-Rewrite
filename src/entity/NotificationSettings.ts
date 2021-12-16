@@ -46,6 +46,9 @@ export class NotificationSettings {
     @Column({ default: false })
     enemy_flag!: boolean;
 
+    @Column({ default: false })
+    paused_flag!: boolean;
+
     @Column({ nullable: true })
     prev_war_notification?: Date;
 
