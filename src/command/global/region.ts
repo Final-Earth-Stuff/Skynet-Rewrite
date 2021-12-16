@@ -4,7 +4,7 @@ import { CommandInteraction } from "discord.js";
 export const data = new SlashCommandBuilder()
     .setName("region")
     .setDescription(
-        "Determines the distance and travel time between two countries"
+        "Shows units, facilities and income by team for the provided region"
     )
     .addStringOption((option) =>
         option
