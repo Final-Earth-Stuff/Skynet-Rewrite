@@ -25,7 +25,7 @@ export interface Counts {
 
 @EntityRepository(NotificationSettings)
 export class NotificationSettingsRepository extends Repository<NotificationSettings> {
-    updateSetting(discordId: string, toggle: Toggles, value: boolean) {
+    updateSetting(discordId: string, toggle: string, value: boolean) {
         return this.manager.update(NotificationSettings, discordId, {
             [toggle]: value,
         });

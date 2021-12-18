@@ -13,6 +13,8 @@ import { createConnection } from "typeorm";
 
 import { config } from "./config";
 
+import { handleButton } from "./command/global/settings";
+
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
@@ -95,6 +97,9 @@ client.on("interactionCreate", async (interaction) => {
             `[index.ts]: Received command '${interaction.commandName}'`
         );
         await commands.get(interaction.commandName)?.handler(interaction);
+    }
+    if (interaction.isButton()) {
+        handleButton(interaction);
     }
 });
 
