@@ -133,7 +133,7 @@ export async function handleButton(interaction: ButtonInteraction) {
             !settings[toggle]
         );
         interaction.update({
-            content: "A component interaction was received",
+            content: "Settings updated!",
             components: await createRows(interaction.user.id),
         });
     } else {
