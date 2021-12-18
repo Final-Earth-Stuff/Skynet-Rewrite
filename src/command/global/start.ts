@@ -26,10 +26,14 @@ export const handler = async (interaction: CommandInteraction) => {
             await interaction.reply({
                 content:
                     "API keys must be 10 characters, please check your key and try again.",
+                ephemeral: true,
             });
             return;
         }
         settingsRepository.saveSettings(interaction.user.id, apiKey, true);
     }
-    await interaction.reply({ content: "Saved! (Only partially implemented)" });
+    await interaction.reply({
+        content: "Saved! (Only partially implemented)",
+        ephemeral: true,
+    });
 };
