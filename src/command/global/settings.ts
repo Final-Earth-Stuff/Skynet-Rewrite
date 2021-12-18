@@ -10,7 +10,6 @@ import {
     Toggles,
 } from "../../repository/NotficationSettingsRespository";
 import { getCustomRepository } from "typeorm";
-import { NotificationSettings } from "../../entity/NotificationSettings";
 
 export const data = new SlashCommandBuilder()
     .setName("settings")
@@ -21,7 +20,7 @@ enum Color {
     SECONDARY = "SECONDARY",
 }
 
-function getColorFromBoolean(bool: boolean) {
+function getColorFromBoolean(bool: boolean): Color {
     if (bool) {
         return Color.PRIMARY;
     } else {
@@ -29,18 +28,15 @@ function getColorFromBoolean(bool: boolean) {
     }
 }
 
-async function getStyle(discordId: string, setting: Toggles) {
+async function getStyle(discordId: string, setting: Toggles): Promise<Color> {
     const settingsRepository = getCustomRepository(
         NotificationSettingsRepository
     );
     const values = await settingsRepository.getUserByDiscordId(discordId);
-    if (values) {
-        return getColorFromBoolean(values[setting]);
-    }
-    return Color.SECONDARY;
+    return getColorFromBoolean(values?.[setting] ?? false);
 }
 
-async function createRows(discordId: string) {
+async function createRows(discordId: string): Promise<MessageActionRow[]> {
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -97,47 +93,28 @@ async function createRows(discordId: string) {
     return [row, row2];
 }
 
-function getCurrentSetting(setting: string, settings: NotificationSettings) {
-    if (setting == Toggles.WAR) {
-        return settings.war_flag;
-    }
-    if (setting == Toggles.QUEUE) {
-        return settings.queue_flag;
-    }
-    if (setting == Toggles.REIMB) {
-        return settings.reimb_flag;
-    }
-    if (setting == Toggles.ENEMY) {
-        return settings.enemy_flag;
-    }
-    if (setting == Toggles.MAIL) {
-        return settings.mail_flag;
-    }
-    if (setting == Toggles.EVENT) {
-        return settings.event_flag;
-    }
-    if (setting == Toggles.PAUSED) {
-        return settings.paused_flag;
-    }
-}
-
 export const handler = async (interaction: CommandInteraction) => {
     const settingsRepository = getCustomRepository(
         NotificationSettingsRepository
     );
-    const response = await settingsRepository.getUserByDiscordId(
+    const settings = await settingsRepository.getUserByDiscordId(
         interaction.user.id
     );
-    if (response && !response.valid_key) {
-        interaction.reply({
-            content:
-                "Please save your API with the bot in order to use this feature",
-        });
+    if (settings) {
+        if (!settings.valid_key) {
+            interaction.reply({
+                content:
+                    "Please save your API with the bot in order to use this feature",
+            });
+        } else {
+            await interaction.reply({
+                content:
+                    "Here are your current settings, click a button to enable/disable the setting.",
+                components: await createRows(interaction.user.id),
+            });
+        }
     } else {
-        await interaction.reply({
-            content: "Not implemented",
-            components: await createRows(interaction.user.id),
-        });
+        interaction.reply({ content: "Something went wrong!" });
     }
 };
 
@@ -145,19 +122,21 @@ export async function handleButton(interaction: ButtonInteraction) {
     const settingsRepository = getCustomRepository(
         NotificationSettingsRepository
     );
-    const values = await settingsRepository.getUserByDiscordId(
+    const settings = await settingsRepository.getUserByDiscordId(
         interaction.user.id
     );
-    if (values) {
-        const existingSetting = getCurrentSetting(interaction.customId, values);
+    if (settings) {
+        const toggle = interaction.customId as Toggles;
         await settingsRepository.updateSetting(
             interaction.user.id,
-            interaction.customId,
-            !existingSetting
+            toggle,
+            !settings[toggle]
         );
+        interaction.update({
+            content: "A component interaction was received",
+            components: await createRows(interaction.user.id),
+        });
+    } else {
+        interaction.reply({ content: "Something went wrong!" });
     }
-    interaction.update({
-        content: "A component interaction was received",
-        components: await createRows(interaction.user.id),
-    });
 }

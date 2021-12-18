@@ -20,7 +20,7 @@ export const handler = async (interaction: CommandInteraction) => {
     const settingsRepository = getCustomRepository(
         NotificationSettingsRepository
     );
-    const apiKey = interaction.options.getString("apikey");
+    const apiKey = interaction.options.getString("apikey", true);
     if (apiKey) {
         if (apiKey.length != 10) {
             await interaction.reply({
