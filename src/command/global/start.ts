@@ -21,17 +21,15 @@ export const handler = async (interaction: CommandInteraction) => {
         NotificationSettingsRepository
     );
     const apiKey = interaction.options.getString("apikey", true);
-    if (apiKey) {
-        if (apiKey.length != 10) {
-            await interaction.reply({
-                content:
-                    "API keys must be 10 characters, please check your key and try again.",
-                ephemeral: true,
-            });
-            return;
-        }
-        settingsRepository.saveSettings(interaction.user.id, apiKey, true);
+    if (apiKey.length != 10) {
+        await interaction.reply({
+            content:
+                "API keys must be 10 characters, please check your key and try again.",
+            ephemeral: true,
+        });
+        return;
     }
+    settingsRepository.saveSettings(interaction.user.id, apiKey, true);
     await interaction.reply({
         content: "Saved! (Only partially implemented)",
         ephemeral: true,
