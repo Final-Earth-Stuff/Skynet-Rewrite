@@ -1,77 +1,57 @@
 import "reflect-metadata";
 
-import { readdirSync } from "fs";
-
-import {
-    CommandInteraction,
-    Client,
-    Intents,
-    Collection,
-    ApplicationCommandData,
-} from "discord.js";
+import { Client, Intents } from "discord.js";
 import { createConnection } from "typeorm";
+
+import glob from "glob";
+import path from "path";
 
 import { config } from "./config";
 
-import { handleButton } from "./command/global/settings";
+import { registry } from "./decorators";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
 
-type CommandHandler = {
-    data: ApplicationCommandData;
-    handler: (interaction: CommandInteraction) => Promise<void>;
-    always_register?: boolean;
-};
+// load handlers...
+glob.sync("src/handler/**/*.ts").forEach((match) => {
+    const file = path.relative("src", match);
+    require("./" + file);
+});
 
-const applicationCommands = new Collection<string, CommandHandler>();
-const guildCommands = new Collection<string, CommandHandler>();
-
-readdirSync("./src/command/global")
-    .filter((file) => file.endsWith(".ts"))
-    .forEach((file) => {
-        /* eslint-disable @typescript-eslint/no-var-requires */
-        const command = require(`./command/global/${file}`);
-        applicationCommands.set(command.data.name, command);
-    });
-
-readdirSync("./src/command/guild")
-    .filter((file) => file.endsWith(".ts"))
-    .forEach((file) => {
-        /* eslint-disable @typescript-eslint/no-var-requires */
-        const command = require(`./command/guild/${file}`);
-        guildCommands.set(command.data.name, command);
-    });
-
-const commands = applicationCommands.concat(guildCommands);
-
-const applicationCommandData = [...applicationCommands.values()].map(
-    (handler) => handler.data
-);
+console.log(registry);
 
 client.on("ready", async (client) => {
     await createConnection();
 
     if (config.updateGlobals && !config.debug) {
-        await client.application.commands
-            .set(applicationCommandData)
-            .then(console.log);
+        const data = registry.globalCommandData.map((factory) => factory());
+        await client.application.commands.set(data).then(console.log);
         console.log("[index.ts]: Updated application commands");
     }
 
     if (config.updateGuilds) {
         const guilds = await client.guilds.fetch();
-        const data = [...guildCommands.values()]
-            .filter((command) => command.always_register !== false)
-            .map((handler) => handler.data);
+        for (const partialGuild of guilds.values()) {
+            const guild = await partialGuild.fetch();
+            const data = await Promise.all(
+                registry.guildCommandData.map(async (factory) => {
+                    const result = factory(guild);
+                    if (result instanceof Promise) {
+                        return await result;
+                    } else {
+                        return result;
+                    }
+                })
+            );
+            if (config.debug) {
+                data.push(
+                    ...registry.globalCommandData.map((factory) => factory())
+                );
+            }
 
-        if (config.debug) {
-            data.push(...applicationCommandData);
-        }
-
-        for (const [snowflake] of guilds) {
-            await client.application.commands.set(data, snowflake);
+            await guild.commands.set(data);
         }
         console.log("[index.ts]: Updated guild commands");
     }
@@ -80,12 +60,19 @@ client.on("ready", async (client) => {
 });
 
 client.on("guildCreate", async (guild) => {
-    const data = [...guildCommands.values()]
-        .filter((command) => command.always_register !== false)
-        .map((handler) => handler.data);
+    const data = await Promise.all(
+        registry.guildCommandData.map(async (factory) => {
+            const result = factory(guild);
+            if (result instanceof Promise) {
+                return await result;
+            } else {
+                return result;
+            }
+        })
+    );
 
-    if (process.env.NODE_ENV === "development") {
-        data.push(...applicationCommandData);
+    if (config.debug) {
+        data.push(...registry.globalCommandData.map((factory) => factory()));
     }
 
     await guild.commands.set(data);
@@ -93,13 +80,10 @@ client.on("guildCreate", async (guild) => {
 
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
-        console.log(
-            `[index.ts]: Received command '${interaction.commandName}'`
-        );
-        await commands.get(interaction.commandName)?.handler(interaction);
+        await registry.commands.get(interaction.commandName)?.(interaction);
     }
     if (interaction.isButton()) {
-        handleButton(interaction);
+        await registry.buttons.get(interaction.customId)?.(interaction);
     }
 });
 

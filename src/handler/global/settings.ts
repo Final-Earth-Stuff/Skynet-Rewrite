@@ -5,11 +5,13 @@ import {
     MessageActionRow,
     MessageButton,
 } from "discord.js";
+import { getCustomRepository } from "typeorm";
+
+import { Command, CommandData, Button } from "../../decorators";
 import {
     NotificationSettingsRepository,
     Toggles,
 } from "../../repository/NotficationSettingsRespository";
-import { getCustomRepository } from "typeorm";
 
 export const data = new SlashCommandBuilder()
     .setName("settings")
@@ -93,32 +95,7 @@ async function createRows(discordId: string): Promise<MessageActionRow[]> {
     return [row, row2];
 }
 
-export const handler = async (interaction: CommandInteraction) => {
-    const settingsRepository = getCustomRepository(
-        NotificationSettingsRepository
-    );
-    const settings = await settingsRepository.getUserByDiscordId(
-        interaction.user.id
-    );
-    if (settings) {
-        if (!settings.valid_key) {
-            interaction.reply({
-                content:
-                    "Please save your API with the bot in order to use this feature",
-            });
-        } else {
-            await interaction.reply({
-                content:
-                    "Here are your current settings, click a button to enable/disable the setting.",
-                components: await createRows(interaction.user.id),
-            });
-        }
-    } else {
-        interaction.reply({ content: "Something went wrong!" });
-    }
-};
-
-export async function handleButton(interaction: ButtonInteraction) {
+async function updateSetting(interaction: ButtonInteraction) {
     const settingsRepository = getCustomRepository(
         NotificationSettingsRepository
     );
@@ -138,5 +115,76 @@ export async function handleButton(interaction: ButtonInteraction) {
         });
     } else {
         interaction.reply({ content: "Something went wrong!" });
+    }
+}
+
+export class Settings {
+    @CommandData({ type: "global" })
+    settingsData() {
+        return new SlashCommandBuilder()
+            .setName("settings")
+            .setDescription("View and toggle settings for notifications")
+            .toJSON();
+    }
+
+    @Command({ name: "settings" })
+    async settings(interaction: CommandInteraction): Promise<void> {
+        const settingsRepository = getCustomRepository(
+            NotificationSettingsRepository
+        );
+        const settings = await settingsRepository.getUserByDiscordId(
+            interaction.user.id
+        );
+        if (settings) {
+            if (!settings.valid_key) {
+                interaction.reply({
+                    content:
+                        "Please save your API with the bot in order to use this feature",
+                });
+            } else {
+                await interaction.reply({
+                    content:
+                        "Here are your current settings, click a button to enable/disable the setting.",
+                    components: await createRows(interaction.user.id),
+                });
+            }
+        } else {
+            interaction.reply({ content: "Something went wrong!" });
+        }
+    }
+
+    @Button({ customId: Toggles.WAR })
+    async war(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.ENEMY })
+    async enemy(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.EVENT })
+    async event(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.MAIL })
+    async mail(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.QUEUE })
+    async queue(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.REIMB })
+    async reimb(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
+    }
+
+    @Button({ customId: Toggles.PAUSED })
+    async paused(interaction: ButtonInteraction) {
+        await updateSetting(interaction);
     }
 }
