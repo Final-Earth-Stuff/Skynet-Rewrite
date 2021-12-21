@@ -3,7 +3,6 @@ import {
     ButtonInteraction,
     CommandInteraction,
     ApplicationCommandData,
-    Guild,
     MessageEmbed,
 } from "discord.js";
 
@@ -18,17 +17,13 @@ type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
 type CommandHandler = (interaction: CommandInteraction) => Promise<void>;
 
-type GuildDataFactory = (
-    guild: Guild
-) => Promise<ApplicationCommandData> | ApplicationCommandData;
-
-type GlobalDataFactory = () => ApplicationCommandData;
+type DataFactory = () => ApplicationCommandData;
 
 export const registry = {
     buttons: new Collection<string, ButtonHandler>(),
     commands: new Collection<string, CommandHandler>(),
-    globalCommandData: new Array<GlobalDataFactory>(),
-    guildCommandData: new Array<GuildDataFactory>(),
+    globalCommandData: new Array<DataFactory>(),
+    guildCommandData: new Array<DataFactory>(),
 };
 
 interface CommandOptions {
@@ -136,46 +131,21 @@ export const Button =
     };
 
 interface CommandDataOptions {
-    register?: boolean;
     type: "global" | "guild";
 }
 
 type RESTCommandData = ReturnType<SlashCommandBuilder["toJSON"]>;
 
-type GlobalRESTDataFactory = () => RESTCommandData;
+type RESTDataFactory = () => RESTCommandData;
 
-type GuildRESTDataFactory = (guild: Guild) => RESTCommandData;
-
-type GuildAsyncRESTDataFactory = (guild: Guild) => Promise<RESTCommandData>;
-
-export function CommandData(options: { register?: boolean; type: "guild" }): {
-    (
-        target: unknown,
-        propertyKey: string,
-        descriptor: TypedPropertyDescriptor<GuildRESTDataFactory>
-    ): void;
-    (
-        target: unknown,
-        propertyKey: string,
-        descriptor: TypedPropertyDescriptor<GuildAsyncRESTDataFactory>
-    ): void;
-};
-export function CommandData(options: {
-    register?: boolean;
-    type: "global";
-}): (
-    target: unknown,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<GlobalRESTDataFactory>
-) => void;
 export function CommandData(options: CommandDataOptions) {
     return (
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         target: any,
         _propertyKey: string,
-        descriptor: PropertyDescriptor
+        descriptor: TypedPropertyDescriptor<RESTDataFactory>
     ) => {
-        if (options.register === false) return;
+        if (!descriptor.value) return;
 
         const shared = target.shared ?? new target.constructor();
         if (!target.shared) {
@@ -185,12 +155,12 @@ export function CommandData(options: CommandDataOptions) {
         switch (options.type) {
             case "global":
                 registry.globalCommandData.push(
-                    descriptor.value.bind(shared) as GlobalDataFactory
+                    descriptor.value.bind(shared) as DataFactory
                 );
                 break;
             case "guild":
                 registry.guildCommandData.push(
-                    descriptor.value.bind(shared) as GuildDataFactory
+                    descriptor.value.bind(shared) as DataFactory
                 );
         }
     };

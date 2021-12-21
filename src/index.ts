@@ -48,15 +48,8 @@ client.on("ready", async (client) => {
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
-                const data = await Promise.all(
-                    registry.guildCommandData.map(async (factory) => {
-                        const result = factory(guild);
-                        if (result instanceof Promise) {
-                            return await result;
-                        } else {
-                            return result;
-                        }
-                    })
+                const data = registry.guildCommandData.map((factory) =>
+                    factory()
                 );
                 if (config.debug) {
                     data.push(
@@ -83,17 +76,7 @@ client.on("ready", async (client) => {
 
 client.on("guildCreate", async (guild) => {
     try {
-        const data = await Promise.all(
-            registry.guildCommandData.map(async (factory) => {
-                const result = factory(guild);
-                if (result instanceof Promise) {
-                    return await result;
-                } else {
-                    return result;
-                }
-            })
-        );
-
+        const data = registry.guildCommandData.map((factory) => factory());
         if (config.debug) {
             data.push(
                 ...registry.globalCommandData.map((factory) => factory())
