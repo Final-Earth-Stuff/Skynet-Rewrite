@@ -4,6 +4,7 @@ import { Client, Intents } from "discord.js";
 import { createConnection } from "typeorm";
 
 import glob from "glob";
+import path from "path";
 
 import { config } from "./config";
 
@@ -14,7 +15,12 @@ const client = new Client({
 });
 
 // load handlers...
-glob.sync("./handlers/**/*.ts").forEach((file) => require(file));
+glob.sync("src/handler/**/*.ts").forEach((match) => {
+    const file = path.relative("src", match);
+    require("./" + file);
+});
+
+console.log(registry);
 
 client.on("ready", async (client) => {
     await createConnection();
