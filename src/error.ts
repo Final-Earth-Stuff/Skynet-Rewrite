@@ -1,9 +1,16 @@
+interface BotErrorOptions {
+    source?: Error;
+    ephemeral?: boolean;
+}
+
 export class BotError extends Error {
     source?: Error;
+    ephemeral: boolean;
 
-    constructor(message: string, source?: Error) {
+    constructor(message: string, options?: BotErrorOptions) {
         super(message);
         this.name = "BotError";
-        this.source = source;
+        this.source = options?.source;
+        this.ephemeral = options?.ephemeral ?? false;
     }
 }

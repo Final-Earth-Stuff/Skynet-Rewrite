@@ -54,7 +54,7 @@ export const Command =
                             .setDescription(e.message);
                         await interaction.reply({
                             embeds: [embed],
-                            ephemeral: true,
+                            ephemeral: e.ephemeral,
                         });
                         logger.info(
                             "Caught 'BotError: %s' while processing command '%s'",
@@ -100,7 +100,7 @@ export const Button =
                             .setDescription(e.message);
                         await interaction.followUp({
                             embeds: [embed],
-                            ephemeral: true,
+                            ephemeral: e.ephemeral,
                         });
                         logger.info(
                             "Caught 'BotError: %s' while processing button '%s'",
