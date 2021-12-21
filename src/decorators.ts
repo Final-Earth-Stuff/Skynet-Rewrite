@@ -38,15 +38,21 @@ interface CommandOptions {
 export const Command =
     (options: CommandOptions) =>
     (
-        _target: unknown,
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        target: any,
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<CommandHandler>
     ) => {
-        const handler = descriptor.value;
+        const shared = target.shared ?? new target.constructor();
+        if (!target.shared) {
+            target.shared = shared;
+        }
+        let handler = descriptor.value;
         if (handler) {
+            handler = handler.bind(shared);
             const wrapped = async (interaction: CommandInteraction) => {
                 try {
-                    await handler(interaction);
+                    await handler?.(interaction);
                 } catch (e) {
                     if (e instanceof BotError) {
                         const embed = new MessageEmbed()
@@ -84,15 +90,21 @@ interface ButtonOptions {
 export const Button =
     (options: ButtonOptions) =>
     (
-        _target: unknown,
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        target: any,
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<ButtonHandler>
     ) => {
-        const handler = descriptor.value;
+        const shared = target.shared ?? new target.constructor();
+        if (!target.shared) {
+            target.shared = shared;
+        }
+        let handler = descriptor.value;
         if (handler) {
+            handler = handler.bind(shared);
             const wrapped = async (interaction: ButtonInteraction) => {
                 try {
-                    await handler(interaction);
+                    await handler?.(interaction);
                 } catch (e) {
                     if (e instanceof BotError) {
                         const embed = new MessageEmbed()
@@ -158,21 +170,27 @@ export function CommandData(options: {
 ) => void;
 export function CommandData(options: CommandDataOptions) {
     return (
-        _target: unknown,
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        target: any,
         _propertyKey: string,
         descriptor: PropertyDescriptor
     ) => {
         if (options.register === false) return;
 
+        const shared = target.shared ?? new target.constructor();
+        if (!target.shared) {
+            target.shared = shared;
+        }
+
         switch (options.type) {
             case "global":
                 registry.globalCommandData.push(
-                    descriptor.value as GlobalDataFactory
+                    descriptor.value.bind(shared) as GlobalDataFactory
                 );
                 break;
             case "guild":
                 registry.guildCommandData.push(
-                    descriptor.value as GuildDataFactory
+                    descriptor.value.bind(shared) as GuildDataFactory
                 );
         }
     };
