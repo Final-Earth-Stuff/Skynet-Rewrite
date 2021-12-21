@@ -4,6 +4,7 @@ import {
     CommandInteraction,
     ApplicationCommandData,
     MessageEmbed,
+    Guild,
 } from "discord.js";
 
 import type { SlashCommandBuilder } from "@discordjs/builders";
@@ -17,6 +18,8 @@ type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
 type CommandHandler = (interaction: CommandInteraction) => Promise<void>;
 
+type AfterJoinHook = (guild: Guild) => Promise<void>;
+
 type DataFactory = () => ApplicationCommandData;
 
 export const registry = {
@@ -24,6 +27,7 @@ export const registry = {
     commands: new Collection<string, CommandHandler>(),
     globalCommandData: new Array<DataFactory>(),
     guildCommandData: new Array<DataFactory>(),
+    afterJoinHooks: new Array<AfterJoinHook>(),
 };
 
 interface CommandOptions {
@@ -165,3 +169,21 @@ export function CommandData(options: CommandDataOptions) {
         }
     };
 }
+
+export const AfterJoin =
+    () =>
+    (
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        target: any,
+        _propertyKey: string,
+        descriptor: TypedPropertyDescriptor<AfterJoinHook>
+    ) => {
+        if (!descriptor.value) return;
+
+        const shared = target.shared ?? new target.constructor();
+        if (!target.shared) {
+            target.shared = shared;
+        }
+
+        registry.afterJoinHooks.push(descriptor.value.bind(shared));
+    };

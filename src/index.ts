@@ -60,6 +60,10 @@ client.on("ready", async (client) => {
                 }
 
                 await guild.commands.set(data);
+
+                await Promise.all(
+                    registry.afterJoinHooks.map((hook) => hook(guild))
+                );
             } catch (e) {
                 logger.error(
                     "Unexpected error after trying to join guild <id=%s>: %O",
@@ -84,6 +88,8 @@ client.on("guildCreate", async (guild) => {
         }
 
         await guild.commands.set(data);
+
+        await Promise.all(registry.afterJoinHooks.map((hook) => hook(guild)));
     } catch (e) {
         logger.error(
             "Unexpected error after trying to join guild <id=%s>: %O",
