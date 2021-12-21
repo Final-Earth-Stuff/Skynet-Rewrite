@@ -4,9 +4,12 @@ import {
     CommandInteraction,
     ApplicationCommandData,
     Guild,
+    MessageEmbed,
 } from "discord.js";
 
 import type { SlashCommandBuilder } from "@discordjs/builders";
+
+import { BotError } from "./error";
 
 type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
@@ -36,8 +39,26 @@ export const Command =
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<CommandHandler>
     ) => {
-        if (descriptor.value)
-            registry.commands.set(options.name, descriptor.value);
+        const handler = descriptor.value;
+        if (handler) {
+            const wrapped = async (interaction: CommandInteraction) => {
+                try {
+                    await handler(interaction);
+                } catch (e) {
+                    if (e instanceof BotError) {
+                        const embed = new MessageEmbed()
+                            .setColor("#ec3030")
+                            .setTitle("Error")
+                            .setDescription(e.message);
+                        await interaction.reply({
+                            embeds: [embed],
+                            ephemeral: true,
+                        });
+                    }
+                }
+            };
+            registry.commands.set(options.name, wrapped);
+        }
     };
 
 interface ButtonOptions {
@@ -51,8 +72,26 @@ export const Button =
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<ButtonHandler>
     ) => {
-        if (descriptor.value)
-            registry.buttons.set(options.customId, descriptor.value);
+        const handler = descriptor.value;
+        if (handler) {
+            const wrapped = async (interaction: ButtonInteraction) => {
+                try {
+                    await handler(interaction);
+                } catch (e) {
+                    if (e instanceof BotError) {
+                        const embed = new MessageEmbed()
+                            .setColor("#ec3030")
+                            .setTitle("Error")
+                            .setDescription(e.message);
+                        await interaction.followUp({
+                            embeds: [embed],
+                            ephemeral: true,
+                        });
+                    }
+                }
+            };
+            registry.buttons.set(options.customId, wrapped);
+        }
     };
 
 interface CommandDataOptions {
