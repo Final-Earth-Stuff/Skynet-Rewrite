@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { Client, Intents } from "discord.js";
-import { createConnection } from "typeorm";
+import { createConnection, getCustomRepository } from "typeorm";
 
 import glob from "glob";
 import path from "path";
@@ -10,6 +10,8 @@ import { config } from "./config";
 
 import { registry } from "./decorators";
 import { makeLogger } from "./logger";
+
+import { CommandRepository } from "./repository/CommandRepository";
 
 const logger = makeLogger(module);
 
@@ -45,6 +47,7 @@ client.on("ready", async (client) => {
 
     if (config.updateGuilds) {
         const guilds = await client.guilds.fetch();
+        const commandRepository = getCustomRepository(CommandRepository);
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
@@ -59,7 +62,13 @@ client.on("ready", async (client) => {
                     );
                 }
 
-                await guild.commands.set(data);
+                const commands = await guild.commands.set(data);
+                await commandRepository.replaceGuildCommands(
+                    commands,
+                    partialGuild.id
+                );
+
+                console.log(commands);
 
                 await Promise.all(
                     registry.afterJoinHooks.map((hook) => hook(guild))
@@ -87,7 +96,10 @@ client.on("guildCreate", async (guild) => {
             );
         }
 
-        await guild.commands.set(data);
+        const commands = await guild.commands.set(data);
+
+        const commandRepository = getCustomRepository(CommandRepository);
+        await commandRepository.replaceGuildCommands(commands, guild.id);
 
         await Promise.all(registry.afterJoinHooks.map((hook) => hook(guild)));
     } catch (e) {

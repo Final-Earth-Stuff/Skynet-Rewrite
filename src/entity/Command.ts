@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
 
 import { Permission } from "./Permission";
 
@@ -12,15 +12,6 @@ export class Command {
 
     @Column({ type: "char", length: 18 })
     guild_id!: string;
-
-    @ManyToOne(() => Command, (command) => command.sub_commands, {
-        onDelete: "CASCADE",
-        nullable: true,
-    })
-    parent_command!: Promise<Command>;
-
-    @OneToMany(() => Command, (command) => command.parent_command)
-    sub_commands!: Promise<Command[]>;
 
     @OneToMany(() => Permission, (permission) => permission.command)
     permissions!: Promise<Permission[]>;
