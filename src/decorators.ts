@@ -6,21 +6,23 @@ import {
     Guild,
 } from "discord.js";
 
+import type { SlashCommandBuilder } from "@discordjs/builders";
+
 type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
 type CommandHandler = (interaction: CommandInteraction) => Promise<void>;
 
-type GuildData = (
+type GuildDataFactory = (
     guild: Guild
 ) => Promise<ApplicationCommandData> | ApplicationCommandData;
 
-type GlobalData = () => ApplicationCommandData;
+type GlobalDataFactory = () => ApplicationCommandData;
 
 export const registry = {
     buttons: new Collection<string, ButtonHandler>(),
     commands: new Collection<string, CommandHandler>(),
-    globalCommandData: new Array<GlobalData>(),
-    guildCommandData: new Array<GuildData>(),
+    globalCommandData: new Array<GlobalDataFactory>(),
+    guildCommandData: new Array<GuildDataFactory>(),
 };
 
 interface CommandOptions {
@@ -39,7 +41,7 @@ export const Command =
     };
 
 interface ButtonOptions {
-    id: string;
+    customId: string;
 }
 
 export const Button =
@@ -50,7 +52,7 @@ export const Button =
         descriptor: TypedPropertyDescriptor<ButtonHandler>
     ) => {
         if (descriptor.value)
-            registry.buttons.set(options.id, descriptor.value);
+            registry.buttons.set(options.customId, descriptor.value);
     };
 
 interface CommandDataOptions {
@@ -58,21 +60,33 @@ interface CommandDataOptions {
     type: "global" | "guild";
 }
 
-export function CommandData(options: {
-    register?: boolean;
-    type: "guild";
-}): (
-    target: unknown,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-) => void;
+type RESTCommandData = ReturnType<SlashCommandBuilder["toJSON"]>;
+
+type GlobalRESTDataFactory = () => RESTCommandData;
+
+type GuildRESTDataFactory = (guild: Guild) => RESTCommandData;
+
+type GuildAsyncRESTDataFactory = (guild: Guild) => Promise<RESTCommandData>;
+
+export function CommandData(options: { register?: boolean; type: "guild" }): {
+    (
+        target: unknown,
+        propertyKey: string,
+        descriptor: TypedPropertyDescriptor<GuildRESTDataFactory>
+    ): void;
+    (
+        target: unknown,
+        propertyKey: string,
+        descriptor: TypedPropertyDescriptor<GuildAsyncRESTDataFactory>
+    ): void;
+};
 export function CommandData(options: {
     register?: boolean;
     type: "global";
 }): (
     target: unknown,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: TypedPropertyDescriptor<GlobalRESTDataFactory>
 ) => void;
 export function CommandData(options: CommandDataOptions) {
     return (
@@ -84,10 +98,14 @@ export function CommandData(options: CommandDataOptions) {
 
         switch (options.type) {
             case "global":
-                registry.globalCommandData.push(descriptor.value as GlobalData);
+                registry.globalCommandData.push(
+                    descriptor.value as GlobalDataFactory
+                );
                 break;
             case "guild":
-                registry.guildCommandData.push(descriptor.value as GuildData);
+                registry.guildCommandData.push(
+                    descriptor.value as GuildDataFactory
+                );
         }
     };
 }
