@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
 import { Command, CommandData } from "../../decorators";
+import { BotError } from "../../error";
 
 export class Dist {
     @CommandData({ type: "global" })
@@ -46,13 +47,9 @@ export class Dist {
     async dist(interaction: CommandInteraction): Promise<void> {
         const travelPoints = interaction.options.getInteger("points") ?? 0;
         if (travelPoints < 0 || travelPoints > 25) {
-            await interaction.reply({
-                ephemeral: true,
-                content: "Travel points need to be between 0 and 25.",
-            });
-            return;
+            throw new BotError("Travel points need to be between 0 and 25");
         }
 
-        await interaction.reply({ content: "Not implemented" });
+        throw new BotError("Not implemented");
     }
 }

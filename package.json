@@ -29,6 +29,7 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.41",
     "utf-8-validate": "^5.0.7",
+    "winston": "3",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
