@@ -13,3 +13,5 @@ ormconfig.env
 ormconfig.xml
 
 .env
+
+*.log

@@ -9,7 +9,10 @@ import {
 
 import type { SlashCommandBuilder } from "@discordjs/builders";
 
+import { makeLogger } from "./logger";
 import { BotError } from "./error";
+
+const logger = makeLogger(module);
 
 type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
@@ -48,12 +51,25 @@ export const Command =
                     if (e instanceof BotError) {
                         const embed = new MessageEmbed()
                             .setColor("#ec3030")
-                            .setTitle("Error")
                             .setDescription(e.message);
                         await interaction.reply({
                             embeds: [embed],
                             ephemeral: true,
                         });
+                        logger.info(
+                            "Caught 'BotError: %s' while processing command '%s'",
+                            e.message,
+                            options.name
+                        );
+                        if (e.source) {
+                            logger.debug("Source: %O", e.source);
+                        }
+                    } else {
+                        logger.error(
+                            "Encountered unexpected error while processing command '%s': %O",
+                            options.name,
+                            e
+                        );
                     }
                 }
             };
@@ -81,12 +97,25 @@ export const Button =
                     if (e instanceof BotError) {
                         const embed = new MessageEmbed()
                             .setColor("#ec3030")
-                            .setTitle("Error")
                             .setDescription(e.message);
                         await interaction.followUp({
                             embeds: [embed],
                             ephemeral: true,
                         });
+                        logger.info(
+                            "Caught 'BotError: %s' while processing button '%s'",
+                            e.message,
+                            options.customId
+                        );
+                        if (e.source) {
+                            logger.debug("Source: %O", e.source);
+                        }
+                    } else {
+                        logger.error(
+                            "Encountered unexpected error while processing button '%s': %O",
+                            options.customId,
+                            e
+                        );
                     }
                 }
             };
