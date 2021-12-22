@@ -9,14 +9,16 @@ export class CommandRepository extends Repository<Command> {
     async getGuildCommandIdByName(
         name: string,
         guildId: string
-    ): Promise<Command | undefined> {
-        return await this.manager.findOne(Command, {
+    ): Promise<string | undefined> {
+        const command = await this.manager.findOne(Command, {
             where: {
                 guild_id: guildId,
                 command_name: name,
             },
             select: ["command_id"],
         });
+
+        return command?.command_id;
     }
 
     async replaceGuildCommands(

@@ -68,8 +68,6 @@ client.on("ready", async (client) => {
                     partialGuild.id
                 );
 
-                console.log(commands);
-
                 await Promise.all(
                     registry.afterJoinHooks.map((hook) => hook(guild))
                 );

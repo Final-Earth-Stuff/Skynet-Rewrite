@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryColumn, Column, OneToMany, JoinColumn } from "typeorm";
 
 import { Permission } from "./Permission";
 
@@ -14,5 +14,6 @@ export class Command {
     guild_id!: string;
 
     @OneToMany(() => Permission, (permission) => permission.command)
+    @JoinColumn({ name: "command_id", referencedColumnName: "command_id" })
     permissions!: Promise<Permission[]>;
 }

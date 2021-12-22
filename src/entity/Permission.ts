@@ -1,4 +1,11 @@
-import { Entity, PrimaryColumn, Column, ManyToOne } from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    Index,
+} from "typeorm";
 
 import { Command } from "./Command";
 
@@ -8,9 +15,10 @@ export enum PermissionType {
 }
 
 @Entity()
+@Index(["id", "command"], { unique: true })
 export class Permission {
-    @PrimaryColumn({ type: "char", length: 18 })
-    permission_id!: string;
+    @PrimaryGeneratedColumn()
+    permission_id!: number;
 
     @Column({ type: "char", length: 18 })
     id!: string;
@@ -20,7 +28,8 @@ export class Permission {
 
     @ManyToOne(() => Command, (command) => command.permissions, {
         onDelete: "CASCADE",
-        nullable: true,
+        nullable: false,
     })
-    command!: Promise<Command>;
+    @JoinColumn({ name: "command_id", referencedColumnName: "command_id" })
+    command!: Command;
 }

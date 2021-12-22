@@ -57,10 +57,16 @@ export const Command =
                         const embed = new MessageEmbed()
                             .setColor("#ec3030")
                             .setDescription(e.message);
-                        await interaction.reply({
-                            embeds: [embed],
-                            ephemeral: e.ephemeral,
-                        });
+                        if (interaction.deferred) {
+                            await interaction.editReply({
+                                embeds: [embed],
+                            });
+                        } else {
+                            await interaction.reply({
+                                embeds: [embed],
+                                ephemeral: e.ephemeral,
+                            });
+                        }
                         logger.info(
                             "Caught 'BotError: %s' while processing command '%s'",
                             e.message,
