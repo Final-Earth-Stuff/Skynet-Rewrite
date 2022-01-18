@@ -1,5 +1,6 @@
 secure.json
 node_modules/
+dist/
 .yarn
 .yarnrc.yml
 

@@ -22,7 +22,7 @@ const client = new Client({
 });
 
 // load handlers...
-glob.sync("src/handler/**/*.ts").forEach((match) => {
+glob.sync("dist/handler/**/*.js").forEach((match) => {
     const file = path.relative("src", match);
     require("./" + file);
 });
@@ -30,7 +30,17 @@ glob.sync("src/handler/**/*.ts").forEach((match) => {
 logger.debug("registry: %O", registry);
 
 client.on("ready", async (client) => {
-    await createConnection();
+    await createConnection({
+        type: "postgres",
+        host: config.databaseHost,
+        port: config.databasePort,
+        username: config.databaseUser,
+        password: config.databasePassword,
+        database: config.databaseName,
+        synchronize: true,
+        entities: ["dist/entity/**/*.js"],
+        migrations: ["dist/migration/**/*.js"],
+    });
 
     if (config.updateGlobals && !config.debug) {
         try {
