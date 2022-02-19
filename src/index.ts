@@ -27,8 +27,6 @@ glob.sync("dist/handler/**/*.js").forEach((match) => {
     require("./" + file);
 });
 
-logger.debug("registry: %O", registry);
-
 client.on("ready", async (client) => {
     await createConnection({
         type: "postgres",
@@ -79,7 +77,7 @@ client.on("ready", async (client) => {
                 );
 
                 await Promise.all(
-                    registry.afterJoinHooks.map((hook) => hook(guild))
+                    registry.updateHooks.map((hook) => hook(guild))
                 );
             } catch (e) {
                 logger.error(
@@ -108,8 +106,6 @@ client.on("guildCreate", async (guild) => {
 
         const commandRepository = getCustomRepository(CommandRepository);
         await commandRepository.replaceGuildCommands(commands, guild.id);
-
-        await Promise.all(registry.afterJoinHooks.map((hook) => hook(guild)));
     } catch (e) {
         logger.error(
             "Unexpected error after trying to join guild <id=%s>: %O",
@@ -132,5 +128,20 @@ client.on("interactionCreate", async (interaction) => {
         await registry.buttons.get(interaction.customId)?.(interaction);
     }
 });
+
+for (const event in registry.eventHandlers) {
+    client.on(event, async (...args) => {
+        try {
+            await Promise.all(
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                (registry.eventHandlers as any)[event].map((handler: any) =>
+                    handler(args)
+                )
+            );
+        } catch (e) {
+            logger.error("Error in event handler '%s': %O", event, e);
+        }
+    });
+}
 
 client.login(config.botToken);

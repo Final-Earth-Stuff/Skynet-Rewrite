@@ -5,6 +5,7 @@ import {
     ApplicationCommandData,
     MessageEmbed,
     Guild,
+    type ClientEvents,
 } from "discord.js";
 
 import type { SlashCommandBuilder } from "@discordjs/builders";
@@ -18,7 +19,11 @@ type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
 type CommandHandler = (interaction: CommandInteraction) => Promise<void>;
 
-type AfterJoinHook = (guild: Guild) => Promise<void>;
+type UpdateHook = (guild: Guild) => Promise<void>;
+
+type EventHandlerType<K extends keyof ClientEvents> = (
+    ...args: ClientEvents[K]
+) => Promise<void>;
 
 type DataFactory = () => ApplicationCommandData;
 
@@ -27,7 +32,10 @@ export const registry = {
     commands: new Collection<string, CommandHandler>(),
     globalCommandData: new Array<DataFactory>(),
     guildCommandData: new Array<DataFactory>(),
-    afterJoinHooks: new Array<AfterJoinHook>(),
+    updateHooks: new Array<UpdateHook>(),
+    eventHandlers: {} as {
+        [K in keyof ClientEvents]: EventHandlerType<K>[];
+    },
 };
 
 interface CommandOptions {
@@ -42,21 +50,36 @@ export const Command =
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<CommandHandler>
     ) => {
-        const shared = target.shared ?? new target.constructor();
-        if (!target.shared) {
-            target.shared = shared;
+        const shared = target._shared ?? new target.constructor();
+        if (!target._shared) {
+            target._shared = shared;
         }
         let handler = descriptor.value;
         if (handler) {
             handler = handler.bind(shared);
             const wrapped = async (interaction: CommandInteraction) => {
                 try {
-                    await handler?.(interaction);
-                } catch (e) {
-                    if (e instanceof BotError) {
+                    await handler?.(interaction).catch(async (e) => {
+                        let message: string;
+                        if (e instanceof BotError) {
+                            message = e.message;
+                            logger.info(
+                                "Caught 'BotError: %s' while processing command '%s'",
+                                e.message,
+                                options.name
+                            );
+                        } else {
+                            logger.error(
+                                "Encountered unexpected error while processing command '%s': %O",
+                                options.name,
+                                e
+                            );
+                            message = "Something went wrong";
+                        }
                         const embed = new MessageEmbed()
                             .setColor("#ec3030")
-                            .setDescription(e.message);
+                            .setDescription(message);
+
                         if (interaction.deferred) {
                             await interaction.editReply({
                                 embeds: [embed],
@@ -67,21 +90,13 @@ export const Command =
                                 ephemeral: e.ephemeral,
                             });
                         }
-                        logger.info(
-                            "Caught 'BotError: %s' while processing command '%s'",
-                            e.message,
-                            options.name
-                        );
-                        if (e.source) {
-                            logger.debug("Source: %O", e.source);
-                        }
-                    } else {
-                        logger.error(
-                            "Encountered unexpected error while processing command '%s': %O",
-                            options.name,
-                            e
-                        );
-                    }
+                    });
+                } catch (e) {
+                    logger.error(
+                        "Somethinf went very wrong while handling command '%s': %O",
+                        options.name,
+                        e
+                    );
                 }
             };
             registry.commands.set(options.name, wrapped);
@@ -157,9 +172,9 @@ export function CommandData(options: CommandDataOptions) {
     ) => {
         if (!descriptor.value) return;
 
-        const shared = target.shared ?? new target.constructor();
-        if (!target.shared) {
-            target.shared = shared;
+        const shared = target._shared ?? new target.constructor();
+        if (!target._shared) {
+            target._shared = shared;
         }
 
         switch (options.type) {
@@ -176,20 +191,44 @@ export function CommandData(options: CommandDataOptions) {
     };
 }
 
-export const AfterJoin =
+interface EventHandlerOptions<K extends keyof ClientEvents> {
+    event: K;
+}
+
+export const EventHandler =
+    <K extends keyof ClientEvents>(options: EventHandlerOptions<K>) =>
+    (
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        target: any,
+        _propertyKey: string,
+        descriptor: TypedPropertyDescriptor<EventHandlerType<K>>
+    ) => {
+        if (!descriptor.value) return;
+
+        const shared = target._shared ?? new target.constructor();
+        if (!target._shared) {
+            target._shared = shared;
+        }
+
+        const handlers = registry.eventHandlers[options.event] ?? [];
+        handlers.push(descriptor.value.bind(shared));
+        registry.eventHandlers[options.event] = handlers;
+    };
+
+export const OnCommandUpdate =
     () =>
     (
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         target: any,
         _propertyKey: string,
-        descriptor: TypedPropertyDescriptor<AfterJoinHook>
+        descriptor: TypedPropertyDescriptor<UpdateHook>
     ) => {
         if (!descriptor.value) return;
 
-        const shared = target.shared ?? new target.constructor();
-        if (!target.shared) {
-            target.shared = shared;
+        const shared = target._shared ?? new target.constructor();
+        if (!target._shared) {
+            target._shared = shared;
         }
 
-        registry.afterJoinHooks.push(descriptor.value.bind(shared));
+        registry.updateHooks.push(descriptor.value.bind(shared));
     };
