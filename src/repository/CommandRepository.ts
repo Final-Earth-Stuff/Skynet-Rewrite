@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, In } from "typeorm";
 
 import { Collection, ApplicationCommand, Snowflake } from "discord.js";
 
@@ -6,19 +6,19 @@ import { Command } from "../entity/Command";
 
 @EntityRepository(Command)
 export class CommandRepository extends Repository<Command> {
-    async getGuildCommandIdByName(
-        name: string,
+    async getGuildCommandIdsByName(
+        names: string[],
         guildId: string
-    ): Promise<string | undefined> {
-        const command = await this.manager.findOne(Command, {
+    ): Promise<string[]> {
+        const command = await this.manager.find(Command, {
             where: {
                 guild_id: guildId,
-                command_name: name,
+                command_name: In(names),
             },
             select: ["command_id"],
         });
 
-        return command?.command_id;
+        return command.map(({ command_id }) => command_id);
     }
 
     async replaceGuildCommands(

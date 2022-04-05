@@ -2,14 +2,63 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
-import { Command, CommandData, AfterJoin } from "../../decorators";
+import {
+    Command,
+    CommandData,
+    OnCommandUpdate,
+    EventHandler,
+} from "../../decorators";
 import { BotError } from "../../error";
 
 import { CommandRepository } from "../../repository/CommandRepository";
 import { PermissionRepository } from "../../repository/PermissionRepository";
 import { PermissionType, Permission } from "../../entity/Permission";
 
+async function mergePermissions(
+    guild: Guild,
+    commandIds: string[],
+    id: string,
+    type: "ROLE" | "USER"
+) {
+    const previous = await guild.commands.permissions.fetch({});
+    commandIds.forEach((commandId) => {
+        const perms = previous.get(commandId) ?? [];
+        perms.push({ id, type, permission: true });
+        previous.set(commandId, perms);
+    });
+
+    await guild.commands.permissions.set({
+        fullPermissions: previous.map((permissions, id) => ({
+            id,
+            permissions,
+        })),
+    });
+}
+
+async function dropPermissions(
+    guild: Guild,
+    commandIds: string[],
+    id: string,
+    type: "ROLE" | "USER"
+) {
+    const previous = await guild.commands.permissions.fetch({});
+    commandIds.forEach((commandId) => {
+        let perms = previous.get(commandId) ?? [];
+        perms = perms.filter((perm) => perm.id !== id && perm.type !== type);
+        previous.set(commandId, perms);
+    });
+
+    await guild.commands.permissions.set({
+        fullPermissions: previous.map((permissions, id) => ({
+            id,
+            permissions,
+        })),
+    });
+}
+
 export class Role {
+    static MODERATOR_COMMANDS = ["role"];
+
     @CommandData({ type: "guild" })
     roleData() {
         return new SlashCommandBuilder()
@@ -41,7 +90,7 @@ export class Role {
             )
             .addSubcommand((subcommand) =>
                 subcommand
-                    .setName("unset")
+                    .setName("remove")
                     .setDescription("Unset a configured role")
                     .addStringOption((option) =>
                         option
@@ -54,6 +103,11 @@ export class Role {
                                 ["Spectator", "spectator"],
                                 ["Bot admin", "admin"],
                             ])
+                    )
+                    .addRoleOption((option) =>
+                        option
+                            .setName("role")
+                            .setDescription("Which role to remove")
                     )
             )
             .addSubcommand((subcommand) =>
@@ -72,6 +126,10 @@ export class Role {
             case "add":
                 await this.roleAdd(interaction);
                 break;
+
+            case "remove":
+                await this.roleRemove(interaction);
+                break;
             default:
                 throw new BotError("Not implemented");
         }
@@ -83,81 +141,126 @@ export class Role {
         const role = interaction.options.getRole("role", true);
 
         switch (interaction.options.getString("type")) {
-            case "admin":
-                {
-                    const commandRepository =
-                        getCustomRepository(CommandRepository);
-                    const commandId =
-                        await commandRepository.getGuildCommandIdByName(
-                            "role",
-                            interaction.guildId
-                        );
-                    if (!commandId) return;
+            case "admin": {
+                const commandRepository =
+                    getCustomRepository(CommandRepository);
+                const commandIds =
+                    await commandRepository.getGuildCommandIdsByName(
+                        Role.MODERATOR_COMMANDS,
+                        interaction.guildId
+                    );
+                if (!commandIds || !interaction.guild)
+                    throw new BotError("Something went wrong");
 
-                    await interaction.guild?.commands.permissions.add({
-                        command: commandId,
-                        permissions: [
-                            {
-                                type: "ROLE",
-                                id: role.id,
-                                permission: true,
-                            },
-                        ],
-                    });
-                    const permissionRepository =
-                        getCustomRepository(PermissionRepository);
+                await mergePermissions(
+                    interaction.guild,
+                    commandIds,
+                    role.id,
+                    "ROLE"
+                );
 
-                    // repository upsert is broken
-                    await permissionRepository
-                        .createQueryBuilder()
-                        .insert()
-                        .into(Permission)
-                        .values({
+                const permissionRepository =
+                    getCustomRepository(PermissionRepository);
+
+                // repository upsert is broken
+                await permissionRepository
+                    .createQueryBuilder()
+                    .insert()
+                    .into(Permission)
+                    .values(
+                        commandIds.map((command_id) => ({
                             id: role.id,
                             type: PermissionType.ROLE,
-                            command: { command_id: commandId },
-                        })
-                        .orUpdate(["id", "command_id"], ["id"])
-                        .execute();
-                }
-                break;
+                            command: { command_id },
+                        }))
+                    )
+                    .orUpdate(["id"], ["id", "command_id"])
+                    .execute();
+
+                const success = new MessageEmbed()
+                    .setDescription(
+                        `Successfully added admin role <@&${role.id}>!`
+                    )
+                    .setColor("DARK_GREEN");
+                await interaction.editReply({ embeds: [success] });
+                return;
+            }
             default:
                 throw new BotError("Not implemented");
         }
-
-        const success = new MessageEmbed()
-            .setDescription("Success!")
-            .setColor("DARK_GREEN");
-        await interaction.editReply({ embeds: [success] });
     }
 
-    @AfterJoin()
+    async roleRemove(interaction: CommandInteraction): Promise<void> {
+        await interaction.deferReply();
+
+        const role = interaction.options.getRole("role");
+
+        switch (interaction.options.getString("type")) {
+            case "admin": {
+                const commandRepository =
+                    getCustomRepository(CommandRepository);
+                const commandIds =
+                    await commandRepository.getGuildCommandIdsByName(
+                        Role.MODERATOR_COMMANDS,
+                        interaction.guildId
+                    );
+
+                if (!role) throw new BotError("No role selected");
+
+                if (!commandIds || !interaction.guild)
+                    throw new BotError("Something went wrong");
+
+                await dropPermissions(
+                    interaction.guild,
+                    commandIds,
+                    role.id,
+                    "ROLE"
+                );
+
+                const permissionRepository =
+                    getCustomRepository(PermissionRepository);
+
+                await permissionRepository.delete({ id: role.id });
+
+                const success = new MessageEmbed()
+                    .setDescription(
+                        `Successfully removed admin role <@&${role.id}>!`
+                    )
+                    .setColor("DARK_GREEN");
+                await interaction.editReply({ embeds: [success] });
+
+                return;
+            }
+            default:
+                throw new BotError("Not implemented");
+        }
+    }
+
+    async roleInfo(interaction: CommandInteraction): Promise<void> {
+        await interaction.deferReply();
+    }
+
+    @OnCommandUpdate()
+    @EventHandler({ event: "guildCreate" })
     async setPermission(guild: Guild) {
         const commandRepository = getCustomRepository(CommandRepository);
 
-        const commandId = await commandRepository.getGuildCommandIdByName(
-            "role",
+        const commandIds = await commandRepository.getGuildCommandIdsByName(
+            Role.MODERATOR_COMMANDS,
             guild.id
         );
-        if (!commandId) return; /* This shouldn't happen */
+        if (!commandIds) return; /* This shouldn't happen */
 
-        await guild.commands.permissions.add({
-            command: commandId,
-            permissions: [
-                {
-                    type: "USER",
-                    id: guild.ownerId,
-                    permission: true,
-                },
-            ],
-        });
+        await mergePermissions(guild, commandIds, guild.ownerId, "USER");
 
         const permissionRepository = getCustomRepository(PermissionRepository);
 
-        await permissionRepository.insert({
-            id: guild.ownerId,
-            type: PermissionType.USER,
-            command: { command_id: commandId },
-        });
+        await permissionRepository.insert(
+            commandIds.map((command_id) => ({
+                id: guild.ownerId,
+                type: PermissionType.USER,
+                command: { command_id },
+            }))
+        );
     }
 }
