@@ -4,7 +4,7 @@ import { updateHooks } from "./data";
 
 export type UpdateHook = (guild: Guild) => Promise<void>;
 
-export const OnCommandUpdate =
+export const AfterCommandUpdate =
     () =>
     (
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

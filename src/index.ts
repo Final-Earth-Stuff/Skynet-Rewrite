@@ -28,18 +28,6 @@ glob.sync("dist/handler/**/*.js").forEach((match) => {
 });
 
 client.on("ready", async (client) => {
-    await createConnection({
-        type: "postgres",
-        host: config.databaseHost,
-        port: config.databasePort,
-        username: config.databaseUser,
-        password: config.databasePassword,
-        database: config.databaseName,
-        synchronize: true,
-        entities: ["dist/entity/**/*.js"],
-        migrations: ["dist/migration/**/*.js"],
-    });
-
     if (config.updateGlobals && !config.debug) {
         try {
             const data = [...decoratorData.globalCommandsData].map((factory) =>
@@ -153,4 +141,14 @@ for (const event in decoratorData.eventHandlers) {
     });
 }
 
-client.login(config.botToken);
+createConnection({
+    type: "postgres",
+    host: config.databaseHost,
+    port: config.databasePort,
+    username: config.databaseUser,
+    password: config.databasePassword,
+    database: config.databaseName,
+    synchronize: true,
+    entities: ["dist/entity/**/*.js"],
+    migrations: ["dist/migration/**/*.js"],
+}).then(() => client.login(config.botToken));
