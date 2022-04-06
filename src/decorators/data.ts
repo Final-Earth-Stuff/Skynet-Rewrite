@@ -4,7 +4,7 @@ import { CommandHandler } from "./Command";
 import { ButtonHandler } from "./Button";
 import { DataFactory } from "./CommandData";
 import { EventKey, EventHandlerType } from "./EventHandler";
-import { UpdateHook } from "./OnCommandUpdate";
+import { UpdateHook } from "./AfterCommandUpdate";
 
 export const commands = new Collection<string, CommandHandler>();
 
