@@ -9,9 +9,9 @@ import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData, Button } from "../../decorators";
 import {
-    NotificationSettingsRepository,
+    UserSettingsRepository,
     Toggles,
-} from "../../repository/NotficationSettingsRespository";
+} from "../../repository/UserSettingsRepository";
 
 export const data = new SlashCommandBuilder()
     .setName("settings")
@@ -31,9 +31,7 @@ function getColorFromBoolean(bool: boolean): Color {
 }
 
 async function getStyle(discordId: string, setting: Toggles): Promise<Color> {
-    const settingsRepository = getCustomRepository(
-        NotificationSettingsRepository
-    );
+    const settingsRepository = getCustomRepository(UserSettingsRepository);
     const values = await settingsRepository.getUserByDiscordId(discordId);
     return getColorFromBoolean(values?.[setting] ?? false);
 }
@@ -96,9 +94,7 @@ async function createRows(discordId: string): Promise<MessageActionRow[]> {
 }
 
 async function updateSetting(interaction: ButtonInteraction) {
-    const settingsRepository = getCustomRepository(
-        NotificationSettingsRepository
-    );
+    const settingsRepository = getCustomRepository(UserSettingsRepository);
     const settings = await settingsRepository.getUserByDiscordId(
         interaction.user.id
     );
@@ -129,9 +125,7 @@ export class Settings {
 
     @Command({ name: "settings" })
     async settings(interaction: CommandInteraction): Promise<void> {
-        const settingsRepository = getCustomRepository(
-            NotificationSettingsRepository
-        );
+        const settingsRepository = getCustomRepository(UserSettingsRepository);
         const settings = await settingsRepository.getUserByDiscordId(
             interaction.user.id
         );

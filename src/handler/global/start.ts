@@ -1,9 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
-import { NotificationSettingsRepository } from "../../repository/NotficationSettingsRespository";
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
+import { getUser } from "../../wrapper/wrapper";
+import { BotError } from "../../error";
 
 export class Start {
     @CommandData({ type: "global" })
@@ -27,22 +29,25 @@ export class Start {
      */
     @Command({ name: "start" })
     async start(interaction: CommandInteraction): Promise<void> {
-        const settingsRepository = getCustomRepository(
-            NotificationSettingsRepository
-        );
+        await interaction.deferReply();
+        const settingsRepository = getCustomRepository(UserSettingsRepository);
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
-            await interaction.reply({
-                content:
-                    "API keys must be 10 characters, please check your key and try again.",
-                ephemeral: true,
-            });
-            return;
+            throw new BotError(
+                "API keys must be 10 characters, please check your key and try again."
+            );
         }
-        settingsRepository.saveSettings(interaction.user.id, apiKey, true);
-        await interaction.reply({
-            content: "Saved! (Only partially implemented)",
-            ephemeral: true,
-        });
+        const user = await getUser(apiKey);
+        settingsRepository.saveSettings(
+            interaction.user.id,
+            apiKey,
+            true,
+            user.id
+        );
+        const success = new MessageEmbed()
+            .setDescription(`Successfully saved user data!`)
+            .setColor("DARK_GREEN");
+        await interaction.editReply({ embeds: [success] });
+        return;
     }
 }

@@ -6,7 +6,7 @@ export enum Team {
 }
 
 @Entity()
-export class NotificationSettings {
+export class UserSettings {
     @PrimaryColumn({ type: "char", length: 18 })
     discord_id!: string;
 

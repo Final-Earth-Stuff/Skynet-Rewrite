@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import { Client, Intents } from "discord.js";
+
 import { createConnection, getCustomRepository } from "typeorm";
 
 import glob from "glob";
@@ -10,6 +11,7 @@ import { config } from "./config";
 
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
+import { checkUsers } from "./watcher";
 
 import { CommandRepository } from "./repository/CommandRepository";
 
@@ -79,8 +81,9 @@ client.on("ready", async (client) => {
         }
         logger.info("Updated guild commands");
     }
-
     logger.info("Bot is ready");
+
+    setInterval(checkUsers, 30000, client);
 });
 
 client.on("guildCreate", async (guild) => {

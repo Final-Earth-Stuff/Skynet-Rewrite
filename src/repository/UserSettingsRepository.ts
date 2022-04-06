@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import { NotificationSettings, Team } from "../entity/NotificationSettings";
+import { UserSettings, Team } from "../entity/UserSettings";
 
 export enum Toggles {
     WAR = "war_flag",
@@ -12,32 +12,33 @@ export enum Toggles {
 }
 
 export interface Timers {
-    prev_war_notification: Date;
-    prev_queue_notification: Date;
-    prev_reimb_notification: Date;
+    discord_id: string;
+    prev_war_notification?: Date;
+    prev_queue_notification?: Date;
+    prev_reimb_notification?: Date;
 }
 
 export interface Counts {
-    prev_num_mails: number;
-    prev_num_events: number;
-    prev_num_enemies: number;
+    discord_id: string;
+    prev_num_mails?: number;
+    prev_num_events?: number;
 }
 
-@EntityRepository(NotificationSettings)
-export class NotificationSettingsRepository extends Repository<NotificationSettings> {
+@EntityRepository(UserSettings)
+export class UserSettingsRepository extends Repository<UserSettings> {
     updateSetting(discordId: string, toggle: Toggles, value: boolean) {
-        return this.manager.update(NotificationSettings, discordId, {
+        return this.manager.update(UserSettings, discordId, {
             [toggle]: value,
         });
     }
-    updateTimers(discordId: string, timers: Partial<Timers>) {
-        return this.manager.update(NotificationSettings, discordId, timers);
+    updateTimers(timers: Partial<Timers>) {
+        return this.manager.save(UserSettings, timers);
     }
-    updateCounts(discordId: string, counts: Partial<Counts>) {
-        return this.manager.update(NotificationSettings, discordId, counts);
+    updateCounts(counts: Partial<Counts>) {
+        return this.manager.save(UserSettings, counts);
     }
     getUserByDiscordId(discordId: string) {
-        return this.manager.findOne(NotificationSettings, discordId);
+        return this.manager.findOne(UserSettings, discordId);
     }
     updateCountryAndEnemyCount(
         discordId: string,
@@ -45,14 +46,14 @@ export class NotificationSettingsRepository extends Repository<NotificationSetti
         enemy_count: number,
         notif_time?: Date
     ) {
-        return this.manager.update(NotificationSettings, discordId, {
+        return this.manager.update(UserSettings, discordId, {
             prev_num_enemies: enemy_count,
             country: country,
             prev_enemies_notification: notif_time,
         });
     }
     getAllUserSettings() {
-        return this.manager.find(NotificationSettings);
+        return this.manager.find(UserSettings);
     }
     saveSettings(
         discordId: string,
@@ -61,7 +62,7 @@ export class NotificationSettingsRepository extends Repository<NotificationSetti
         userId?: number,
         team?: Team
     ) {
-        const notificationSettings = new NotificationSettings();
+        const notificationSettings = new UserSettings();
         notificationSettings.discord_id = discordId;
         notificationSettings.api_key = apiKey;
         notificationSettings.valid_key = validKey;
@@ -70,6 +71,6 @@ export class NotificationSettingsRepository extends Repository<NotificationSetti
         return this.manager.save(notificationSettings);
     }
     deleteByDiscordId(discordId: string) {
-        return this.manager.delete(NotificationSettings, discordId);
+        return this.manager.delete(UserSettings, discordId);
     }
 }

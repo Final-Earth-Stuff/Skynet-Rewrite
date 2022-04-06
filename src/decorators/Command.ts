@@ -1,6 +1,6 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { BotError } from "../error";
+import { ApiError, BotError } from "../error";
 import { makeLogger } from "../logger";
 
 import { commands, adminCommands } from "./data";
@@ -37,10 +37,11 @@ export const Command =
                 try {
                     await handler?.(interaction).catch(async (e) => {
                         let message: string;
-                        if (e instanceof BotError) {
+                        if (e instanceof BotError || e instanceof ApiError) {
                             message = e.message;
                             logger.info(
-                                "Caught 'BotError: %s' while processing command '%s'",
+                                "Caught '%s: %s' while processing command '%s'",
+                                e.name,
                                 e.message,
                                 options.name
                             );
