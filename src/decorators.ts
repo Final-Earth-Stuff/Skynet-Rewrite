@@ -93,7 +93,7 @@ export const Command =
                     });
                 } catch (e) {
                     logger.error(
-                        "Somethinf went very wrong while handling command '%s': %O",
+                        "Something went very wrong while handling command '%s': %O",
                         options.name,
                         e
                     );
