@@ -254,17 +254,8 @@ export class Role {
         await interaction.deferReply();
     }
 
-    @AfterCommandUpdate()
     @EventHandler({ event: "guildCreate" })
     async setPermission(guild: Guild) {
-        const commandRepository = getCustomRepository(CommandRepository);
-
-        const commandIds = await commandRepository.getGuildCommandIdsByName(
-            [...adminCommands],
-            guild.id
-        );
-        if (!commandIds) return; /* This shouldn't happen */
-
         const guildEntity = new GuildEntity();
         guildEntity.guild_id = guild.id;
         guildEntity.admin_roles = [];
@@ -274,5 +265,13 @@ export class Role {
 
         const guildRepository = getRepository(GuildEntity);
         await guildRepository.save(guildEntity);
+    }
+
+    @AfterCommandUpdate()
+    async migratePermissions(guild: Guild) {
+        const guildRepository = getRepository(GuildEntity);
+        const guildEntity = await guildRepository.findOneOrFail(guild.id);
+
+        await updatePermissionsForGuild(guildEntity, guild);
     }
 }
