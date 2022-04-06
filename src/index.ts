@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { Client, Intents } from "discord.js";
-import { createConnection } from "typeorm";
+import { createConnection, getCustomRepository } from "typeorm";
 
 import glob from "glob";
 import path from "path";
@@ -10,6 +10,8 @@ import { config } from "./config";
 
 import { registry } from "./decorators";
 import { makeLogger } from "./logger";
+
+import { CommandRepository } from "./repository/CommandRepository";
 
 const logger = makeLogger(module);
 
@@ -20,15 +22,23 @@ const client = new Client({
 });
 
 // load handlers...
-glob.sync("src/handler/**/*.ts").forEach((match) => {
+glob.sync("dist/handler/**/*.js").forEach((match) => {
     const file = path.relative("src", match);
     require("./" + file);
 });
 
-logger.debug("registry: %O", registry);
-
 client.on("ready", async (client) => {
-    await createConnection();
+    await createConnection({
+        type: "postgres",
+        host: config.databaseHost,
+        port: config.databasePort,
+        username: config.databaseUser,
+        password: config.databasePassword,
+        database: config.databaseName,
+        synchronize: true,
+        entities: ["dist/entity/**/*.js"],
+        migrations: ["dist/migration/**/*.js"],
+    });
 
     if (config.updateGlobals && !config.debug) {
         try {
@@ -45,18 +55,12 @@ client.on("ready", async (client) => {
 
     if (config.updateGuilds) {
         const guilds = await client.guilds.fetch();
+        const commandRepository = getCustomRepository(CommandRepository);
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
-                const data = await Promise.all(
-                    registry.guildCommandData.map(async (factory) => {
-                        const result = factory(guild);
-                        if (result instanceof Promise) {
-                            return await result;
-                        } else {
-                            return result;
-                        }
-                    })
+                const data = registry.guildCommandData.map((factory) =>
+                    factory()
                 );
                 if (config.debug) {
                     data.push(
@@ -66,7 +70,15 @@ client.on("ready", async (client) => {
                     );
                 }
 
-                await guild.commands.set(data);
+                const commands = await guild.commands.set(data);
+                await commandRepository.replaceGuildCommands(
+                    commands,
+                    partialGuild.id
+                );
+
+                await Promise.all(
+                    registry.updateHooks.map((hook) => hook(guild))
+                );
             } catch (e) {
                 logger.error(
                     "Unexpected error after trying to join guild <id=%s>: %O",
@@ -83,24 +95,17 @@ client.on("ready", async (client) => {
 
 client.on("guildCreate", async (guild) => {
     try {
-        const data = await Promise.all(
-            registry.guildCommandData.map(async (factory) => {
-                const result = factory(guild);
-                if (result instanceof Promise) {
-                    return await result;
-                } else {
-                    return result;
-                }
-            })
-        );
-
+        const data = registry.guildCommandData.map((factory) => factory());
         if (config.debug) {
             data.push(
                 ...registry.globalCommandData.map((factory) => factory())
             );
         }
 
-        await guild.commands.set(data);
+        const commands = await guild.commands.set(data);
+
+        const commandRepository = getCustomRepository(CommandRepository);
+        await commandRepository.replaceGuildCommands(commands, guild.id);
     } catch (e) {
         logger.error(
             "Unexpected error after trying to join guild <id=%s>: %O",
@@ -123,5 +128,20 @@ client.on("interactionCreate", async (interaction) => {
         await registry.buttons.get(interaction.customId)?.(interaction);
     }
 });
+
+for (const event in registry.eventHandlers) {
+    client.on(event, async (...args) => {
+        try {
+            await Promise.all(
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                (registry.eventHandlers as any)[event].map((handler: any) =>
+                    handler(args)
+                )
+            );
+        } catch (e) {
+            logger.error("Error in event handler '%s': %O", event, e);
+        }
+    });
+}
 
 client.login(config.botToken);

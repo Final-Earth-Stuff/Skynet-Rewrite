@@ -3,9 +3,10 @@
   "version": "2.0.0",
   "description": "",
   "scripts": {
-    "dev": "NODE_ENV=development ts-node src/index.ts",
-    "watch": "NODE_ENV=development nodemon src/index.ts",
-    "prod": "NODE_ENV=production ts-node --transpile-only src/index.ts",
+    "build": "NODE_ENV=development tsc",
+    "dev": "NODE_ENV=development node dist/index.js",
+    "prod": "NODE_ENV=production node dist/index.js",
+    "watch": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/index.js\"",
     "lint": "eslint . --ext .ts",
     "format": "prettier --check \"**/*.ts\""
   },
@@ -39,9 +40,9 @@
     "@typescript-eslint/parser": "^5.7.0",
     "eslint": "^8.4.1",
     "node-gyp": "^8.4.1",
-    "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0",
+    "tsc-watch": "^4.6.0",
     "typescript": "^4.5.4",
     "typescript-eslint-language-service": "^5.0.0"
   },
