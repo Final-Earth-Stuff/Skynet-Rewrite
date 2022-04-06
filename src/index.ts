@@ -8,7 +8,7 @@ import path from "path";
 
 import { config } from "./config";
 
-import { registry } from "./decorators";
+import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
 
 import { CommandRepository } from "./repository/CommandRepository";
@@ -42,7 +42,9 @@ client.on("ready", async (client) => {
 
     if (config.updateGlobals && !config.debug) {
         try {
-            const data = registry.globalCommandData.map((factory) => factory());
+            const data = [...decoratorData.globalCommandsData].map((factory) =>
+                factory()
+            );
             await client.application.commands.set(data).then(console.log);
             logger.info("Updated application commands");
         } catch (e) {
@@ -59,13 +61,13 @@ client.on("ready", async (client) => {
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
-                const data = registry.guildCommandData.map((factory) =>
-                    factory()
+                const data = [...decoratorData.guildCommandsData].map(
+                    (factory) => factory()
                 );
                 if (config.debug) {
                     data.push(
-                        ...registry.globalCommandData.map((factory) =>
-                            factory()
+                        ...[...decoratorData.globalCommandsData].map(
+                            (factory) => factory()
                         )
                     );
                 }
@@ -77,7 +79,7 @@ client.on("ready", async (client) => {
                 );
 
                 await Promise.all(
-                    registry.updateHooks.map((hook) => hook(guild))
+                    [...decoratorData.updateHooks].map((hook) => hook(guild))
                 );
             } catch (e) {
                 logger.error(
@@ -95,10 +97,14 @@ client.on("ready", async (client) => {
 
 client.on("guildCreate", async (guild) => {
     try {
-        const data = registry.guildCommandData.map((factory) => factory());
+        const data = [...decoratorData.guildCommandsData].map((factory) =>
+            factory()
+        );
         if (config.debug) {
             data.push(
-                ...registry.globalCommandData.map((factory) => factory())
+                ...[...decoratorData.globalCommandsData].map((factory) =>
+                    factory()
+                )
             );
         }
 
@@ -118,24 +124,27 @@ client.on("guildCreate", async (guild) => {
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
         logger.debug("Received command '%s'", interaction.commandName);
-        await registry.commands.get(interaction.commandName)?.(interaction);
+        await decoratorData.commands.get(interaction.commandName)?.(
+            interaction
+        );
     }
     if (interaction.isButton()) {
         logger.debug(
             "Received button interaction for '%s'",
             interaction.customId
         );
-        await registry.buttons.get(interaction.customId)?.(interaction);
+        await decoratorData.buttons.get(interaction.customId)?.(interaction);
     }
 });
 
-for (const event in registry.eventHandlers) {
+for (const event in decoratorData.eventHandlers) {
     client.on(event, async (...args) => {
         try {
             await Promise.all(
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                (registry.eventHandlers as any)[event].map((handler: any) =>
-                    handler(args)
+                (decoratorData.eventHandlers as any)[event].map(
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                    (handler: any) => handler(args)
                 )
             );
         } catch (e) {
