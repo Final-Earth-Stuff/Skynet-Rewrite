@@ -117,6 +117,10 @@ export class Role {
             case "remove":
                 await this.roleRemove(interaction);
                 break;
+
+            case "info":
+                await this.roleInfo(interaction);
+                break;
             default:
                 throw new BotError("Not implemented");
         }
@@ -251,7 +255,39 @@ export class Role {
     }
 
     async roleInfo(interaction: CommandInteraction): Promise<void> {
-        await interaction.deferReply();
+        const guildRepository = getRepository(GuildEntity);
+        const guild = await guildRepository.findOneOrFail(interaction.guildId);
+
+        const embed = new MessageEmbed()
+            .setTitle("Roles")
+            .addField(
+                "Allies",
+                guild.allies_role
+                    ? `<@&${guild.allies_role}>`
+                    : "Not configured",
+                true
+            )
+            .addField(
+                "Axis",
+                guild.axis_role ? `<@&${guild.axis_role}>` : "Not configured",
+                true
+            )
+            .addField(
+                "Spectator",
+                guild.spectator_role
+                    ? `<@&${guild.spectator_role}>`
+                    : "Not configured",
+                true
+            )
+            .addField(
+                "Admin",
+                guild.admin_roles.length > 0
+                    ? guild.admin_roles.map((r) => `<@&${r}>`).join(" ")
+                    : "Not configured"
+            )
+            .setColor("DARK_BLUE");
+
+        await interaction.reply({ embeds: [embed] });
     }
 
     @EventHandler({ event: "guildCreate" })
