@@ -5,7 +5,7 @@ import { getCustomRepository, getRepository, getConnection } from "typeorm";
 import {
     Command,
     CommandData,
-    OnCommandUpdate,
+    AfterCommandUpdate,
     EventHandler,
 } from "../../decorators";
 import { BotError } from "../../error";
@@ -254,7 +254,7 @@ export class Role {
         await interaction.deferReply();
     }
 
-    @OnCommandUpdate()
+    @AfterCommandUpdate()
     @EventHandler({ event: "guildCreate" })
     async setPermission(guild: Guild) {
         const commandRepository = getCustomRepository(CommandRepository);
