@@ -9,6 +9,7 @@ import {
     EventHandler,
 } from "../../decorators";
 import { BotError } from "../../error";
+import { adminCommands } from "../../decorators/data";
 
 import { CommandRepository } from "../../repository/CommandRepository";
 import { PermissionRepository } from "../../repository/PermissionRepository";
@@ -57,8 +58,6 @@ async function dropPermissions(
 }
 
 export class Role {
-    static MODERATOR_COMMANDS = ["role"];
-
     @CommandData({ type: "guild" })
     roleData() {
         return new SlashCommandBuilder()
@@ -118,7 +117,7 @@ export class Role {
             .toJSON();
     }
 
-    @Command({ name: "role" })
+    @Command({ name: "role", admin: true })
     async role(interaction: CommandInteraction): Promise<void> {
         const subCommand = interaction.options.getSubcommand(true);
 
@@ -146,7 +145,7 @@ export class Role {
                     getCustomRepository(CommandRepository);
                 const commandIds =
                     await commandRepository.getGuildCommandIdsByName(
-                        Role.MODERATOR_COMMANDS,
+                        [...adminCommands],
                         interaction.guildId
                     );
                 if (!commandIds || !interaction.guild)
@@ -201,7 +200,7 @@ export class Role {
                     getCustomRepository(CommandRepository);
                 const commandIds =
                     await commandRepository.getGuildCommandIdsByName(
-                        Role.MODERATOR_COMMANDS,
+                        [...adminCommands],
                         interaction.guildId
                     );
 
@@ -246,7 +245,7 @@ export class Role {
         const commandRepository = getCustomRepository(CommandRepository);
 
         const commandIds = await commandRepository.getGuildCommandIdsByName(
-            Role.MODERATOR_COMMANDS,
+            [...adminCommands],
             guild.id
         );
         if (!commandIds) return; /* This shouldn't happen */
