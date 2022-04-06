@@ -11,7 +11,7 @@ import { Command, CommandData, Button } from "../../decorators";
 import {
     NotificationSettingsRepository,
     Toggles,
-} from "../../repository/NotficationSettingsRespository";
+} from "../../repository/NotificationSettingsRepository";
 
 export const data = new SlashCommandBuilder()
     .setName("settings")

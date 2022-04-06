@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
-import { NotificationSettingsRepository } from "../../repository/NotficationSettingsRespository";
+import { NotificationSettingsRepository } from "../../repository/NotificationSettingsRepository";
 
 export class Start {
     @CommandData({ type: "global" })

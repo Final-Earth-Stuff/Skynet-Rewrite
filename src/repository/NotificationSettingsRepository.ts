@@ -12,15 +12,16 @@ export enum Toggles {
 }
 
 export interface Timers {
-    prev_war_notification: Date;
-    prev_queue_notification: Date;
-    prev_reimb_notification: Date;
+    discord_id: string,
+    prev_war_notification?: Date;
+    prev_queue_notification?: Date;
+    prev_reimb_notification?: Date;
 }
 
 export interface Counts {
-    prev_num_mails: number;
-    prev_num_events: number;
-    prev_num_enemies: number;
+    discord_id: string,
+    prev_num_mails?: number;
+    prev_num_events?: number;
 }
 
 @EntityRepository(NotificationSettings)
@@ -30,11 +31,11 @@ export class NotificationSettingsRepository extends Repository<NotificationSetti
             [toggle]: value,
         });
     }
-    updateTimers(discordId: string, timers: Partial<Timers>) {
-        return this.manager.update(NotificationSettings, discordId, timers);
+    updateTimers(timers: Partial<Timers>) {
+        return this.manager.save(NotificationSettings, timers);
     }
-    updateCounts(discordId: string, counts: Partial<Counts>) {
-        return this.manager.update(NotificationSettings, discordId, counts);
+    updateCounts(counts: Partial<Counts>) {
+        return this.manager.save(NotificationSettings, counts);
     }
     getUserByDiscordId(discordId: string) {
         return this.manager.findOne(NotificationSettings, discordId);

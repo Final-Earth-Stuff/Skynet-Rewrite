@@ -2,6 +2,7 @@ import "reflect-metadata";
 
 import { Client, Intents } from "discord.js";
 import { createConnection } from "typeorm";
+import { schedule } from "node-cron";
 
 import glob from "glob";
 import path from "path";
@@ -10,6 +11,7 @@ import { config } from "./config";
 
 import { registry } from "./decorators";
 import { makeLogger } from "./logger";
+import { checkUsers } from "./watcher";
 
 const logger = makeLogger(module);
 
@@ -79,6 +81,9 @@ client.on("ready", async (client) => {
     }
 
     logger.info("Bot is ready");
+    schedule("*/1 * * * *", () => {
+        checkUsers(client);
+    });
 });
 
 client.on("guildCreate", async (guild) => {
