@@ -1,6 +1,6 @@
 export interface FEResponse<T> {
     error: boolean;
-    reason: boolean;
+    reason: boolean | string;
     data: T;
 }
 

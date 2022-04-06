@@ -7,11 +7,6 @@ import {
 import { Client, User } from "discord.js";
 import { UserSettings } from "./entity/UserSettings";
 import * as wrapper from "./wrapper/wrapper";
-import {
-    isNotifResponse,
-    isUserResponse,
-    isCountryResponse,
-} from "./wrapper/utils";
 import { makeLogger } from "./logger";
 import { NotificationData } from "./wrapper/models/notification";
 
@@ -19,25 +14,29 @@ const logger = makeLogger(module);
 
 export async function checkUsers(client: Client) {
     logger.info("checking all users...");
-    const settingsRepository = getRepository();
-    const values = await settingsRepository.getAllUserSettings();
-    values?.forEach(async (user) => {
-        if (user && user.api_key) {
-            logger.info("checking " + user.user_id);
-            const notifsData = await wrapper.getNotifications(user.api_key);
-            if (isNotifResponse(notifsData?.data) && user.paused_flag != true) {
-                const discord = await client.users
-                    .fetch(user.discord_id)
-                    .catch((error) => {
-                        logger.error(error);
-                    });
+    try {
+        const settingsRepository = getRepository();
+        const values = await settingsRepository.getAllUserSettings();
+        values?.forEach(async (user) => {
+            if (user && user.api_key) {
+                logger.info("checking " + user.user_id);
+                const notifsData = await wrapper.getNotifications(user.api_key);
+                if (!user.paused_flag) {
+                    const discord = await client.users
+                        .fetch(user.discord_id)
+                        .catch((error) => {
+                            logger.error(error);
+                        });
 
-                if (discord) {
-                    checkSettings(user, notifsData.data, discord);
+                    if (discord) {
+                        checkSettings(user, notifsData, discord);
+                    }
                 }
             }
-        }
-    });
+        });
+    } catch (e) {
+        logger.error(e);
+    }
 }
 
 async function checkSettings(
@@ -48,12 +47,11 @@ async function checkSettings(
     const settingsRepository = getRepository();
     const timers: Timers = await buildTimers(user, notifsData, discord);
     const counts: Counts = await buildCounts(user, notifsData, discord);
-    if (user?.enemy_flag == true && user.api_key) {
+    if (user?.enemy_flag && user.api_key) {
         const userData = await wrapper.getUser(user.api_key);
         let team = "None";
-        if (isUserResponse(userData?.data)) {
-            team = userData.data.team;
-        }
+        team = userData.team;
+
         checkEnemies(user, discord, team);
     }
 
@@ -78,8 +76,7 @@ async function checkEnemies(user: UserSettings, discord: User, team: string) {
                 data.currentCount
             );
         } else if (
-            user.country == data.currentCountry &&
-            user.prev_num_enemies != data.currentCount &&
+            user.prev_num_enemies !== data.currentCount &&
             Date.now() - prevNotif.getTime() > 300000
         ) {
             discord.send(
@@ -98,16 +95,16 @@ async function checkEnemies(user: UserSettings, discord: User, team: string) {
 
 async function getCurrentCountry(team: string, api_key: string) {
     const country = await wrapper.getCountry(api_key);
-    if (isCountryResponse(country?.data) && country.data.units) {
+    if (country.units) {
         let currentCount: number | undefined;
-        if (team == "Allies") {
-            currentCount = country.data.units.axis;
+        if (team === "Allies") {
+            currentCount = country.units.axis;
         }
-        if (team == "Axis") {
-            currentCount = country.data.units.allies;
+        if (team === "Axis") {
+            currentCount = country.units.allies;
         }
         return {
-            currentCountry: country.data.id,
+            currentCountry: country.id,
             currentCount: currentCount,
         };
     }
@@ -121,7 +118,7 @@ async function buildCounts(
     let mail, events;
     const prevMail = user.prev_num_mails ?? 0;
     const prevEvents = user.prev_num_events ?? 0;
-    if (user.mail_flag == true) {
+    if (user.mail_flag) {
         if (notifsData.unreadMails > prevMail) {
             await discord.send("📧 You have a new mail!");
             mail = notifsData.unreadMails;
@@ -129,7 +126,7 @@ async function buildCounts(
             mail = notifsData.unreadMails;
         }
     }
-    if (user.event_flag == true) {
+    if (user.event_flag) {
         if (notifsData.unreadEvents > prevEvents) {
             await discord.send("❗ You have a new event!");
             events = notifsData.unreadEvents;
@@ -152,7 +149,7 @@ async function buildTimers(
 ) {
     let war, queue, reimb;
 
-    if (user.war_flag == true) {
+    if (user.war_flag) {
         if (
             await checkTimer(
                 notifsData.timers.war,
@@ -163,7 +160,7 @@ async function buildTimers(
             war = new Date(notifsData.timers.war * 1000);
         }
     }
-    if (user.queue_flag == true) {
+    if (user.queue_flag) {
         if (
             await checkTimer(
                 notifsData.timers.statistics,
@@ -175,7 +172,7 @@ async function buildTimers(
             queue = new Date(notifsData.timers.statistics * 1000);
         }
     }
-    if (user.reimb_flag == true) {
+    if (user.reimb_flag) {
         if (
             await checkTimer(
                 notifsData.timers.reimbursement,
@@ -201,9 +198,9 @@ async function checkTimer(
     queue?: number
 ) {
     if (
-        lastTimerNotifiedFor?.getTime() != timer * 1000 &&
+        lastTimerNotifiedFor?.getTime() !== timer * 1000 &&
         timer * 1000 <= Date.now() &&
-        (!queue || queue == 0)
+        (!queue || queue === 0)
     ) {
         return true;
     }

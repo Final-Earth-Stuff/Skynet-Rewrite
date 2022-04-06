@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
@@ -18,11 +18,14 @@ export class Delete {
 
     @Command({ name: "delete" })
     async delete(interaction: CommandInteraction): Promise<void> {
+        await interaction.deferReply();
         const settingsRepository = getCustomRepository(UserSettingsRepository);
         settingsRepository.deleteByDiscordId(interaction.user.id);
-        await interaction.reply({
-            content: "All your data has been deleted.",
-            ephemeral: true,
-        });
+        const success = new MessageEmbed()
+                    .setDescription(
+                        `All your data has been deleted.`
+                    )
+                    .setColor("DARK_GREEN");
+                await interaction.editReply({ embeds: [success] });
     }
 }

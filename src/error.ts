@@ -14,3 +14,10 @@ export class BotError extends Error {
         this.ephemeral = options?.ephemeral ?? false;
     }
 }
+
+export class ApiError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "ApiError";
+    }
+}
