@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
-import { getCustomRepository } from "typeorm";
+import { getCustomRepository, getRepository, getConnection } from "typeorm";
 
 import {
     Command,
@@ -12,48 +12,36 @@ import { BotError } from "../../error";
 import { adminCommands } from "../../decorators/data";
 
 import { CommandRepository } from "../../repository/CommandRepository";
-import { PermissionRepository } from "../../repository/PermissionRepository";
-import { PermissionType, Permission } from "../../entity/Permission";
+import { Guild as GuildEntity } from "../../entity/Guild";
 
-async function mergePermissions(
-    guild: Guild,
-    commandIds: string[],
-    id: string,
-    type: "ROLE" | "USER"
-) {
-    const previous = await guild.commands.permissions.fetch({});
-    commandIds.forEach((commandId) => {
-        const perms = previous.get(commandId) ?? [];
-        perms.push({ id, type, permission: true });
-        previous.set(commandId, perms);
-    });
+async function updatePermissionsForGuild(
+    guildEntity: GuildEntity,
+    guild: Guild
+): Promise<void> {
+    const commandRepository = getCustomRepository(CommandRepository);
+    const commandIDs = await commandRepository.getGuildCommandIdsByName(
+        [...adminCommands],
+        guild.id
+    );
 
-    await guild.commands.permissions.set({
-        fullPermissions: previous.map((permissions, id) => ({
-            id,
-            permissions,
-        })),
-    });
-}
-
-async function dropPermissions(
-    guild: Guild,
-    commandIds: string[],
-    id: string,
-    type: "ROLE" | "USER"
-) {
-    const previous = await guild.commands.permissions.fetch({});
-    commandIds.forEach((commandId) => {
-        let perms = previous.get(commandId) ?? [];
-        perms = perms.filter((perm) => perm.id !== id && perm.type !== type);
-        previous.set(commandId, perms);
-    });
+    const fullPermissions = commandIDs.map((commandID) => ({
+        id: commandID,
+        permissions: [
+            {
+                id: guild.ownerId,
+                type: "USER" as const,
+                permission: true,
+            },
+            ...guildEntity.admin_roles.map((id) => ({
+                id,
+                type: "ROLE" as const,
+                permission: true,
+            })),
+        ],
+    }));
 
     await guild.commands.permissions.set({
-        fullPermissions: previous.map((permissions, id) => ({
-            id,
-            permissions,
-        })),
+        fullPermissions,
     });
 }
 
@@ -138,101 +126,128 @@ export class Role {
         await interaction.deferReply();
 
         const role = interaction.options.getRole("role", true);
+        const type = interaction.options.getString("type", true);
 
-        switch (interaction.options.getString("type")) {
-            case "admin": {
-                const commandRepository =
-                    getCustomRepository(CommandRepository);
-                const commandIds =
-                    await commandRepository.getGuildCommandIdsByName(
-                        [...adminCommands],
-                        interaction.guildId
-                    );
-                if (!commandIds || !interaction.guild)
-                    throw new BotError("Something went wrong");
+        if (type === "admin") {
+            await this.adminRoleAdd(interaction, role.id);
+        } else {
+            await this.uniqueRoleAdd(interaction, role.id, type);
+        }
+    }
 
-                await mergePermissions(
-                    interaction.guild,
-                    commandIds,
-                    role.id,
-                    "ROLE"
+    async adminRoleAdd(
+        interaction: CommandInteraction,
+        roleID: string
+    ): Promise<void> {
+        await getConnection()
+            .createEntityManager()
+            .transaction(async (manager) => {
+                const guildEntity = await manager.findOneOrFail(
+                    GuildEntity,
+                    interaction.guildId
                 );
 
-                const permissionRepository =
-                    getCustomRepository(PermissionRepository);
+                if (guildEntity.admin_roles.includes(roleID)) {
+                    throw new BotError(
+                        `Role <@&${roleID}> already is an admin role`
+                    );
+                }
+                guildEntity.admin_roles.push(roleID);
 
-                // repository upsert is broken
-                await permissionRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(Permission)
-                    .values(
-                        commandIds.map((command_id) => ({
-                            id: role.id,
-                            type: PermissionType.ROLE,
-                            command: { command_id },
-                        }))
-                    )
-                    .orUpdate(["id"], ["id", "command_id"])
-                    .execute();
+                if (!interaction.guild)
+                    throw new BotError("Something went wrong");
+                await updatePermissionsForGuild(guildEntity, interaction.guild);
 
-                const success = new MessageEmbed()
-                    .setDescription(
-                        `Successfully added admin role <@&${role.id}>!`
-                    )
-                    .setColor("DARK_GREEN");
-                await interaction.editReply({ embeds: [success] });
-                return;
-            }
-            default:
-                throw new BotError("Not implemented");
-        }
+                manager.save(GuildEntity, guildEntity);
+            });
+
+        const success = new MessageEmbed()
+            .setDescription(`Successfully added admin role <@&${roleID}>!`)
+            .setColor("DARK_GREEN");
+        await interaction.editReply({ embeds: [success] });
+    }
+
+    async uniqueRoleAdd(
+        interaction: CommandInteraction,
+        roleID: string,
+        type: string
+    ): Promise<void> {
+        const guildRepository = getRepository(GuildEntity);
+
+        await guildRepository.update(interaction.guildId, {
+            [`${type}_role`]: roleID,
+        });
+
+        const success = new MessageEmbed()
+            .setDescription(`Successfully set ${type} role to <@&${roleID}>!`)
+            .setColor("DARK_GREEN");
+
+        await interaction.editReply({ embeds: [success] });
     }
 
     async roleRemove(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
         const role = interaction.options.getRole("role");
+        const type = interaction.options.getString("type", true);
 
-        switch (interaction.options.getString("type")) {
-            case "admin": {
-                const commandRepository =
-                    getCustomRepository(CommandRepository);
-                const commandIds =
-                    await commandRepository.getGuildCommandIdsByName(
-                        [...adminCommands],
-                        interaction.guildId
+        if (type === "admin") {
+            await this.adminRoleRemove(interaction, role?.id);
+        } else {
+            await this.uniqueRoleRemove(interaction, type);
+        }
+    }
+
+    async adminRoleRemove(
+        interaction: CommandInteraction,
+        roleID: string | undefined
+    ): Promise<void> {
+        if (!roleID) throw new BotError("No role selected");
+
+        await getConnection()
+            .createEntityManager()
+            .transaction(async (manager) => {
+                const guildEntity = await manager.findOneOrFail(
+                    GuildEntity,
+                    interaction.guildId
+                );
+                if (!guildEntity.admin_roles.includes(roleID)) {
+                    throw new BotError(
+                        `Role <@&${roleID}> is not an admin role`
                     );
-
-                if (!role) throw new BotError("No role selected");
-
-                if (!commandIds || !interaction.guild)
-                    throw new BotError("Something went wrong");
-
-                await dropPermissions(
-                    interaction.guild,
-                    commandIds,
-                    role.id,
-                    "ROLE"
+                }
+                guildEntity.admin_roles = guildEntity.admin_roles.filter(
+                    (r) => r !== roleID
                 );
 
-                const permissionRepository =
-                    getCustomRepository(PermissionRepository);
+                if (!interaction.guild)
+                    throw new BotError("Something went wrong");
+                await updatePermissionsForGuild(guildEntity, interaction.guild);
 
-                await permissionRepository.delete({ id: role.id });
+                manager.save(GuildEntity, guildEntity);
+            });
 
-                const success = new MessageEmbed()
-                    .setDescription(
-                        `Successfully removed admin role <@&${role.id}>!`
-                    )
-                    .setColor("DARK_GREEN");
-                await interaction.editReply({ embeds: [success] });
+        const success = new MessageEmbed()
+            .setDescription(`Successfully removed admin role <@&${roleID}>!`)
+            .setColor("DARK_GREEN");
+        await interaction.editReply({ embeds: [success] });
+    }
 
-                return;
-            }
-            default:
-                throw new BotError("Not implemented");
-        }
+    async uniqueRoleRemove(
+        interaction: CommandInteraction,
+        type: string
+    ): Promise<void> {
+        const guildRepository = getRepository(GuildEntity);
+
+        await guildRepository.update(interaction.guildId, {
+            [`${type}_role`]: null,
+        });
+
+        const success = new MessageEmbed()
+            .setDescription(`Successfully unset ${type} role!`)
+            .setColor("DARK_GREEN");
+
+        await interaction.editReply({ embeds: [success] });
     }
 
     async roleInfo(interaction: CommandInteraction): Promise<void> {
@@ -250,16 +265,14 @@ export class Role {
         );
         if (!commandIds) return; /* This shouldn't happen */
 
-        await mergePermissions(guild, commandIds, guild.ownerId, "USER");
+        const guildEntity = new GuildEntity();
+        guildEntity.guild_id = guild.id;
+        guildEntity.admin_roles = [];
+        guildEntity.command_channels = [];
 
-        const permissionRepository = getCustomRepository(PermissionRepository);
+        await updatePermissionsForGuild(guildEntity, guild);
 
-        await permissionRepository.insert(
-            commandIds.map((command_id) => ({
-                id: guild.ownerId,
-                type: PermissionType.USER,
-                command: { command_id },
-            }))
-        );
+        const guildRepository = getRepository(GuildEntity);
+        await guildRepository.save(guildEntity);
     }
 }

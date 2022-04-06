@@ -5,6 +5,9 @@ export class Guild {
     @PrimaryColumn({ type: "char", length: 18 })
     guild_id!: string;
 
+    @Column({ type: "char", length: 18, array: true })
+    admin_roles!: string[];
+
     @Column({ type: "char", length: 18, nullable: true })
     allies_role?: string;
 
@@ -13,9 +16,6 @@ export class Guild {
 
     @Column({ type: "char", length: 18, nullable: true })
     spectator_role?: string;
-
-    @Column({ type: "char", length: 18, nullable: true })
-    bot_admin_role?: string;
 
     @Column({ type: "char", length: 18, nullable: true })
     log_channel?: string;
