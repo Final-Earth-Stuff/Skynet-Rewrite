@@ -45,11 +45,9 @@ export class Start {
             user.id
         );
         const success = new MessageEmbed()
-                    .setDescription(
-                        `Successfully saved user data!`
-                    )
-                    .setColor("DARK_GREEN");
-                await interaction.editReply({ embeds: [success] });
+            .setDescription(`Successfully saved user data!`)
+            .setColor("DARK_GREEN");
+        await interaction.editReply({ embeds: [success] });
         return;
     }
 }

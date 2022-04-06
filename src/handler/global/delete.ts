@@ -22,10 +22,8 @@ export class Delete {
         const settingsRepository = getCustomRepository(UserSettingsRepository);
         settingsRepository.deleteByDiscordId(interaction.user.id);
         const success = new MessageEmbed()
-                    .setDescription(
-                        `All your data has been deleted.`
-                    )
-                    .setColor("DARK_GREEN");
-                await interaction.editReply({ embeds: [success] });
+            .setDescription(`All your data has been deleted.`)
+            .setColor("DARK_GREEN");
+        await interaction.editReply({ embeds: [success] });
     }
 }
