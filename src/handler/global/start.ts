@@ -3,8 +3,9 @@ import { CommandInteraction } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
-import { NotificationSettingsRepository } from "../../repository/NotificationSettingsRepository";
-
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
+import { getUser } from "../../wrapper/wrapper";
+import { isErrorResponse } from "../../wrapper/utils";
 export class Start {
     @CommandData({ type: "global" })
     startData() {
@@ -27,9 +28,7 @@ export class Start {
      */
     @Command({ name: "start" })
     async start(interaction: CommandInteraction): Promise<void> {
-        const settingsRepository = getCustomRepository(
-            NotificationSettingsRepository
-        );
+        const settingsRepository = getCustomRepository(UserSettingsRepository);
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             await interaction.reply({
@@ -39,10 +38,28 @@ export class Start {
             });
             return;
         }
-        settingsRepository.saveSettings(interaction.user.id, apiKey, true);
-        await interaction.reply({
-            content: "Saved! (Only partially implemented)",
-            ephemeral: true,
-        });
+        const user = await getUser(apiKey);
+        if (!isErrorResponse(user.data)) {
+            settingsRepository.saveSettings(
+                interaction.user.id,
+                apiKey,
+                true,
+                user.data.id
+            );
+            await interaction.reply({
+                content: "Saved! (Only partially implemented)",
+                ephemeral: true,
+            });
+        } else if (user.data.code === 1) {
+            await interaction.reply({
+                content: "Invalid API key",
+                ephemeral: true,
+            });
+        } else {
+            await interaction.reply({
+                content: "Something went wrong",
+                ephemeral: true,
+            });
+        }
     }
 }

@@ -1,113 +1,97 @@
 import { getCustomRepository } from "typeorm";
 import {
-    NotificationSettingsRepository,
+    UserSettingsRepository,
     Timers,
     Counts,
-} from "./repository/NotificationSettingsRepository";
+} from "./repository/UserSettingsRepository";
 import { Client, User } from "discord.js";
-import { NotificationSettings } from "./entity/NotificationSettings";
+import { UserSettings } from "./entity/UserSettings";
 import * as wrapper from "./wrapper/wrapper";
-import {CountryData}  from "./wrapper/models/country";
-import {UserData}  from "./wrapper/models/user";
-import {FEResponse, ErrorData} from "./wrapper/models/common";
-import fetch from "node-fetch";
+import {
+    isNotifResponse,
+    isUserResponse,
+    isCountryResponse,
+} from "./wrapper/utils";
+import { makeLogger } from "./logger";
+import { NotificationData } from "./wrapper/models/notification";
+
+const logger = makeLogger(module);
 
 export async function checkUsers(client: Client) {
-    console.log("checking users...");
-    const settingsRepository = getCustomRepository(
-        NotificationSettingsRepository
-    );
+    logger.info("checking all users...");
+    const settingsRepository = getRepository();
     const values = await settingsRepository.getAllUserSettings();
     values?.forEach(async (user) => {
-        console.log(user);
         if (user && user.api_key) {
+            logger.info("checking " + user.user_id);
             const notifsData = await wrapper.getNotifications(user.api_key);
-            if (notifsData && !notifsData.error && user.paused_flag != true) {
-                const userData = await wrapper.getUser(user.api_key);
-                let team = "None";
-                if (userData && !userData.error && isUserResponse(userData.data)) {
-                    team = userData.data.team;
-                }
-
+            if (isNotifResponse(notifsData?.data) && user.paused_flag != true) {
                 const discord = await client.users
                     .fetch(user.discord_id)
                     .catch((error) => {
-                        console.log(error);
+                        logger.error(error);
                     });
-                if (discord) {
-                    const timers: Timers = await buildTimers(
-                        user,
-                        notifsData.data,
-                        discord
-                    );
-                    const counts: Counts = await buildCounts(
-                        user,
-                        notifsData.data,
-                        discord
-                        
-                    );
 
-                    checkEnemies(user, discord, team);
-                    const settingsRepository = getCustomRepository(
-                        NotificationSettingsRepository
-                    );
-                    console.log(timers);
-                    console.log(counts);
-                    await settingsRepository.updateTimers(timers);
-                    await settingsRepository.updateCounts(counts);
+                if (discord) {
+                    checkSettings(user, notifsData.data, discord);
                 }
             }
         }
     });
 }
 
-function isUserResponse(response: UserData | ErrorData): response is UserData {
-    return (response as UserData).id !== undefined;
-}
-function isCountryResponse(response: CountryData | ErrorData): response is CountryData {
-    return (response as CountryData).id !== undefined;
+async function checkSettings(
+    user: UserSettings,
+    notifsData: NotificationData,
+    discord: User
+) {
+    const settingsRepository = getRepository();
+    const timers: Timers = await buildTimers(user, notifsData, discord);
+    const counts: Counts = await buildCounts(user, notifsData, discord);
+    if (user?.enemy_flag == true && user.api_key) {
+        const userData = await wrapper.getUser(user.api_key);
+        let team = "None";
+        if (isUserResponse(userData?.data)) {
+            team = userData.data.team;
+        }
+        checkEnemies(user, discord, team);
+    }
+
+    await settingsRepository.updateTimers(timers);
+    await settingsRepository.updateCounts(counts);
 }
 
-async function checkEnemies(
-    user: NotificationSettings,
-    discord: User,
-    team: string
-) {
-    if (user?.enemy_flag == true && user.api_key) {
-        const data = await getCurrentCountry(team, user.api_key);
-        const prevNotif = user.prev_enemies_notification ?? new Date(0);
-        const prevEnemies = user.prev_num_enemies ?? 0;
-        console.log(data)
-        if (data?.currentCount && data.currentCountry) {
-            console.log("helloooo")
-            const settingsRepository = getCustomRepository(
-                NotificationSettingsRepository
+async function checkEnemies(user: UserSettings, discord: User, team: string) {
+    const settingsRepository = getRepository();
+    const apiKey = user.api_key ?? "";
+    const data = await getCurrentCountry(team, apiKey);
+    const prevNotif = user.prev_enemies_notification ?? new Date(0);
+    const prevEnemies = user.prev_num_enemies ?? 0;
+    if (
+        (data?.currentCount || data?.currentCount === 0) &&
+        data.currentCountry
+    ) {
+        if (user.country != data.currentCountry) {
+            await settingsRepository.updateCountryAndEnemyCount(
+                user.discord_id,
+                data.currentCountry,
+                data.currentCount
             );
-            console.log(user.country)
-            console.log(data.currentCountry)
-            console.log(data.currentCount)
-            if (user.country != data.currentCountry) {
-                await settingsRepository.updateCountryAndEnemyCount(
-                    user.discord_id,
-                    data.currentCountry,
-                    data.currentCount
-                );
-            } else if (
-                user.country == data.currentCountry &&
-                user.prev_num_enemies != data.currentCount &&
-                Date.now() - prevNotif.getTime() > 300000
-            ) {
-                discord.send(
-                    "☠️ Enemy troops have changed by " +
-                        (data.currentCount - prevEnemies)
-                );
-                await settingsRepository.updateCountryAndEnemyCount(
-                    user.discord_id,
-                    data.currentCountry,
-                    data.currentCount,
-                    new Date()
-                );
-            }
+        } else if (
+            user.country == data.currentCountry &&
+            user.prev_num_enemies != data.currentCount &&
+            Date.now() - prevNotif.getTime() > 300000
+        ) {
+            discord.send(
+                "☠️ Enemy troops have changed by " +
+                    (data.currentCount - prevEnemies)
+            );
+            await settingsRepository.updateCountryAndEnemyCount(
+                user.discord_id,
+                data.currentCountry,
+                data.currentCount,
+                new Date()
+            );
         }
     }
 }
@@ -130,8 +114,8 @@ async function getCurrentCountry(team: string, api_key: string) {
 }
 
 async function buildCounts(
-    user: NotificationSettings,
-    notifsData: any,
+    user: UserSettings,
+    notifsData: NotificationData,
     discord: User
 ) {
     let mail, events;
@@ -162,15 +146,18 @@ async function buildCounts(
 }
 
 async function buildTimers(
-    user: NotificationSettings,
-    notifsData: any,
+    user: UserSettings,
+    notifsData: NotificationData,
     discord: User
 ) {
     let war, queue, reimb;
 
     if (user.war_flag == true) {
         if (
-            await checkTimer(notifsData.timers.war, user.prev_war_notification ?? new Date(0))
+            await checkTimer(
+                notifsData.timers.war,
+                user.prev_war_notification ?? new Date(0)
+            )
         ) {
             discord.send("🔫 Your War timer is up!");
             war = new Date(notifsData.timers.war * 1000);
@@ -221,4 +208,8 @@ async function checkTimer(
         return true;
     }
     return false;
+}
+
+function getRepository(): UserSettingsRepository {
+    return getCustomRepository(UserSettingsRepository);
 }

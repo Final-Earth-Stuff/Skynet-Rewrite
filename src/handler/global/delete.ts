@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js";
 import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
-import { NotificationSettingsRepository } from "../../repository/NotificationSettingsRepository";
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 
 export class Delete {
     @CommandData({ type: "global" })
@@ -18,9 +18,7 @@ export class Delete {
 
     @Command({ name: "delete" })
     async delete(interaction: CommandInteraction): Promise<void> {
-        const settingsRepository = getCustomRepository(
-            NotificationSettingsRepository
-        );
+        const settingsRepository = getCustomRepository(UserSettingsRepository);
         settingsRepository.deleteByDiscordId(interaction.user.id);
         await interaction.reply({
             content: "All your data has been deleted.",
