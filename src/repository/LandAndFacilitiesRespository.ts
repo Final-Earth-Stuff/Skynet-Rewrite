@@ -29,7 +29,7 @@ export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
         return this.manager
             .createQueryBuilder(LandAndFacilities, "land_and_facilities")
             .select(
-                "land_and_facilities.country, land_and_facilities.facs, MAX(land_and_facilities.timestamp)"
+                "land_and_facilities.country", "land_and_facilities.facs", "MAX(land_and_facilities.timestamp)"
             )
             .where("land_and_facilities.timestamp < :timestamp", { timestamp })
             .andWhere("land_and_facilities.is_spawn = :isSpawn", {
