@@ -8,7 +8,7 @@ import { getCountries } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
 import { travelTime } from "../../map/util";
 
-export class Dist {
+export class Dis {
     @CommandData({
         type: "global",
         completions: { origin: "country", destination: "country" },
