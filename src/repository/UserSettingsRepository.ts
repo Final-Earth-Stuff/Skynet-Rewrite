@@ -1,5 +1,6 @@
-import { EntityRepository, Repository } from "typeorm";
 import { UserSettings, Team } from "../entity/UserSettings";
+
+import { AppDataSource } from "../";
 
 export enum Toggles {
     WAR = "war_flag",
@@ -24,22 +25,27 @@ export interface Counts {
     prev_num_events?: number;
 }
 
-@EntityRepository(UserSettings)
-export class UserSettingsRepository extends Repository<UserSettings> {
+export const UserSettingsRepository = AppDataSource.getRepository(
+    UserSettings
+).extend({
     updateSetting(discordId: string, toggle: Toggles, value: boolean) {
         return this.manager.update(UserSettings, discordId, {
             [toggle]: value,
         });
-    }
+    },
+
     updateTimers(timers: Partial<Timers>) {
         return this.manager.save(UserSettings, timers);
-    }
+    },
+
     updateCounts(counts: Partial<Counts>) {
         return this.manager.save(UserSettings, counts);
-    }
-    getUserByDiscordId(discordId: string) {
-        return this.manager.findOne(UserSettings, discordId);
-    }
+    },
+
+    getUserByDiscordId(discord_id: string) {
+        return this.manager.findOne(UserSettings, { where: { discord_id } });
+    },
+
     updateCountryAndEnemyCount(
         discordId: string,
         country: number,
@@ -51,10 +57,12 @@ export class UserSettingsRepository extends Repository<UserSettings> {
             country: country,
             prev_enemies_notification: notif_time,
         });
-    }
+    },
+
     getAllUserSettings() {
         return this.manager.find(UserSettings);
-    }
+    },
+
     saveSettings(
         discordId: string,
         apiKey: string,
@@ -69,8 +77,8 @@ export class UserSettingsRepository extends Repository<UserSettings> {
         notificationSettings.user_id = userId;
         notificationSettings.team = team;
         return this.manager.save(notificationSettings);
-    }
+    },
     deleteByDiscordId(discordId: string) {
         return this.manager.delete(UserSettings, discordId);
-    }
-}
+    },
+});

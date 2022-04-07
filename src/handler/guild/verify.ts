@@ -1,11 +1,12 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { getRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
+
+import { AppDataSource } from "../..";
 
 import { Guild } from "../../entity/Guild";
 
@@ -36,8 +37,10 @@ export class Verify {
             }
         );
 
-        const guildRepository = getRepository(Guild);
-        const guild = await guildRepository.findOneOrFail(interaction.guildId);
+        const guildRepository = AppDataSource.getRepository(Guild);
+        const guild = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
             throw new BotError("Roles are not configure for this guild");
 

@@ -1,8 +1,10 @@
-import { EntityRepository, Repository } from "typeorm";
 import { UnitChange } from "../entity/UnitChange";
 
-@EntityRepository(UnitChange)
-export class UnitChangeRepository extends Repository<UnitChange> {
+import { AppDataSource } from "../";
+
+export const UnitChangeRepository = AppDataSource.getRepository(
+    UnitChange
+).extend({
     createAndSaveUnits(
         country: number,
         previous_country: number,
@@ -21,5 +23,5 @@ export class UnitChangeRepository extends Repository<UnitChange> {
         unitChange.delta_axis = delta_axis;
         unitChange.timestamp = timestamp;
         return this.manager.save(unitChange);
-    }
-}
+    },
+});

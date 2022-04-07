@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
-import { getCustomRepository, getRepository, getConnection } from "typeorm";
 
 import {
     Command,
@@ -11,6 +10,7 @@ import {
 import { BotError } from "../../error";
 import { adminCommands } from "../../decorators/data";
 
+import { AppDataSource } from "../..";
 import { CommandRepository } from "../../repository/CommandRepository";
 import { Guild as GuildEntity } from "../../entity/Guild";
 
@@ -18,8 +18,7 @@ async function updatePermissionsForGuild(
     guildEntity: GuildEntity,
     guild: Guild
 ): Promise<void> {
-    const commandRepository = getCustomRepository(CommandRepository);
-    const commandIDs = await commandRepository.getGuildCommandIdsByName(
+    const commandIDs = await CommandRepository.getGuildCommandIdsByName(
         [...adminCommands],
         guild.id
     );
@@ -143,13 +142,11 @@ export class Role {
         interaction: CommandInteraction,
         roleID: string
     ): Promise<void> {
-        await getConnection()
-            .createEntityManager()
-            .transaction(async (manager) => {
-                const guildEntity = await manager.findOneOrFail(
-                    GuildEntity,
-                    interaction.guildId
-                );
+        await AppDataSource.createEntityManager().transaction(
+            async (manager) => {
+                const guildEntity = await manager.findOneOrFail(GuildEntity, {
+                    where: { guild_id: interaction.guildId },
+                });
 
                 if (guildEntity.admin_roles.includes(roleID)) {
                     throw new BotError(
@@ -163,7 +160,8 @@ export class Role {
                 await updatePermissionsForGuild(guildEntity, interaction.guild);
 
                 manager.save(GuildEntity, guildEntity);
-            });
+            }
+        );
 
         const success = new MessageEmbed()
             .setDescription(`Successfully added admin role <@&${roleID}>!`)
@@ -176,7 +174,7 @@ export class Role {
         roleID: string,
         type: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId, {
             [`${type}_role`]: roleID,
@@ -208,13 +206,11 @@ export class Role {
     ): Promise<void> {
         if (!roleID) throw new BotError("No role selected");
 
-        await getConnection()
-            .createEntityManager()
-            .transaction(async (manager) => {
-                const guildEntity = await manager.findOneOrFail(
-                    GuildEntity,
-                    interaction.guildId
-                );
+        await AppDataSource.createEntityManager().transaction(
+            async (manager) => {
+                const guildEntity = await manager.findOneOrFail(GuildEntity, {
+                    where: { guild_id: interaction.guildId },
+                });
                 if (!guildEntity.admin_roles.includes(roleID)) {
                     throw new BotError(
                         `Role <@&${roleID}> is not an admin role`
@@ -229,7 +225,8 @@ export class Role {
                 await updatePermissionsForGuild(guildEntity, interaction.guild);
 
                 manager.save(GuildEntity, guildEntity);
-            });
+            }
+        );
 
         const success = new MessageEmbed()
             .setDescription(`Successfully removed admin role <@&${roleID}>!`)
@@ -241,7 +238,7 @@ export class Role {
         interaction: CommandInteraction,
         type: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId, {
             [`${type}_role`]: null,
@@ -255,8 +252,10 @@ export class Role {
     }
 
     async roleInfo(interaction: CommandInteraction): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
-        const guild = await guildRepository.findOneOrFail(interaction.guildId);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guild = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
 
         const embed = new MessageEmbed()
             .setTitle("Roles")
@@ -299,14 +298,16 @@ export class Role {
 
         await updatePermissionsForGuild(guildEntity, guild);
 
-        const guildRepository = getRepository(GuildEntity);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
         await guildRepository.save(guildEntity);
     }
 
     @AfterCommandUpdate()
     async migratePermissions(guild: Guild) {
-        const guildRepository = getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail(guild.id);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guildEntity = await guildRepository.findOneOrFail({
+            where: { guild_id: guild.id },
+        });
 
         await updatePermissionsForGuild(guildEntity, guild);
     }

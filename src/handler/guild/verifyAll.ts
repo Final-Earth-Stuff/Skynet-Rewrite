@@ -1,12 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { getRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { UserData } from "../../wrapper/models/user";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
+
+import { AppDataSource } from "../..";
 
 import { Guild } from "../../entity/Guild";
 
@@ -25,8 +26,10 @@ export class Verify {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
-        const guildRepository = getRepository(Guild);
-        const guild = await guildRepository.findOneOrFail(interaction.guildId);
+        const guildRepository = AppDataSource.getRepository(Guild);
+        const guild = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
 
         const logChannel = guild.log_channel
             ? interaction.client.channels.cache.get(guild.log_channel)

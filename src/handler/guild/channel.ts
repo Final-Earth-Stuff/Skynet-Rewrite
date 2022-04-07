@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord-api-types/v10";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { getRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 
+import { AppDataSource } from "../..";
 import { Guild as GuildEntity } from "../../entity/Guild";
 
 export class Channel {
@@ -112,10 +112,10 @@ export class Channel {
         interaction: CommandInteraction,
         channelID: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail(
-            interaction.guildId
-        );
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guildEntity = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
 
         if (guildEntity.command_channels.includes(channelID)) {
             throw new BotError(
@@ -139,7 +139,7 @@ export class Channel {
         channelID: string,
         type: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId, {
             [`${type}_channel`]: channelID,
@@ -172,10 +172,10 @@ export class Channel {
         interaction: CommandInteraction,
         channelID: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail(
-            interaction.guildId
-        );
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guildEntity = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
 
         if (!guildEntity.command_channels.includes(channelID)) {
             throw new BotError(
@@ -200,7 +200,7 @@ export class Channel {
         interaction: CommandInteraction,
         type: string
     ): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId, {
             [`${type}_channel`]: null,
@@ -214,8 +214,10 @@ export class Channel {
     }
 
     async channelInfo(interaction: CommandInteraction): Promise<void> {
-        const guildRepository = getRepository(GuildEntity);
-        const guild = await guildRepository.findOneOrFail(interaction.guildId);
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guild = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId },
+        });
 
         const embed = new MessageEmbed()
             .setTitle("Channels")

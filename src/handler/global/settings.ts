@@ -5,7 +5,6 @@ import {
     MessageActionRow,
     MessageButton,
 } from "discord.js";
-import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData, Button } from "../../decorators";
 import {
@@ -31,8 +30,7 @@ function getColorFromBoolean(bool: boolean): Color {
 }
 
 async function getStyle(discordId: string, setting: Toggles): Promise<Color> {
-    const settingsRepository = getCustomRepository(UserSettingsRepository);
-    const values = await settingsRepository.getUserByDiscordId(discordId);
+    const values = await UserSettingsRepository.getUserByDiscordId(discordId);
     return getColorFromBoolean(values?.[setting] ?? false);
 }
 
@@ -94,13 +92,12 @@ async function createRows(discordId: string): Promise<MessageActionRow[]> {
 }
 
 async function updateSetting(interaction: ButtonInteraction) {
-    const settingsRepository = getCustomRepository(UserSettingsRepository);
-    const settings = await settingsRepository.getUserByDiscordId(
+    const settings = await UserSettingsRepository.getUserByDiscordId(
         interaction.user.id
     );
     if (settings) {
         const toggle = interaction.customId as Toggles;
-        await settingsRepository.updateSetting(
+        await UserSettingsRepository.updateSetting(
             interaction.user.id,
             toggle,
             !settings[toggle]
@@ -125,8 +122,7 @@ export class Settings {
 
     @Command({ name: "settings" })
     async settings(interaction: CommandInteraction): Promise<void> {
-        const settingsRepository = getCustomRepository(UserSettingsRepository);
-        const settings = await settingsRepository.getUserByDiscordId(
+        const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
         );
         if (settings) {

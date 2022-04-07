@@ -1,11 +1,11 @@
-import { EntityRepository, Repository, In } from "typeorm";
+import { In } from "typeorm";
 
 import { Collection, ApplicationCommand, Snowflake } from "discord.js";
 
 import { Command } from "../entity/Command";
+import { AppDataSource } from "../";
 
-@EntityRepository(Command)
-export class CommandRepository extends Repository<Command> {
+export const CommandRepository = AppDataSource.getRepository(Command).extend({
     async getGuildCommandIdsByName(
         names: string[],
         guildId: string
@@ -19,7 +19,7 @@ export class CommandRepository extends Repository<Command> {
         });
 
         return command.map(({ command_id }) => command_id);
-    }
+    },
 
     async replaceGuildCommands(
         commands: Collection<Snowflake, ApplicationCommand>,
@@ -39,5 +39,5 @@ export class CommandRepository extends Repository<Command> {
                 }))
             );
         });
-    }
-}
+    },
+});

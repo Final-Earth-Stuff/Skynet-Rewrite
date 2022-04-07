@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { getCustomRepository } from "typeorm";
 
 import { Command, CommandData } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
@@ -30,7 +29,6 @@ export class Start {
     @Command({ name: "start" })
     async start(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
-        const settingsRepository = getCustomRepository(UserSettingsRepository);
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             throw new BotError(
@@ -38,7 +36,7 @@ export class Start {
             );
         }
         const user = await getUser(apiKey);
-        settingsRepository.saveSettings(
+        UserSettingsRepository.saveSettings(
             interaction.user.id,
             apiKey,
             true,
