@@ -27,15 +27,15 @@ export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
 
     getSpawnFactories(timestamp: Date) {
         return this.manager
-            .createQueryBuilder(LandAndFacilities, "landAndFacilities")
+            .createQueryBuilder(LandAndFacilities, "land_and_facilities")
             .select(
-                "landAndFacilities.country, landAndFacilities.facs, MAX(landAndFacilities.timestamp)"
+                "land_and_facilities.country, land_and_facilities.facs, MAX(land_and_facilities.timestamp)"
             )
-            .where("landAndFacilities.timestamp > :timestamp", { timestamp })
-            .andWhere("landAndFacilities.is_spawn = :isSpawn", {
+            .where("land_and_facilities.timestamp < :timestamp", { timestamp })
+            .andWhere("land_and_facilities.is_spawn = :isSpawn", {
                 isSpawn: true,
             })
-            .groupBy("LandAndFacilities.country")
+            .groupBy("land_and_facilities.country")
             .getMany();
     }
 }
