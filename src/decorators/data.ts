@@ -5,6 +5,7 @@ import { ButtonHandler } from "./Button";
 import { DataFactory } from "./CommandData";
 import { EventKey, EventHandlerType } from "./EventHandler";
 import { UpdateHook } from "./AfterCommandUpdate";
+import { JobBody } from "./ScheduledJob";
 
 export const commands = new Collection<string, CommandHandler>();
 
@@ -20,3 +21,5 @@ export const eventHandlers = {} as {
 };
 
 export const updateHooks = new Set<UpdateHook>();
+
+export const jobs = new Collection<string, JobBody>();

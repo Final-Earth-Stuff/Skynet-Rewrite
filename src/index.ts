@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { Client, Intents } from "discord.js";
 
 import { createConnection, getCustomRepository } from "typeorm";
+import { schedule } from "node-cron";
 
 import glob from "glob";
 import path from "path";
@@ -11,7 +12,6 @@ import { config } from "./config";
 
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
-import { checkUsers } from "./watcher";
 
 import { CommandRepository } from "./repository/CommandRepository";
 
@@ -81,9 +81,13 @@ client.on("ready", async (client) => {
         }
         logger.info("Updated guild commands");
     }
-    logger.info("Bot is ready");
 
-    setInterval(checkUsers, 30000, client);
+    logger.info("Scheduling jobs...");
+    decoratorData.jobs.forEach((job, cron) =>
+        schedule(cron, () => job(client))
+    );
+
+    logger.info("Bot is ready");
 });
 
 client.on("guildCreate", async (guild) => {
