@@ -1,7 +1,7 @@
 export function travelTime(
     distKm: number,
     points?: number,
-    paratrooper?: boolean
+    paratrooper?: boolean | null
 ): number {
     return Math.round(
         (1 - (points ?? 0) / 100) *
