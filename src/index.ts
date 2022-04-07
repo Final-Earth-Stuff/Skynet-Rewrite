@@ -117,7 +117,7 @@ client.on("interactionCreate", async (interaction) => {
     } else if (interaction.isAutocomplete()) {
         const focused = interaction.options.getFocused(true);
         logger.debug(
-            "Received autocompletion interaction for command '%s' optio '%s'",
+            "Received autocompletion interaction for command '%s', option '%s'",
             interaction.commandName,
             focused.name
         );
