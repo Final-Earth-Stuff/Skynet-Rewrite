@@ -22,8 +22,8 @@ export class UserSettings {
     @Column({ type: "enum", enum: Team, nullable: true })
     team?: Team;
 
-    @Column({ type: "char", length: 2, nullable: true })
-    country?: string;
+    @Column({ type: "int2", nullable: true })
+    country?: number;
 
     @Column({ type: "timestamp without time zone", array: true, default: [] })
     reminders!: Date[];

@@ -8,7 +8,7 @@ import {
 } from "./geometry";
 
 export interface TreeNode {
-    id: string;
+    id: number;
     coordinates: Coordinates;
     axis: keyof Coordinates;
 
@@ -21,7 +21,7 @@ let tree: TreeNode | undefined = undefined;
 const AXES = ["x", "y", "z"] as const;
 
 function buildRecursive(
-    values: { c: Coordinates; id: string }[],
+    values: { c: Coordinates; id: number }[],
     depth: number
 ): TreeNode {
     const axis = AXES[depth % 3];
@@ -61,7 +61,7 @@ export const getKdTree = async () => {
 };
 
 interface RangeMatch {
-    id: string;
+    id: number;
     distKm: number;
 }
 

@@ -3,14 +3,14 @@ import { getWorld } from "../wrapper/wrapper";
 
 export interface Country {
     name: string;
-    id: string;
+    id: number;
     coordinates: {
         longitude: number;
         latitude: number;
     };
 }
 
-let countries: Map<string, Country> | undefined = undefined;
+let countries: Map<number, Country> | undefined = undefined;
 
 export const getCountries = async () => {
     if (!countries) {
@@ -31,4 +31,4 @@ export const getCountries = async () => {
     return countries;
 };
 
-export const getCountry = (id: string) => getCountries().then((c) => c.get(id));
+export const getCountry = (id: number) => getCountries().then((c) => c.get(id));
