@@ -16,8 +16,11 @@ export class BotError extends Error {
 }
 
 export class ApiError extends Error {
-    constructor(message: string) {
+    code?: number;
+
+    constructor(message: string, code?: number) {
         super(message);
         this.name = "ApiError";
+        this.code = code;
     }
 }
