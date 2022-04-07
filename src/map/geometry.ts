@@ -43,7 +43,12 @@ export function greatCircleDist(
         haversine(phi2 - phi1) +
         Math.cos(phi1) * Math.cos(phi2) * haversine(theta2 - theta1);
 
-    return 2 * RADIUS_EARTH * Math.asin(Math.sqrt(a));
+    // this is so dumb...
+    const alph = 2 * Math.asin(Math.sqrt(a));
+    const deg = (alph * 180) / Math.PI;
+    const miles = deg * 60 * 1.1515;
+
+    return Math.round(Math.round(miles) * 1.609344);
 }
 
 export function gcToEuclidean(d: number): number {
