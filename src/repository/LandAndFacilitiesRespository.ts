@@ -28,7 +28,9 @@ export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
     getSpawnFactories(timestamp: Date) {
         return this.manager
             .createQueryBuilder(LandAndFacilities, "landAndFacilities")
-            .select("landAndFacilities.country, landAndFacilities.facs, MAX(landAndFacilities.timestamp)")
+            .select(
+                "landAndFacilities.country, landAndFacilities.facs, MAX(landAndFacilities.timestamp)"
+            )
             .where("landAndFacilities.timestamp > :timestamp", { timestamp })
             .andWhere("landAndFacilities.is_spawn = :isSpawn", {
                 isSpawn: true,
