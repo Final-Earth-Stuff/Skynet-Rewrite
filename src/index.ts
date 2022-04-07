@@ -122,13 +122,27 @@ client.on("interactionCreate", async (interaction) => {
         await decoratorData.commands.get(interaction.commandName)?.(
             interaction
         );
-    }
-    if (interaction.isButton()) {
+    } else if (interaction.isButton()) {
         logger.debug(
             "Received button interaction for '%s'",
             interaction.customId
         );
         await decoratorData.buttons.get(interaction.customId)?.(interaction);
+    } else if (interaction.isAutocomplete()) {
+        logger.debug(
+            "Received autocompletion interaction for '%s'",
+            interaction.commandName
+        );
+        const specificHandler = decoratorData.completionHandlers.get(
+            interaction.commandName
+        );
+        if (specificHandler) {
+            await specificHandler(interaction);
+        } else {
+            await decoratorData.completionHandlers.get(undefined)?.(
+                interaction
+            );
+        }
     }
 });
 

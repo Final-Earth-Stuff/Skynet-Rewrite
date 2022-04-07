@@ -1238,6 +1238,7 @@ __metadata:
     discord.js: ^13.3.1
     dotenv: ^10.0.0
     eslint: ^8.4.1
+    fuzzysort: ^1.2.1
     glob: ^7.2.0
     node-cron: ^3.0.0
     node-gyp: ^8.4.1
@@ -1317,6 +1318,13 @@ __metadata:
   version: 1.0.1
   resolution: "functional-red-black-tree@npm:1.0.1"
   checksum: ca6c170f37640e2d94297da8bb4bf27a1d12bea3e00e6a3e007fd7aa32e37e000f5772acf941b4e4f3cf1c95c3752033d0c509af157ad8f526e7f00723b9eb9f
+  languageName: node
+  linkType: hard
+
+"fuzzysort@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "fuzzysort@npm:1.2.1"
+  checksum: 74dad902a0aef6c3237d5ae5330aacca23d408f0e07125fcc39b57561b4c29da512fbf3826c3f3918da89f132f5b393cf5d56b3217282ecfb80a90124bdf03d1
   languageName: node
   linkType: hard
 

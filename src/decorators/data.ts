@@ -6,6 +6,7 @@ import { DataFactory } from "./CommandData";
 import { EventKey, EventHandlerType } from "./EventHandler";
 import { UpdateHook } from "./AfterCommandUpdate";
 import { JobBody } from "./ScheduledJob";
+import { AutocompleteHandler } from "./Autocomplete";
 
 export const commands = new Collection<string, CommandHandler>();
 
@@ -23,3 +24,8 @@ export const eventHandlers = {} as {
 export const updateHooks = new Set<UpdateHook>();
 
 export const jobs = new Collection<string, JobBody>();
+
+export const completionHandlers = new Collection<
+    string | undefined,
+    AutocompleteHandler
+>();
