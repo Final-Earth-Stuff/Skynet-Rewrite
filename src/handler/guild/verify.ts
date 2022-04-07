@@ -14,7 +14,7 @@ export class Verify {
     verifyData() {
         return new SlashCommandBuilder()
             .setName("verify")
-            .setDescription("Verify user")
+            .setDescription("Attempt to verify all users in the server")
             .toJSON();
     }
 
