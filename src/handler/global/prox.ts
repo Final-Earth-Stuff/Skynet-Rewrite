@@ -4,20 +4,21 @@ import { CommandInteraction } from "discord.js";
 import { Command, CommandData } from "../../decorators";
 
 export class Prox {
-    @CommandData({ type: "global" })
+    @CommandData({ type: "global", completions: { center: "country" } })
     proxData() {
         return new SlashCommandBuilder()
             .setName("prox")
             .setDescription(
                 "Shows all units within the provided distance of a country"
             )
-            .addStringOption((option) =>
+            .addIntegerOption((option) =>
                 option
                     .setName("center")
                     .setDescription(
                         "The country on which the search is centered"
                     )
                     .setRequired(true)
+                    .setAutocomplete(true)
             )
             .addIntegerOption((option) =>
                 option
