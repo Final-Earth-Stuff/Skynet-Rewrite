@@ -42,7 +42,7 @@ export class UserSettingsRepository extends Repository<UserSettings> {
     }
     updateCountryAndEnemyCount(
         discordId: string,
-        country: number,
+        country: string,
         enemy_count: number,
         notif_time?: Date
     ) {
