@@ -79,6 +79,7 @@ export class Verify {
                     role = guild.axis_role;
                     break;
                 case "None":
+                case "Auto":
                     role = guild.spectator_role;
                     break;
             }
