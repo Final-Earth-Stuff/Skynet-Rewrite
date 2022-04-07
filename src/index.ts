@@ -20,7 +20,7 @@ const logger = makeLogger(module);
 logger.info("Starting bot");
 
 const client = new Client({
-    intents: [Intents.FLAGS.GUILDS],
+    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS],
 });
 
 // load handlers...

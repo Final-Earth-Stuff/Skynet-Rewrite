@@ -4,9 +4,17 @@ export interface FEResponse<T> {
     data: T;
 }
 
-export interface ErrorData {
-    code: number;
+export interface ErrorResponse {
+    reason: string;
+    error: true;
+    data: {
+        code: number;
+    };
 }
+
+export const isErrorResponse = (
+    response: FEResponse<unknown>
+): response is ErrorResponse => response.error;
 
 export interface Statistics {
     strength: number;

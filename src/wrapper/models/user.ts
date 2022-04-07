@@ -3,7 +3,7 @@ import { Statistics, Timers } from "./common";
 export interface UserData {
     id: number;
     name: string;
-    team: string;
+    team: "Allies" | "Axis" | "None" | "Auto";
     joined: number;
     rank: number;
     rating: number;

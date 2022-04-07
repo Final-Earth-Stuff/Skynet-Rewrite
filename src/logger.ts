@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from "winston";
-import { basename } from "path";
+import { relative } from "path";
 
 import { config } from "./config";
 
@@ -13,8 +13,8 @@ const logger = createLogger({
             format: format.combine(
                 format.colorize(),
                 logFormat,
-                format.printf(({ level, message, timestamp, basename }) => {
-                    return `${timestamp} - ${basename} [${level}]: ${message}`;
+                format.printf(({ level, message, timestamp, path }) => {
+                    return `${timestamp} - ${path} [${level}]: ${message}`;
                 })
             ),
         }),
@@ -22,5 +22,5 @@ const logger = createLogger({
     ],
 });
 
-export const makeLogger = (mod: { filename: string }) =>
-    logger.child({ file: mod.filename, basename: basename(mod.filename) });
+export const makeLogger = (mod: NodeModule) =>
+    logger.child({ path: relative(module.path, mod.filename) });
