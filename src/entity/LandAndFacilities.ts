@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
 
 @Entity()
+@Index(["country", "timestamp"])
 export class LandAndFacilities {
     @PrimaryGeneratedColumn()
     id!: number;

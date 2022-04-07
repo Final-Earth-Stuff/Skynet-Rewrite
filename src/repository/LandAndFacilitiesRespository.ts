@@ -1,8 +1,7 @@
-import { EntityRepository, Repository, Index } from "typeorm";
+import { EntityRepository, Repository } from "typeorm";
 import { LandAndFacilities } from "../entity/LandAndFacilities";
 
 @EntityRepository(LandAndFacilities)
-@Index(["country", "timestamp"])
 export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
     createLandAndFacilities(
         country: number,
