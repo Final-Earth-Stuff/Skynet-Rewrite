@@ -19,26 +19,27 @@ function getUnitRepository(): UnitChangeRepository {
     return getCustomRepository(UnitChangeRepository);
 }
 
-
 export class MonitorWorld {
     @ScheduledJob({ cron: "*/60 * * * * *" })
     async checkWorld(client: Client) {
         logger.info("checking world...");
         try {
             const facRepository = getFacRepository();
-            const world:CountryData[] = await wrapper.getWorld(config.apiKey);
+            const world: CountryData[] = await wrapper.getWorld(config.apiKey);
             world.forEach(async (country) => {
-                facRepository.createLandAndFacilities(parseInt(country.id),
+                facRepository.createLandAndFacilities(
+                    parseInt(country.id),
                     country.land,
                     country.facilities.rigs,
                     country.facilities.factories,
                     country.facilities.mines,
                     country.isSpawn,
                     country.controlTeam,
-                    new Date())
+                    new Date()
+                );
             });
         } catch (e) {
-            logger.error(e)
+            logger.error(e);
         }
     }
 }
