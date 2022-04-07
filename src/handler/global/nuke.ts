@@ -64,7 +64,7 @@ export class Nuke {
                     .setRequired(false)
                     .addChoices([
                         ["Nuke I: SRBMs", "SRBM"],
-                        ["Nuke II: IRMBs", "IRBM"],
+                        ["Nuke II: IRBMs", "IRBM"],
                         ["Nuke III: ICBMs", "ICBM"],
                     ])
             )
