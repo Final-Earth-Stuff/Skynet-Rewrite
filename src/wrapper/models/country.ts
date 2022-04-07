@@ -1,5 +1,5 @@
 export interface CountryData {
-    id: number;
+    id: string;
     name: string;
     region: string;
     control: number;

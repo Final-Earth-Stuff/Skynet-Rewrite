@@ -1,10 +1,17 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { ApplicationCommandData } from "discord.js";
+import { ApplicationCommandData, Collection } from "discord.js";
 
-import { globalCommandsData, guildCommandsData } from "./data";
+import {
+    globalCommandsData,
+    guildCommandsData,
+    optionCompletionMap,
+} from "./data";
 
 export interface CommandDataOptions {
     type: "global" | "guild";
+    completions?: {
+        [key: string]: string;
+    };
 }
 
 export type DataFactory = () => ApplicationCommandData;
@@ -27,16 +34,23 @@ export function CommandData(options: CommandDataOptions) {
             target._shared = shared;
         }
 
+        const data = descriptor.value.call(shared) as ApplicationCommandData;
+
         switch (options.type) {
             case "global":
-                globalCommandsData.add(
-                    descriptor.value.bind(shared) as DataFactory
-                );
+                globalCommandsData.push(data);
                 break;
             case "guild":
-                guildCommandsData.add(
-                    descriptor.value.bind(shared) as DataFactory
-                );
+                guildCommandsData.push(data);
+        }
+
+        if (options.completions) {
+            for (const option in options.completions) {
+                const optionMap =
+                    optionCompletionMap.get(data.name) ?? new Collection();
+                optionMap.set(option, options.completions[option]);
+                optionCompletionMap.set(data.name, optionMap);
+            }
         }
     };
 }

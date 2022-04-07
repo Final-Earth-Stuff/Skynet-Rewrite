@@ -4,4 +4,4 @@ export * from "./CommandData";
 export * from "./EventHandler";
 export * from "./AfterCommandUpdate";
 export * from "./ScheduledJob";
-export * from "./Autocomplete";
+export * from "./Completion";

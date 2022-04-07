@@ -1,14 +1,13 @@
-import { AutocompleteInteraction } from "discord.js";
+import { ApplicationCommandOptionChoice } from "discord.js";
 
-import { Autocomplete } from "../../decorators";
+import { Completion } from "../../decorators";
 import { fuzzySearchCountries } from "../../map";
 
 export class CountryComplete {
-    @Autocomplete({})
-    async countryComplete(interaction: AutocompleteInteraction): Promise<void> {
-        const input = interaction.options.getFocused(true);
-        const results = await fuzzySearchCountries(input.name);
-
-        await interaction.respond(results);
+    @Completion({ id: "country" })
+    async countryComplete(
+        value: string
+    ): Promise<ApplicationCommandOptionChoice[]> {
+        return await fuzzySearchCountries(value);
     }
 }

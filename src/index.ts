@@ -32,10 +32,8 @@ glob.sync("dist/handler/**/*.js").forEach((match) => {
 client.on("ready", async (client) => {
     if (config.updateGlobals && !config.debug) {
         try {
-            const data = [...decoratorData.globalCommandsData].map((factory) =>
-                factory()
-            );
-            await client.application.commands.set(data).then(console.log);
+            const data = decoratorData.globalCommandsData;
+            await client.application.commands.set(data);
             logger.info("Updated application commands");
         } catch (e) {
             logger.error(
@@ -51,15 +49,9 @@ client.on("ready", async (client) => {
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
-                const data = [...decoratorData.guildCommandsData].map(
-                    (factory) => factory()
-                );
+                const data = [...decoratorData.guildCommandsData];
                 if (config.debug) {
-                    data.push(
-                        ...[...decoratorData.globalCommandsData].map(
-                            (factory) => factory()
-                        )
-                    );
+                    data.push(...decoratorData.globalCommandsData);
                 }
 
                 const commands = await guild.commands.set(data);
@@ -92,15 +84,9 @@ client.on("ready", async (client) => {
 
 client.on("guildCreate", async (guild) => {
     try {
-        const data = [...decoratorData.guildCommandsData].map((factory) =>
-            factory()
-        );
+        const data = [...decoratorData.guildCommandsData];
         if (config.debug) {
-            data.push(
-                ...[...decoratorData.globalCommandsData].map((factory) =>
-                    factory()
-                )
-            );
+            data.push(...decoratorData.globalCommandsData);
         }
 
         const commands = await guild.commands.set(data);
@@ -129,18 +115,38 @@ client.on("interactionCreate", async (interaction) => {
         );
         await decoratorData.buttons.get(interaction.customId)?.(interaction);
     } else if (interaction.isAutocomplete()) {
+        const focused = interaction.options.getFocused(true);
         logger.debug(
-            "Received autocompletion interaction for '%s'",
-            interaction.commandName
+            "Received autocompletion interaction for command '%s' optio '%s'",
+            interaction.commandName,
+            focused.name
         );
-        const specificHandler = decoratorData.completionHandlers.get(
-            interaction.commandName
-        );
-        if (specificHandler) {
-            await specificHandler(interaction);
-        } else {
-            await decoratorData.completionHandlers.get(undefined)?.(
-                interaction
+
+        const handlerID = decoratorData.optionCompletionMap
+            .get(interaction.commandName)
+            ?.get(focused.name);
+
+        if (!handlerID) {
+            logger.error("No handler registered for requested completion!");
+            return;
+        }
+
+        const handler = decoratorData.completionHandlers.get(handlerID);
+
+        if (!handler) {
+            logger.error("Unknown completion handler with id '%s'!", handlerID);
+            return;
+        }
+
+        try {
+            const completions = await handler(focused.value as string);
+            await interaction.respond(completions);
+        } catch (e) {
+            logger.error(
+                "Error in completion handler '%s' while processing value '%s': %O",
+                handlerID,
+                focused.value,
+                e
             );
         }
     }

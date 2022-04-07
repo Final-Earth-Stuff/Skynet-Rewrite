@@ -123,7 +123,7 @@ export class Watcher {
                 currentCount = country.units.allies;
             }
             return {
-                currentCountry: country.id,
+                currentCountry: parseInt(country.id),
                 currentCount: currentCount,
             };
         }

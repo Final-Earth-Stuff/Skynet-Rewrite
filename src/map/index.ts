@@ -24,16 +24,18 @@ export const getCountries = async () => {
 
         countries = new Map(
             world.map(({ name, id, coordinates }) => [
-                id,
+                parseInt(id),
                 {
                     name,
-                    id,
+                    id: parseInt(id),
                     coordinates,
                 },
             ])
         );
 
-        countryNameLut = new Map(world.map(({ name, id }) => [name, id]));
+        countryNameLut = new Map(
+            world.map(({ name, id }) => [name, parseInt(id)])
+        );
     }
 
     return countries;
