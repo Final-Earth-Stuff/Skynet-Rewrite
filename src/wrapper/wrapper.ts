@@ -9,7 +9,7 @@ export async function getUser(apiKey: string): Promise<UserData> {
     const response = await fetch(
         "https://www.finalearth.com/api/user?key=" + apiKey
     );
-    return handleErrors<UserData>(response);
+    return handleErrors(response);
 }
 
 export async function getNotifications(
@@ -18,14 +18,21 @@ export async function getNotifications(
     const response = await fetch(
         "https://www.finalearth.com/api/notifications?key=" + apiKey
     );
-    return handleErrors<NotificationData>(response);
+    return handleErrors(response);
 }
 
 export async function getCountry(apiKey: string): Promise<CountryData> {
     const response = await fetch(
         "https://www.finalearth.com/api/country?key=" + apiKey
     );
-    return handleErrors<CountryData>(response);
+    return handleErrors(response);
+}
+
+export async function getWorld(apiKey: string): Promise<CountryData[]> {
+    const response = await fetch(
+        `https://www.finalearth.com/api/world?key=${apiKey}`
+    );
+    return handleErrors(response);
 }
 
 async function handleErrors<T>(response: Response): Promise<T> {
