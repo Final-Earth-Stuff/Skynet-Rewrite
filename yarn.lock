@@ -245,6 +245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-cron@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@types/node-cron@npm:3.0.1"
+  checksum: c93887daef8064b92122c3baf5a3f058bafb70a600f432665dd2684ef8539f7796fd731b3b35b54daad7faef88f87b56fc3236b8e69ce021a364ba2e8f30e51e
+  languageName: node
+  linkType: hard
+
 "@types/node-fetch@npm:^2.5.12":
   version: 2.5.12
   resolution: "@types/node-fetch@npm:2.5.12"
@@ -1223,6 +1230,7 @@ __metadata:
     "@discordjs/builders": ^0.9.0
     "@types/glob": ^7.2.0
     "@types/node": ^16.11.13
+    "@types/node-cron": ^3.0.1
     "@typescript-eslint/eslint-plugin": ^5.7.0
     "@typescript-eslint/parser": ^5.7.0
     bufferutil: ^4.0.5
@@ -1230,7 +1238,9 @@ __metadata:
     discord.js: ^13.3.1
     dotenv: ^10.0.0
     eslint: ^8.4.1
+    fuzzysort: ^1.2.1
     glob: ^7.2.0
+    node-cron: ^3.0.0
     node-gyp: ^8.4.1
     pg: ^8.7.1
     prettier: ^2.5.1
@@ -1308,6 +1318,13 @@ __metadata:
   version: 1.0.1
   resolution: "functional-red-black-tree@npm:1.0.1"
   checksum: ca6c170f37640e2d94297da8bb4bf27a1d12bea3e00e6a3e007fd7aa32e37e000f5772acf941b4e4f3cf1c95c3752033d0c509af157ad8f526e7f00723b9eb9f
+  languageName: node
+  linkType: hard
+
+"fuzzysort@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "fuzzysort@npm:1.2.1"
+  checksum: 74dad902a0aef6c3237d5ae5330aacca23d408f0e07125fcc39b57561b4c29da512fbf3826c3f3918da89f132f5b393cf5d56b3217282ecfb80a90124bdf03d1
   languageName: node
   linkType: hard
 
@@ -1842,6 +1859,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moment-timezone@npm:^0.5.31":
+  version: 0.5.34
+  resolution: "moment-timezone@npm:0.5.34"
+  dependencies:
+    moment: ">= 2.9.0"
+  checksum: 12a1d3d52e4ba509cf1fa36bbda59d898a08fa80ab35f6c358747e93aec1f07e617cec647eaf2e8acf5f9132e581d4704d34a9edffa9a80c5cd04bf23b277595
+  languageName: node
+  linkType: hard
+
+"moment@npm:>= 2.9.0":
+  version: 2.29.2
+  resolution: "moment@npm:2.29.2"
+  checksum: ee850b5776485e2af0775ceb3cfebaa7d7638f0a750fe0678fcae24c310749f96c1938808384bd422a55e5703834a71fcb09c8a1d36d9cf847f6ed0205d7a3e5
+  languageName: node
+  linkType: hard
+
 "ms@npm:2.1.2":
   version: 2.1.2
   resolution: "ms@npm:2.1.2"
@@ -1894,6 +1927,15 @@ __metadata:
   version: 2.1.2
   resolution: "node-cleanup@npm:2.1.2"
   checksum: 584cdc3e42560a998b4579f91ed8f936b27011628f3102e5a1093205f0691cdf8d899287d1f2e4d2071ea4ab1d615810bad6dbe2b988ef173a1cbaa76d8165b3
+  languageName: node
+  linkType: hard
+
+"node-cron@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "node-cron@npm:3.0.0"
+  dependencies:
+    moment-timezone: ^0.5.31
+  checksum: acae07d835f74636ec2bf598ffadf6b89aa2eae036671bffad336371b28fb1eefb11870912c965bb351cd958d4b62f9fa9b28cf922b5f681459ea4878837ffcf
   languageName: node
   linkType: hard
 

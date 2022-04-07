@@ -5,24 +5,29 @@ import { Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 
 export class Dist {
-    @CommandData({ type: "global" })
+    @CommandData({
+        type: "global",
+        completions: { origin: "country", destination: "country" },
+    })
     distData() {
         return new SlashCommandBuilder()
             .setName("dist")
             .setDescription(
                 "Determines the distance and travel time between two countries"
             )
-            .addStringOption((option) =>
+            .addIntegerOption((option) =>
                 option
                     .setName("origin")
                     .setDescription("Starting country")
                     .setRequired(true)
+                    .setAutocomplete(true)
             )
-            .addStringOption((option) =>
+            .addIntegerOption((option) =>
                 option
                     .setName("destination")
                     .setDescription("Destination")
                     .setRequired(true)
+                    .setAutocomplete(true)
             )
             .addIntegerOption((option) =>
                 option

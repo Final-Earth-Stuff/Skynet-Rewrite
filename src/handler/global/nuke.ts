@@ -4,22 +4,27 @@ import { CommandInteraction } from "discord.js";
 import { Command, CommandData } from "../../decorators";
 
 export class Nuke {
-    @CommandData({ type: "global" })
+    @CommandData({
+        type: "global",
+        completions: { origin: "country", destination: "country" },
+    })
     nukeData() {
         return new SlashCommandBuilder()
             .setName("nuke")
             .setDescription("Shows nuke travel time")
-            .addStringOption((option) =>
+            .addIntegerOption((option) =>
                 option
                     .setName("origin")
                     .setDescription("The country in which the nuke is launched")
                     .setRequired(true)
+                    .setAutocomplete(true)
             )
-            .addStringOption((option) =>
+            .addIntegerOption((option) =>
                 option
                     .setName("destination")
                     .setDescription("The country the nuke is launched at")
                     .setRequired(true)
+                    .setAutocomplete(true)
             )
             .addStringOption((option) =>
                 option

@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { Client, Intents } from "discord.js";
 
 import { createConnection, getCustomRepository } from "typeorm";
+import { schedule } from "node-cron";
 
 import glob from "glob";
 import path from "path";
@@ -11,7 +12,6 @@ import { config } from "./config";
 
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
-import { checkUsers } from "./watcher";
 
 import { CommandRepository } from "./repository/CommandRepository";
 
@@ -32,10 +32,8 @@ glob.sync("dist/handler/**/*.js").forEach((match) => {
 client.on("ready", async (client) => {
     if (config.updateGlobals && !config.debug) {
         try {
-            const data = [...decoratorData.globalCommandsData].map((factory) =>
-                factory()
-            );
-            await client.application.commands.set(data).then(console.log);
+            const data = decoratorData.globalCommandsData;
+            await client.application.commands.set(data);
             logger.info("Updated application commands");
         } catch (e) {
             logger.error(
@@ -51,15 +49,9 @@ client.on("ready", async (client) => {
         for (const partialGuild of guilds.values()) {
             try {
                 const guild = await partialGuild.fetch();
-                const data = [...decoratorData.guildCommandsData].map(
-                    (factory) => factory()
-                );
+                const data = [...decoratorData.guildCommandsData];
                 if (config.debug) {
-                    data.push(
-                        ...[...decoratorData.globalCommandsData].map(
-                            (factory) => factory()
-                        )
-                    );
+                    data.push(...decoratorData.globalCommandsData);
                 }
 
                 const commands = await guild.commands.set(data);
@@ -81,22 +73,20 @@ client.on("ready", async (client) => {
         }
         logger.info("Updated guild commands");
     }
-    logger.info("Bot is ready");
 
-    setInterval(checkUsers, 30000, client);
+    logger.info("Scheduling jobs...");
+    decoratorData.jobs.forEach((job, cron) =>
+        schedule(cron, () => job(client))
+    );
+
+    logger.info("Bot is ready");
 });
 
 client.on("guildCreate", async (guild) => {
     try {
-        const data = [...decoratorData.guildCommandsData].map((factory) =>
-            factory()
-        );
+        const data = [...decoratorData.guildCommandsData];
         if (config.debug) {
-            data.push(
-                ...[...decoratorData.globalCommandsData].map((factory) =>
-                    factory()
-                )
-            );
+            data.push(...decoratorData.globalCommandsData);
         }
 
         const commands = await guild.commands.set(data);
@@ -118,13 +108,47 @@ client.on("interactionCreate", async (interaction) => {
         await decoratorData.commands.get(interaction.commandName)?.(
             interaction
         );
-    }
-    if (interaction.isButton()) {
+    } else if (interaction.isButton()) {
         logger.debug(
             "Received button interaction for '%s'",
             interaction.customId
         );
         await decoratorData.buttons.get(interaction.customId)?.(interaction);
+    } else if (interaction.isAutocomplete()) {
+        const focused = interaction.options.getFocused(true);
+        logger.debug(
+            "Received autocompletion interaction for command '%s', option '%s'",
+            interaction.commandName,
+            focused.name
+        );
+
+        const handlerID = decoratorData.optionCompletionMap
+            .get(interaction.commandName)
+            ?.get(focused.name);
+
+        if (!handlerID) {
+            logger.error("No handler registered for requested completion!");
+            return;
+        }
+
+        const handler = decoratorData.completionHandlers.get(handlerID);
+
+        if (!handler) {
+            logger.error("Unknown completion handler with id '%s'!", handlerID);
+            return;
+        }
+
+        try {
+            const completions = await handler(focused.value as string);
+            await interaction.respond(completions);
+        } catch (e) {
+            logger.error(
+                "Error in completion handler '%s' while processing value '%s': %O",
+                handlerID,
+                focused.value,
+                e
+            );
+        }
     }
 });
 
