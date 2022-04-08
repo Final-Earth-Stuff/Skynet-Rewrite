@@ -1,6 +1,7 @@
 import { In } from "typeorm";
 
-import { Collection, ApplicationCommand, Snowflake } from "discord.js";
+import { ApplicationCommand } from "discord.js";
+import { APIApplicationCommand } from "discord-api-types/v10";
 
 import { Command } from "../entity/Command";
 import { AppDataSource } from "../";
@@ -22,7 +23,7 @@ export const CommandRepository = AppDataSource.getRepository(Command).extend({
     },
 
     async replaceGuildCommands(
-        commands: Collection<Snowflake, ApplicationCommand>,
+        commands: Iterable<ApplicationCommand | APIApplicationCommand>,
         guildId: string
     ): Promise<void> {
         await this.manager.transaction(async (manager) => {
@@ -32,8 +33,8 @@ export const CommandRepository = AppDataSource.getRepository(Command).extend({
 
             manager.insert(
                 Command,
-                commands.map((command, id) => ({
-                    command_id: id,
+                [...commands].map((command) => ({
+                    command_id: command.id,
                     command_name: command.name,
                     guild_id: guildId,
                 }))

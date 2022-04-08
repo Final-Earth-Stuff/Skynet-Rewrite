@@ -1,8 +1,12 @@
-import { Guild } from "discord.js";
+import type { REST } from "@discordjs/rest";
 
 import { updateHooks } from "./data";
 
-export type UpdateHook = (guild: Guild) => Promise<void>;
+export type UpdateHook = (
+    guildID: string,
+    appID: string,
+    rest: REST
+) => Promise<void>;
 
 export const AfterCommandUpdate =
     () =>

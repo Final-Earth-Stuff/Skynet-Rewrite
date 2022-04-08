@@ -1,8 +1,11 @@
 import "reflect-metadata";
 
+import glob from "glob";
+import path from "path";
+
 import { DataSource } from "typeorm";
 
-import { config } from "./config";
+import { config, parser } from "./config";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -17,5 +20,23 @@ export const AppDataSource = new DataSource({
 });
 
 import { bootstrap } from "./bot";
+import { updateCommands } from "./scripts/updateCommands";
 
-AppDataSource.initialize().then(bootstrap);
+// load handlers...
+glob.sync("dist/handler/**/*.js").forEach((match) => {
+    const file = path.relative("src", match);
+    require("./" + file);
+});
+
+AppDataSource.initialize().then(async () => {
+    const args = await parser.argv;
+    switch (args._[0]) {
+        case "bot":
+            bootstrap();
+            break;
+        case "update_commands":
+            await updateCommands(args.g);
+            break;
+        case "update_resources":
+    }
+});

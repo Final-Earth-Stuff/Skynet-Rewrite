@@ -1,4 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
+import type { REST } from "@discordjs/rest";
+import {
+    Routes,
+    APIGuild,
+    ApplicationCommandPermissionType,
+} from "discord-api-types/v10";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
 
 import {
@@ -303,12 +309,38 @@ export class Role {
     }
 
     @AfterCommandUpdate()
-    async migratePermissions(guild: Guild) {
+    async migratePermissions(guild_id: string, app_id: string, rest: REST) {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail({
-            where: { guild_id: guild.id },
+        const guildEntity = await guildRepository.findOneByOrFail({
+            guild_id,
         });
 
-        await updatePermissionsForGuild(guildEntity, guild);
+        const commandIDs = await CommandRepository.getGuildCommandIdsByName(
+            [...adminCommands],
+            guild_id
+        );
+
+        const guild = (await rest.get(Routes.guild(guild_id))) as APIGuild;
+
+        const fullPermissions = commandIDs.map((commandID) => ({
+            id: commandID,
+            permissions: [
+                {
+                    id: guild.owner_id,
+                    type: ApplicationCommandPermissionType.User,
+                    permission: true,
+                },
+                ...guildEntity.admin_roles.map((id) => ({
+                    id,
+                    type: ApplicationCommandPermissionType.Role,
+                    permission: true,
+                })),
+            ],
+        }));
+
+        await rest.put(
+            Routes.guildApplicationCommandsPermissions(app_id, guild_id),
+            { body: fullPermissions }
+        );
     }
 }
