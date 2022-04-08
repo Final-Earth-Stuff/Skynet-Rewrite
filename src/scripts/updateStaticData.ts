@@ -11,13 +11,14 @@ export async function updateStaticData() {
     try {
         logger.info("Updating static map data...");
         const world = await getWorld(config.apiKey);
-        AppDataSource.getRepository(Country).upsert(
+        await AppDataSource.getRepository(Country).upsert(
             world.map((country) => ({
                 id: parseInt(country.id),
                 name: country.name,
                 code: country.code,
                 latitude: country.coordinates.latitude,
                 longitude: country.coordinates.longitude,
+                coastline: country.coastline,
                 region: country.region.toLowerCase() as Region,
             })),
             ["id"]

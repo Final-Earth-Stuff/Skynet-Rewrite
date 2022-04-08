@@ -54,6 +54,6 @@ export const parser = yargs(process.argv.slice(2))
                 },
             })
     )
-    .command("refresh_resources", "Update static resources")
+    .command("update_resources", "Update static resources")
     .demandCommand(1)
     .strict();

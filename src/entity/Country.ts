@@ -29,6 +29,9 @@ export class Country {
     @Column({ type: "float8" })
     longitude!: number;
 
+    @Column({ type: "int4" })
+    coastline!: number;
+
     @Column({ type: "enum", enum: Region })
     @Index()
     region!: Region;
