@@ -1,3 +1,6 @@
+import glob from "glob";
+import path from "path";
+
 import { REST } from "@discordjs/rest";
 import {
     Routes,
@@ -22,8 +25,14 @@ const logger = makeLogger(module);
 const rest = new REST({ version: "10" }).setToken(config.botToken);
 
 export async function updateCommands(globalsToGuilds: boolean) {
-    logger.info("Updating application commands...");
     try {
+        logger.info("Loading handlers...");
+        glob.sync("dist/handler/**/*.js").forEach((match) => {
+            const file = path.relative("src", match);
+            require("./" + file);
+        });
+
+        logger.info("Updating application commands...");
         const app = (await rest.get(
             Routes.oauth2CurrentApplication()
         )) as APIApplication;

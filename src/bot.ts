@@ -1,3 +1,6 @@
+import glob from "glob";
+import path from "path";
+
 import { Client, Intents } from "discord.js";
 
 import { schedule } from "node-cron";
@@ -12,7 +15,13 @@ import { CommandRepository } from "./repository/CommandRepository";
 const logger = makeLogger(module);
 
 export const bootstrap = () => {
-    logger.info("Starting bot");
+    logger.info("Starting bot...");
+
+    logger.info("Loading handlers...");
+    glob.sync("dist/handler/**/*.js").forEach((match) => {
+        const file = path.relative("src", match);
+        require("./" + file);
+    });
 
     const client = new Client({
         intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS],

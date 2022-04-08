@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 
-enum Region {
+export enum Region {
     AFRICA = "africa",
     ASIA = "asia",
     ANTARCTICA = "antarctica",
@@ -8,8 +8,8 @@ enum Region {
     CARIBBEAN = "caribbean",
     EUROPE = "europe",
     MIDDLE_EAST = "middle east",
-    NORTH_AMERICA = "north_america",
-    SOUTH_AMERICA = "south_america",
+    NORTH_AMERICA = "north america",
+    SOUTH_AMERICA = "south america",
 }
 
 @Entity()

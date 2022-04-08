@@ -1,8 +1,5 @@
 import "reflect-metadata";
 
-import glob from "glob";
-import path from "path";
-
 import { DataSource } from "typeorm";
 
 import { config, parser } from "./config";
@@ -19,24 +16,25 @@ export const AppDataSource = new DataSource({
     migrations: ["dist/migration/**/*.js"],
 });
 
-import { bootstrap } from "./bot";
-import { updateCommands } from "./scripts/updateCommands";
-
-// load handlers...
-glob.sync("dist/handler/**/*.js").forEach((match) => {
-    const file = path.relative("src", match);
-    require("./" + file);
-});
-
 AppDataSource.initialize().then(async () => {
     const args = await parser.argv;
     switch (args._[0]) {
-        case "bot":
+        case "bot": {
+            const { bootstrap } = await import("./bot");
             bootstrap();
             break;
-        case "update_commands":
+        }
+        case "update_commands": {
+            const { updateCommands } = await import("./scripts/updateCommands");
             await updateCommands(args.g);
-            break;
-        case "update_resources":
+            return process.exit();
+        }
+        case "update_resources": {
+            const { updateStaticData } = await import(
+                "./scripts/updateStaticData"
+            );
+            await updateStaticData();
+            return process.exit();
+        }
     }
 });
