@@ -1,8 +1,10 @@
-import { EntityRepository, Repository } from "typeorm";
 import { LandAndFacilities } from "../entity/LandAndFacilities";
 
-@EntityRepository(LandAndFacilities)
-export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
+import { AppDataSource } from "../";
+
+export const LandAndFacilitiesRepository = AppDataSource.getRepository(
+    LandAndFacilities
+).extend({
     createLandAndFacilities(
         country: number,
         land: number,
@@ -23,7 +25,7 @@ export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
         landAndFacilities.timestamp = timestamp;
         landAndFacilities.team_control = teamControl;
         return this.manager.save(landAndFacilities);
-    }
+    },
 
     getSpawnFactories(timestamp: Date) {
         return this.manager
@@ -37,5 +39,5 @@ export class LandAndFacilitiesRepository extends Repository<LandAndFacilities> {
             })
             .groupBy("land_and_facilities.country")
             .getMany();
-    }
-}
+    },
+});

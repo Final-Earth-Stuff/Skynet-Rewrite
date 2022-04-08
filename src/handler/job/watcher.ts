@@ -1,5 +1,4 @@
 import { Client, User } from "discord.js";
-import { getCustomRepository } from "typeorm";
 
 import { ScheduledJob } from "../../decorators";
 
@@ -15,17 +14,12 @@ import { NotificationData } from "../../wrapper/models/notification";
 
 const logger = makeLogger(module);
 
-function getRepository(): UserSettingsRepository {
-    return getCustomRepository(UserSettingsRepository);
-}
-
 export class Watcher {
     @ScheduledJob({ cron: "*/30 * * * * *" })
     async checkUsers(client: Client) {
         logger.info("checking all users...");
         try {
-            const settingsRepository = getRepository();
-            const values = await settingsRepository.getAllUserSettings();
+            const values = await UserSettingsRepository.getAllUserSettings();
             values?.forEach(async (user) => {
                 if (user && user.api_key) {
                     logger.info("checking " + user.user_id);
@@ -55,7 +49,6 @@ export class Watcher {
         notifsData: NotificationData,
         discord: User
     ) {
-        const settingsRepository = getRepository();
         const timers: Timers = await this.buildTimers(
             user,
             notifsData,
@@ -74,12 +67,11 @@ export class Watcher {
             this.checkEnemies(user, discord, team);
         }
 
-        await settingsRepository.updateTimers(timers);
-        await settingsRepository.updateCounts(counts);
+        await UserSettingsRepository.updateTimers(timers);
+        await UserSettingsRepository.updateCounts(counts);
     }
 
     async checkEnemies(user: UserSettings, discord: User, team: string) {
-        const settingsRepository = getRepository();
         const apiKey = user.api_key ?? "";
         const data = await this.getCurrentCountry(team, apiKey);
         const prevNotif = user.prev_enemies_notification ?? new Date(0);
@@ -89,7 +81,7 @@ export class Watcher {
             data.currentCountry
         ) {
             if (user.country != data.currentCountry) {
-                await settingsRepository.updateCountryAndEnemyCount(
+                await UserSettingsRepository.updateCountryAndEnemyCount(
                     user.discord_id,
                     data.currentCountry,
                     data.currentCount
@@ -102,7 +94,7 @@ export class Watcher {
                     "☠️ Enemy troops have changed by " +
                         (data.currentCount - prevEnemies)
                 );
-                await settingsRepository.updateCountryAndEnemyCount(
+                await UserSettingsRepository.updateCountryAndEnemyCount(
                     user.discord_id,
                     data.currentCountry,
                     data.currentCount,

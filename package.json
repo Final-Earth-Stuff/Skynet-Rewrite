@@ -31,7 +31,7 @@
     "node-cron": "^3.0.0",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.41",
+    "typeorm": "^0.3.5",
     "utf-8-validate": "^5.0.7",
     "winston": "3",
     "zlib-sync": "^0.1.7"
