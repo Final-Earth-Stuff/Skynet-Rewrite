@@ -19,7 +19,7 @@ export const bootstrap = () => {
 
     logger.info("Loading handlers...");
     glob.sync("dist/handler/**/*.js").forEach((match) => {
-        const file = path.relative("src", match);
+        const file = path.relative(module.path, match);
         require("./" + file);
     });
 
@@ -98,6 +98,7 @@ export const bootstrap = () => {
                     decoratorData.eventHandlers[
                         event as keyof typeof decoratorData.eventHandlers
                     ].map((handler) => handler(...(args as never[])))
+
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);
