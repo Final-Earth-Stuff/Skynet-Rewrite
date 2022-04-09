@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Remind {
     @CommandData({ type: "global" })
@@ -29,6 +30,7 @@ export class Remind {
     }
 
     @Command({ name: "remind" })
+    @Guard({ body: commandChannelGuard })
     async remind(interaction: CommandInteraction): Promise<void> {
         const minutes = interaction.options.getInteger("minutes", true);
         if (minutes < 1) {

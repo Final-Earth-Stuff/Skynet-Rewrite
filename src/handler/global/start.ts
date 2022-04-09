@@ -1,10 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
 import { BotError } from "../../error";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Start {
     @CommandData({ type: "global" })
@@ -27,6 +28,7 @@ export class Start {
      * @todo Add additional handling for invalid api key
      */
     @Command({ name: "start" })
+    @Guard({ body: commandChannelGuard })
     async start(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
         const apiKey = interaction.options.getString("apikey", true);

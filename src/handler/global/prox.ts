@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Prox {
     @CommandData({ type: "global", completions: { center: "country" } })
@@ -52,6 +53,7 @@ export class Prox {
     }
 
     @Command({ name: "prox" })
+    @Guard({ body: commandChannelGuard })
     async prox(interaction: CommandInteraction): Promise<void> {
         const travelPoints = interaction.options.getInteger("points") ?? 0;
         if (travelPoints < 0 || travelPoints > 25) {

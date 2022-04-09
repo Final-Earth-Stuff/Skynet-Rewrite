@@ -6,7 +6,8 @@ import {
     MessageButton,
 } from "discord.js";
 
-import { Command, CommandData, Button } from "../../decorators";
+import { Command, CommandData, Button, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import {
     UserSettingsRepository,
     Toggles,
@@ -121,6 +122,7 @@ export class Settings {
     }
 
     @Command({ name: "settings" })
+    @Guard({ body: commandChannelGuard })
     async settings(interaction: CommandInteraction): Promise<void> {
         const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
