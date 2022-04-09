@@ -14,7 +14,7 @@ import { NotificationData } from "../../wrapper/models/notification";
 
 const logger = makeLogger(module);
 
-export class Watcher {
+export class MonitorUsers {
     @ScheduledJob({ cron: "*/30 * * * * *" })
     async checkUsers(client: Client) {
         logger.info("checking all users...");

@@ -2,35 +2,28 @@ import { LandAndFacilities } from "../entity/LandAndFacilities";
 
 import { AppDataSource } from "../";
 
-interface FacQueryRow {
+export interface FacQueryRow {
     country: number;
     diff: number;
     team_control: number;
+    name?: string;
 }
 
 export const LandAndFacilitiesRepository = AppDataSource.getRepository(
     LandAndFacilities
 ).extend({
-    createLandAndFacilities(
-        country: number,
-        land: number,
-        rigs: number,
-        facs: number,
-        mines: number,
-        isSpawn: boolean,
-        teamControl: number,
-        timestamp: Date
-    ) {
-        const landAndFacilities = new LandAndFacilities();
-        landAndFacilities.country = country;
-        landAndFacilities.land = land;
-        landAndFacilities.rigs = rigs;
-        landAndFacilities.facs = facs;
-        landAndFacilities.mines = mines;
-        landAndFacilities.is_spawn = isSpawn;
-        landAndFacilities.timestamp = timestamp;
-        landAndFacilities.team_control = teamControl;
-        return this.manager.save(landAndFacilities);
+    updateWorld(world: Omit<LandAndFacilities, "id">[]) {
+        return this.manager.insert(LandAndFacilities, world);
+    },
+
+    getLastWorld() {
+        return this.manager
+            .createQueryBuilder(LandAndFacilities, "land_and_facilities")
+            .distinctOn(["land_and_facilities.country"])
+            .select()
+            .orderBy("land_and_facilities.country")
+            .addOrderBy("land_and_facilities.timestamp", "DESC")
+            .getMany();
     },
 
     async getSpawnFactories(timestamp: Date): Promise<FacQueryRow[]> {
@@ -59,7 +52,7 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             .addCommonTableExpression(past, "past")
             .addCommonTableExpression(current, "current")
             .addSelect("current.country", "country")
-            .addSelect("current.facs - past.country", "diff")
+            .addSelect("current.facs - past.facs", "diff")
             .addSelect("current.team_control", "team_control")
             .where("current.is_spawn");
 
