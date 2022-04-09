@@ -10,8 +10,6 @@ import { config } from "./config";
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
 
-import { CommandRepository } from "./repository/CommandRepository";
-
 const logger = makeLogger(module);
 
 export const bootstrap = () => {
@@ -98,7 +96,6 @@ export const bootstrap = () => {
                     decoratorData.eventHandlers[
                         event as keyof typeof decoratorData.eventHandlers
                     ].map((handler) => handler(...(args as never[])))
-
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);
