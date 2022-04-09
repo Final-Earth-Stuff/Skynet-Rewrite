@@ -1,10 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
+import { verifyGuard } from "../../guard/verifyGuard";
 
 import { AppDataSource } from "../..";
 
@@ -20,6 +21,7 @@ export class Verify {
     }
 
     @Command({ name: "verify" })
+    @Guard({ body: verifyGuard })
     async totals(interaction: CommandInteraction) {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");

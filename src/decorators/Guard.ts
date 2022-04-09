@@ -9,21 +9,20 @@ export interface GuardOptions {
     body: GuardFunction;
 }
 
-export const CommandData =
+export const Guard =
     (options: GuardOptions) =>
     (
         _target: unknown,
         _propertyKey: string,
         descriptor: TypedPropertyDescriptor<CommandHandler>
-    ) =>
-    async (interaction: CommandInteraction) => {
-        if (
-            (options.guildOnly || options.guildOnly === undefined) &&
-            interaction.inGuild()
-        )
-            return;
+    ) => {
+        const original = descriptor.value;
+        descriptor.value = async (interaction: CommandInteraction) => {
+            if (options.guildOnly === false || interaction.inGuild()) {
+                await options.body(interaction);
+            }
 
-        await options.body(interaction);
-
-        await descriptor.value?.(interaction);
+            await original?.call(this, interaction);
+        };
+        return descriptor;
     };
