@@ -5,39 +5,32 @@ import { AppDataSource } from "../";
 export const LandAndFacilitiesRepository = AppDataSource.getRepository(
     LandAndFacilities
 ).extend({
-    createLandAndFacilities(
-        country: number,
-        land: number,
-        rigs: number,
-        facs: number,
-        mines: number,
-        isSpawn: boolean,
-        teamControl: number,
-        timestamp: Date
-    ) {
-        const landAndFacilities = new LandAndFacilities();
-        landAndFacilities.country = country;
-        landAndFacilities.land = land;
-        landAndFacilities.rigs = rigs;
-        landAndFacilities.facs = facs;
-        landAndFacilities.mines = mines;
-        landAndFacilities.is_spawn = isSpawn;
-        landAndFacilities.timestamp = timestamp;
-        landAndFacilities.team_control = teamControl;
-        return this.manager.save(landAndFacilities);
+    updateWorld(world: LandAndFacilities[]) {
+        return this.manager.insert(LandAndFacilities, world);
+    },
+
+    getLastWorld() {
+        return this.manager
+            .createQueryBuilder(LandAndFacilities, "land_and_facilities")
+            .distinctOn(["land_and_facilities.country"])
+            .select()
+            .orderBy("land_and_facilities.country")
+            .addOrderBy("land_and_facilities.timestamp", "DESC")
+            .getMany();
     },
 
     getSpawnFactories(timestamp: Date) {
         return this.manager
             .createQueryBuilder(LandAndFacilities, "land_and_facilities")
-            .addSelect("land_and_facilities.country", "country")
-            .addSelect("land_and_facilities.facs", "facs")
-            .addSelect("max(land_and_facilities.timestamp")
+            .distinctOn(["land_and_facilities.country"])
+            .select("land_and_facilities.country")
+            .addSelect("land_and_facilities.facs")
             .where("land_and_facilities.timestamp < :timestamp", { timestamp })
             .andWhere("land_and_facilities.is_spawn = :isSpawn", {
                 isSpawn: true,
             })
-            .groupBy("land_and_facilities.country")
+            .orderBy("land_and_facilities.country")
+            .addOrderBy("land_and_facilities.timestamp")
             .getMany();
     },
 });

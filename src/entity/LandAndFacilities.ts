@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
 @Index(["country", "timestamp"])
 export class LandAndFacilities {
     @PrimaryGeneratedColumn()
-    id!: number;
+    id?: number;
 
     @Column({ type: "int2" })
     country!: number;
