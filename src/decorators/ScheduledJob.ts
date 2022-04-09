@@ -23,5 +23,7 @@ export const ScheduledJob =
             target._shared = shared;
         }
 
-        jobs.set(options.cron, descriptor.value.bind(shared));
+        const cronJobs = jobs.get(options.cron) ?? [];
+        cronJobs.push(descriptor.value.bind(shared));
+        jobs.set(options.cron, cronJobs);
     };
