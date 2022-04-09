@@ -14,7 +14,7 @@ import {
     EventHandler,
 } from "../../decorators";
 import { BotError } from "../../error";
-import { adminCommands } from "../../decorators/data";
+import { adminCommands, guildCommandsData } from "../../decorators/data";
 
 import { AppDataSource } from "../..";
 import { CommandRepository } from "../../repository/CommandRepository";
@@ -302,10 +302,17 @@ export class Role {
         guildEntity.admin_roles = [];
         guildEntity.command_channels = [];
 
-        await updatePermissionsForGuild(guildEntity, guild);
-
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         await guildRepository.save(guildEntity);
+
+        const commands = await guild.commands.set(guildCommandsData);
+
+        await CommandRepository.replaceGuildCommands(
+            commands.values(),
+            guild.id
+        );
+
+        await updatePermissionsForGuild(guildEntity, guild);
     }
 
     @AfterCommandUpdate()

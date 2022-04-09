@@ -10,8 +10,6 @@ import { config } from "./config";
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
 
-import { CommandRepository } from "./repository/CommandRepository";
-
 const logger = makeLogger(module);
 
 export const bootstrap = () => {
@@ -34,28 +32,6 @@ export const bootstrap = () => {
         );
 
         logger.info("Bot is ready");
-    });
-
-    client.on("guildCreate", async (guild) => {
-        try {
-            const data = [...decoratorData.guildCommandsData];
-            if (config.debug) {
-                data.push(...decoratorData.globalCommandsData);
-            }
-
-            const commands = await guild.commands.set(data);
-
-            await CommandRepository.replaceGuildCommands(
-                commands.values(),
-                guild.id
-            );
-        } catch (e) {
-            logger.error(
-                "Unexpected error after trying to join guild <id=%s>: %O",
-                guild.id,
-                e
-            );
-        }
     });
 
     client.on("interactionCreate", async (interaction) => {
@@ -119,7 +95,7 @@ export const bootstrap = () => {
                 await Promise.all(
                     decoratorData.eventHandlers[
                         event as keyof typeof decoratorData.eventHandlers
-                    ].map((handler) => handler(args as never))
+                    ].map((handler) => handler(...(args as never[])))
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);
