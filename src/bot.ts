@@ -117,11 +117,9 @@ export const bootstrap = () => {
         client.on(event, async (...args) => {
             try {
                 await Promise.all(
-                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                    (decoratorData.eventHandlers as any)[event].map(
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        (handler: any) => handler(args)
-                    )
+                    decoratorData.eventHandlers[
+                        event as keyof typeof decoratorData.eventHandlers
+                    ].map((handler) => handler(args as never))
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);

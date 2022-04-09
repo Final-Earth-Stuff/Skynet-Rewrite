@@ -27,7 +27,7 @@ export const EventHandler =
             target._shared = shared;
         }
 
-        const handlers = eventHandlers[options.event] ?? new Set();
-        handlers.add(descriptor.value.bind(shared));
+        const handlers = eventHandlers[options.event] ?? [];
+        handlers.push(descriptor.value.bind(shared));
         eventHandlers[options.event] = handlers;
     };
