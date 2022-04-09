@@ -38,20 +38,20 @@ export class Spawns {
             new Date(Date.now() - hoursInMs)
         );
 
-        const allies = facs.reduce<FacQueryRow[]>((acc, e) => {
-            if (e.team_control === 100) {
-                e.name = countryMap.get(e.country)?.name;
-                acc?.push(e);
+        const allies = facs.filter((c) => {
+            if (c.team_control === 100) {
+                c.name = countryMap.get(c.country)?.name;
+                return true;
             }
-            return acc;
-        }, []);
-        const axis = facs.reduce<FacQueryRow[]>((acc, e) => {
-            if (e.team_control === 0) {
-                e.name = countryMap.get(e.country)?.name;
-                acc?.push(e);
+            return false;
+        });
+        const axis = facs.filter((c) => {
+            if (c.team_control === 0) {
+                c.name = countryMap.get(c.country)?.name;
+                return true;
             }
-            return acc;
-        }, []);
+            return false;
+        });
 
         const heading1 = `Changes over last ${hours} hours:\n🟢 ALLIES`;
         const heading2 = `🔴 AXIS`;

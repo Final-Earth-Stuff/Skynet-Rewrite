@@ -11,12 +11,12 @@ import { LandAndFacilities } from "../../entity/LandAndFacilities";
 const logger = makeLogger(module);
 
 export class MonitorWorld {
-    @ScheduledJob({ cron: "*/25 * * * * *" })
+    @ScheduledJob({ cron: "*/30 * * * * *" })
     async checkWorld(_client: Client) {
         logger.info("checking world...");
         try {
             const world: CountryData[] = await wrapper.getWorld(config.apiKey);
-            const currWorld: LandAndFacilities[] = this.convertWorld(world);
+            const currWorld = this.convertWorld(world);
             const prevWorld = await LandAndFacilitiesRepository.getLastWorld();
 
             const changedWorld = currWorld.filter(
@@ -49,7 +49,7 @@ export class MonitorWorld {
         });
     }
 
-    compareCountry(c1: LandAndFacilities, c2: LandAndFacilities) {
+    compareCountry(c1: Omit<LandAndFacilities, "id">, c2: LandAndFacilities) {
         return (
             c1.country === c2.country &&
             c1.land === c2.land &&

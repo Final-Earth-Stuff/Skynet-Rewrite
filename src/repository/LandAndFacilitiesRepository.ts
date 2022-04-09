@@ -12,7 +12,7 @@ export interface FacQueryRow {
 export const LandAndFacilitiesRepository = AppDataSource.getRepository(
     LandAndFacilities
 ).extend({
-    updateWorld(world: LandAndFacilities[]) {
+    updateWorld(world: Omit<LandAndFacilities, "id">[]) {
         return this.manager.insert(LandAndFacilities, world);
     },
 
