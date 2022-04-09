@@ -1,12 +1,10 @@
 import { createLogger, format, transports } from "winston";
 import { relative } from "path";
 
-import { config } from "./config";
-
 const logFormat = format.combine(format.splat(), format.timestamp());
 
 const logger = createLogger({
-    level: config.debug ? "debug" : "info",
+    level: process.env.NODE_ENV === "development" ? "debug" : "info",
     format: format.combine(logFormat, format.json()),
     transports: [
         new transports.Console({

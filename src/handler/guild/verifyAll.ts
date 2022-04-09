@@ -65,7 +65,7 @@ export class Verify {
                             member.user.displayAvatarURL()
                         )
                         .setDescription(
-                            `User ${interaction.user.tag} is not verified with Final Earth!`
+                            `User ${member.user.tag} is not verified with Final Earth!`
                         )
                         .setColor("ORANGE");
                     await logChannel.send({ embeds: [embed] });

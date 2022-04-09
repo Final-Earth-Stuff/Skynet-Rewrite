@@ -1,4 +1,9 @@
 import dotenv from "dotenv";
+import yargs from "yargs";
+
+import { makeLogger } from "./logger";
+
+const logger = makeLogger(module);
 
 dotenv.config();
 
@@ -9,7 +14,7 @@ const requireEnv = (name: string, fallback?: string): string => {
     } else if (fallback !== undefined) {
         return fallback;
     } else {
-        console.error(`[config.ts]: expected ${name}, but is undefined`);
+        logger.error("expected %s, but is undefined", name);
         process.exit(1);
     }
 };
@@ -30,3 +35,25 @@ export const config = {
     updateGlobals: process.argv.includes("--update-globals"),
     updateGuilds: process.argv.includes("--update-guilds"),
 };
+
+export const parser = yargs(process.argv.slice(2))
+    .usage("Usage: $0 <command> [options]")
+    .help("h")
+    .alias("h", "help")
+    .command("bot", "Run the bot")
+    .command(
+        "update_commands",
+        "Update the discord slash command definitions",
+        (yargs) =>
+            yargs.options({
+                g: {
+                    alias: "globals-to-guilds",
+                    type: "boolean",
+                    default: false,
+                    desc: "Write global commands to guilds instead for debugging purposes",
+                },
+            })
+    )
+    .command("update_resources", "Update static resources")
+    .demandCommand(1)
+    .strict();

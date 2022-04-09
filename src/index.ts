@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import { DataSource } from "typeorm";
 
-import { config } from "./config";
+import { config, parser } from "./config";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -16,6 +16,25 @@ export const AppDataSource = new DataSource({
     migrations: ["dist/migration/**/*.js"],
 });
 
-import { bootstrap } from "./bot";
-
-AppDataSource.initialize().then(bootstrap);
+AppDataSource.initialize().then(async () => {
+    const args = await parser.argv;
+    switch (args._[0]) {
+        case "bot": {
+            const { bootstrap } = await import("./bot");
+            bootstrap();
+            break;
+        }
+        case "update_commands": {
+            const { updateCommands } = await import("./scripts/updateCommands");
+            await updateCommands(args.g);
+            return process.exit();
+        }
+        case "update_resources": {
+            const { updateStaticData } = await import(
+                "./scripts/updateStaticData"
+            );
+            await updateStaticData();
+            return process.exit();
+        }
+    }
+});
