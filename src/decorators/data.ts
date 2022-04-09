@@ -17,7 +17,7 @@ export const globalCommandsData = new Array<ApplicationCommandData>();
 export const guildCommandsData = new Array<ApplicationCommandData>();
 
 export const eventHandlers = {} as {
-    [K in EventKey]: Set<EventHandlerType<K>>;
+    [K in EventKey]: Array<EventHandlerType<K>>;
 };
 
 export const updateHooks = new Set<UpdateHook>();
