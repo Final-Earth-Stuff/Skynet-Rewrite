@@ -22,7 +22,7 @@ export const eventHandlers = {} as {
 
 export const updateHooks = new Set<UpdateHook>();
 
-export const jobs = new Collection<string, JobBody>();
+export const jobs = new Collection<string, JobBody[]>();
 
 export const completionHandlers = new Collection<
     string | undefined,
