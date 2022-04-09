@@ -11,7 +11,7 @@ import { LandAndFacilities } from "../../entity/LandAndFacilities";
 const logger = makeLogger(module);
 
 export class MonitorWorld {
-    @ScheduledJob({ cron: "*/20 * * * * *" })
+    @ScheduledJob({ cron: "*/25 * * * * *" })
     async checkWorld(_client: Client) {
         logger.info("checking world...");
         try {
@@ -25,7 +25,6 @@ export class MonitorWorld {
                         this.compareCountry(item1, item2)
                     )
             );
-            console.log(changedWorld);
 
             if (changedWorld.length > 0) {
                 LandAndFacilitiesRepository.updateWorld(changedWorld);
@@ -43,8 +42,8 @@ export class MonitorWorld {
                 rigs: country.facilities.rigs,
                 facs: country.facilities.factories,
                 mines: country.facilities.mines,
-                is_spawn: country.isSpawn,
-                team_control: country.controlTeam,
+                is_spawn: country.isActiveSpawn,
+                team_control: country.control,
                 timestamp: new Date(),
             };
         });

@@ -9,16 +9,16 @@ export class LandAndFacilities {
     @Column({ type: "int2" })
     country!: number;
 
-    @Column()
+    @Column({ type: "int4" })
     land!: number;
 
-    @Column()
+    @Column({ type: "int4" })
     rigs!: number;
 
-    @Column()
+    @Column({ type: "int4" })
     facs!: number;
 
-    @Column()
+    @Column({ type: "int4" })
     mines!: number;
 
     @Column()
