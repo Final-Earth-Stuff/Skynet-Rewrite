@@ -29,8 +29,8 @@ export const bootstrap = () => {
 
     client.on("ready", async (client) => {
         logger.info("Scheduling jobs...");
-        decoratorData.jobs.forEach((job, cron) =>
-            schedule(cron, () => job(client))
+        decoratorData.jobs.forEach((cronJobs, cron) =>
+            schedule(cron, () => cronJobs.forEach((job) => job(client)))
         );
 
         logger.info("Bot is ready");
