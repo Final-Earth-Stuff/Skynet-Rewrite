@@ -19,7 +19,7 @@ export const bootstrap = () => {
 
     logger.info("Loading handlers...");
     glob.sync("dist/handler/**/*.js").forEach((match) => {
-        const file = path.relative("src", match);
+        const file = path.relative(module.path, match);
         require("./" + file);
     });
 
