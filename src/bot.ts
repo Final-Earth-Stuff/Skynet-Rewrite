@@ -10,8 +10,6 @@ import { config } from "./config";
 import * as decoratorData from "./decorators/data";
 import { makeLogger } from "./logger";
 
-import { CommandRepository } from "./repository/CommandRepository";
-
 const logger = makeLogger(module);
 
 export const bootstrap = () => {
@@ -19,7 +17,7 @@ export const bootstrap = () => {
 
     logger.info("Loading handlers...");
     glob.sync("dist/handler/**/*.js").forEach((match) => {
-        const file = path.relative("src", match);
+        const file = path.relative(module.path, match);
         require("./" + file);
     });
 
@@ -34,28 +32,6 @@ export const bootstrap = () => {
         );
 
         logger.info("Bot is ready");
-    });
-
-    client.on("guildCreate", async (guild) => {
-        try {
-            const data = [...decoratorData.guildCommandsData];
-            if (config.debug) {
-                data.push(...decoratorData.globalCommandsData);
-            }
-
-            const commands = await guild.commands.set(data);
-
-            await CommandRepository.replaceGuildCommands(
-                commands.values(),
-                guild.id
-            );
-        } catch (e) {
-            logger.error(
-                "Unexpected error after trying to join guild <id=%s>: %O",
-                guild.id,
-                e
-            );
-        }
     });
 
     client.on("interactionCreate", async (interaction) => {
@@ -117,11 +93,9 @@ export const bootstrap = () => {
         client.on(event, async (...args) => {
             try {
                 await Promise.all(
-                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                    (decoratorData.eventHandlers as any)[event].map(
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        (handler: any) => handler(args)
-                    )
+                    decoratorData.eventHandlers[
+                        event as keyof typeof decoratorData.eventHandlers
+                    ].map((handler) => handler(...(args as never[])))
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);

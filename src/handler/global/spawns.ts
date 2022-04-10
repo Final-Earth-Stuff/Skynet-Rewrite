@@ -6,8 +6,6 @@ import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
-import { getCountries } from "../../map";
-
 export class Spawns {
     @CommandData({ type: "global" })
     SpawnsData() {
@@ -33,25 +31,12 @@ export class Spawns {
             );
         }
         const hoursInMs = 60000 * 60 * hours;
-        const countryMap = await getCountries();
         const facs = await LandAndFacilitiesRepository.getSpawnFactories(
             new Date(Date.now() - hoursInMs)
         );
 
-        const allies = facs.filter((c) => {
-            if (c.team_control === 100) {
-                c.name = countryMap.get(c.country)?.name;
-                return true;
-            }
-            return false;
-        });
-        const axis = facs.filter((c) => {
-            if (c.team_control === 0) {
-                c.name = countryMap.get(c.country)?.name;
-                return true;
-            }
-            return false;
-        });
+        const allies = facs.filter((c) => c.team_control === 100);
+        const axis = facs.filter((c) => c.team_control === 0);
 
         const heading1 = `Changes over last ${hours} hours:\n🟢 ALLIES`;
         const heading2 = `🔴 AXIS`;

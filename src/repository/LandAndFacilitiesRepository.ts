@@ -1,4 +1,5 @@
 import { LandAndFacilities } from "../entity/LandAndFacilities";
+import { Country } from "../entity/Country";
 
 import { AppDataSource } from "../";
 
@@ -6,7 +7,7 @@ export interface FacQueryRow {
     country: number;
     diff: number;
     team_control: number;
-    name?: string;
+    name: string;
 }
 
 export const LandAndFacilitiesRepository = AppDataSource.getRepository(
@@ -49,11 +50,13 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
         const query = AppDataSource.createQueryBuilder()
             .from("current", "current")
             .innerJoin("past", "past", "past.country=current.country")
+            .innerJoin(Country, "country", "country.id=current.country")
             .addCommonTableExpression(past, "past")
             .addCommonTableExpression(current, "current")
             .addSelect("current.country", "country")
             .addSelect("current.facs - past.facs", "diff")
             .addSelect("current.team_control", "team_control")
+            .addSelect("country.name", "name")
             .where("current.is_spawn");
 
         return await query.getRawMany();
