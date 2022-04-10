@@ -25,3 +25,5 @@ jobs:
       run: yarn lint
     - name: Prettify
       run: yarn format
+    - name: Build
+      run: yarn run build
