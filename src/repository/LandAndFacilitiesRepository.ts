@@ -1,5 +1,6 @@
 import { LandAndFacilities } from "../entity/LandAndFacilities";
 import { Country, Region } from "../entity/Country";
+import { unwrap } from "../util/assert";
 
 import { AppDataSource } from "../";
 
@@ -79,7 +80,7 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
         return await query.getRawMany();
     },
 
-    async totals(region?: Region) {
+    async totals(region?: Region): Promise<TotalsQueryRow> {
         const lastFacilities = AppDataSource.createQueryBuilder()
             .from("land_and_facilities", "laf")
             .addSelect("laf.country", "country")
@@ -150,6 +151,6 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             query.where("country.region=:region", { region });
         }
 
-        return await query.getRawMany();
+        return unwrap(await query.getRawOne());
     },
 });
