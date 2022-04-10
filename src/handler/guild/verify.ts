@@ -41,7 +41,7 @@ export class Verify {
 
         const guildRepository = AppDataSource.getRepository(Guild);
         const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
             throw new BotError("Roles are not configure for this guild");
@@ -81,7 +81,10 @@ export class Verify {
         }
 
         const embed = new MessageEmbed()
-            .setAuthor(user.name, interaction.user.displayAvatarURL())
+            .setAuthor({
+                name: user.name,
+                iconURL: interaction.user.displayAvatarURL(),
+            })
             .setDescription(
                 `Successfully verified user ${interaction.user.tag}!`
             )

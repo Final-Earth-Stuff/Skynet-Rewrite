@@ -7,7 +7,7 @@ import { Guild } from "../entity/Guild";
 export const commandChannelGuard = async (interaction: CommandInteraction) => {
     const guild = await AppDataSource.getRepository(Guild).findOneOrFail({
         where: {
-            guild_id: interaction.guildId,
+            guild_id: interaction.guildId ?? "",
         },
         select: {
             command_channels: true,

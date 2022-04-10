@@ -95,7 +95,7 @@ export const bootstrap = () => {
                 await Promise.all(
                     decoratorData.eventHandlers[
                         event as keyof typeof decoratorData.eventHandlers
-                    ].map((handler) => handler(...(args as never[])))
+                    ].map((handler: CallableFunction) => handler(...args))
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);
