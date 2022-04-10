@@ -151,7 +151,7 @@ export class Role {
         await AppDataSource.createEntityManager().transaction(
             async (manager) => {
                 const guildEntity = await manager.findOneOrFail(GuildEntity, {
-                    where: { guild_id: interaction.guildId },
+                    where: { guild_id: interaction.guildId ?? "" },
                 });
 
                 if (guildEntity.admin_roles.includes(roleID)) {
@@ -182,7 +182,7 @@ export class Role {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
-        await guildRepository.update(interaction.guildId, {
+        await guildRepository.update(interaction.guildId ?? "", {
             [`${type}_role`]: roleID,
         });
 
@@ -215,7 +215,7 @@ export class Role {
         await AppDataSource.createEntityManager().transaction(
             async (manager) => {
                 const guildEntity = await manager.findOneOrFail(GuildEntity, {
-                    where: { guild_id: interaction.guildId },
+                    where: { guild_id: interaction.guildId ?? "" },
                 });
                 if (!guildEntity.admin_roles.includes(roleID)) {
                     throw new BotError(
@@ -246,7 +246,7 @@ export class Role {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
-        await guildRepository.update(interaction.guildId, {
+        await guildRepository.update(interaction.guildId ?? "", {
             [`${type}_role`]: null,
         });
 
@@ -260,7 +260,7 @@ export class Role {
     async roleInfo(interaction: CommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
 
         const embed = new MessageEmbed()
