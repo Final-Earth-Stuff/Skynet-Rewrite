@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Region {
     @CommandData({ type: "global" })
@@ -41,6 +42,7 @@ export class Region {
     }
 
     @Command({ name: "region" })
+    @Guard({ body: commandChannelGuard })
     async region(interaction: CommandInteraction): Promise<void> {
         await interaction.reply({ content: "Not implemented" });
     }

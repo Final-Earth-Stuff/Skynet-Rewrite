@@ -114,7 +114,7 @@ export class Channel {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guildEntity = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
 
         if (guildEntity.command_channels.includes(channelID)) {
@@ -141,7 +141,7 @@ export class Channel {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
-        await guildRepository.update(interaction.guildId, {
+        await guildRepository.update(interaction.guildId ?? "", {
             [`${type}_channel`]: channelID,
         });
 
@@ -174,7 +174,7 @@ export class Channel {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guildEntity = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
 
         if (!guildEntity.command_channels.includes(channelID)) {
@@ -202,7 +202,7 @@ export class Channel {
     ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
-        await guildRepository.update(interaction.guildId, {
+        await guildRepository.update(interaction.guildId ?? "", {
             [`${type}_channel`]: null,
         });
 
@@ -216,7 +216,7 @@ export class Channel {
     async channelInfo(interaction: CommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
 
         const embed = new MessageEmbed()

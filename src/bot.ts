@@ -6,14 +6,17 @@ import { Client, Intents } from "discord.js";
 import { schedule } from "node-cron";
 
 import { config } from "./config";
+import { makeLogger } from "./logger";
+import { Data } from "./map";
 
 import * as decoratorData from "./decorators/data";
-import { makeLogger } from "./logger";
 
 const logger = makeLogger(module);
 
-export const bootstrap = () => {
+export const bootstrap = async () => {
     logger.info("Starting bot...");
+
+    await Data.shared.initialise();
 
     logger.info("Loading handlers...");
     glob.sync("dist/handler/**/*.js").forEach((match) => {
@@ -95,7 +98,7 @@ export const bootstrap = () => {
                 await Promise.all(
                     decoratorData.eventHandlers[
                         event as keyof typeof decoratorData.eventHandlers
-                    ].map((handler) => handler(...(args as never[])))
+                    ].map((handler: CallableFunction) => handler(...args))
                 );
             } catch (e) {
                 logger.error("Error in event handler '%s': %O", event, e);

@@ -29,7 +29,7 @@ export class Verify {
 
         const guildRepository = AppDataSource.getRepository(Guild);
         const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId },
+            where: { guild_id: interaction.guildId ?? "" },
         });
 
         const logChannel = guild.log_channel
@@ -61,10 +61,10 @@ export class Verify {
             } catch (e) {
                 if (e instanceof ApiError && e.code == 2 && logChannel) {
                     const embed = new MessageEmbed()
-                        .setAuthor(
-                            member.user.username,
-                            member.user.displayAvatarURL()
-                        )
+                        .setAuthor({
+                            name: member.user.username,
+                            iconURL: member.user.displayAvatarURL(),
+                        })
                         .setDescription(
                             `User ${member.user.tag} is not verified with Final Earth!`
                         )
@@ -107,7 +107,10 @@ export class Verify {
 
             if (logChannel) {
                 const embed = new MessageEmbed()
-                    .setAuthor(user.name, member.displayAvatarURL())
+                    .setAuthor({
+                        name: user.name,
+                        iconURL: member.displayAvatarURL(),
+                    })
                     .setDescription(
                         `Successfully verified user ${member.user.tag}!`
                     )

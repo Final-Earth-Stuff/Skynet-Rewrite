@@ -1,8 +1,9 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Delete {
     @CommandData({ type: "global" })
@@ -16,6 +17,7 @@ export class Delete {
     }
 
     @Command({ name: "delete" })
+    @Guard({ body: commandChannelGuard })
     async delete(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
         UserSettingsRepository.deleteByDiscordId(interaction.user.id);

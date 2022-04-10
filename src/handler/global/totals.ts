@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Totals {
     @CommandData({ type: "global" })
@@ -13,6 +14,7 @@ export class Totals {
     }
 
     @Command({ name: "totals" })
+    @Guard({ body: commandChannelGuard })
     async totals(interaction: CommandInteraction) {
         await interaction.reply({ content: "Not implemented" });
     }

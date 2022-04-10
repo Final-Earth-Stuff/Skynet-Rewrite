@@ -1,10 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
-import { getCountries } from "../../map";
+import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 function rangeLimit(tech: string): number {
     switch (tech) {
@@ -72,16 +73,15 @@ export class Nuke {
     }
 
     @Command({ name: "nuke" })
+    @Guard({ body: commandChannelGuard })
     async nuke(interaction: CommandInteraction): Promise<void> {
         const origin = interaction.options.getInteger("origin", true);
         const destination = interaction.options.getInteger("destination", true);
 
         const tech = interaction.options.getString("tech") ?? "SRBM";
 
-        const countries = await getCountries();
-
-        const oC = countries.get(origin);
-        const dC = countries.get(destination);
+        const oC = Data.shared.country(origin);
+        const dC = Data.shared.country(destination);
 
         if (!oC || !dC) {
             throw new Error("Unknown country id");
