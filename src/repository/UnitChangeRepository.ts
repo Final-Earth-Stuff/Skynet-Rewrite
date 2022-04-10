@@ -5,23 +5,17 @@ import { AppDataSource } from "../";
 export const UnitChangeRepository = AppDataSource.getRepository(
     UnitChange
 ).extend({
-    createAndSaveUnits(
-        country: number,
-        previous_country: number,
-        axis: number,
-        allies: number,
-        delta_axis: number,
-        delta_allies: number,
-        timestamp: Date
-    ) {
-        const unitChange = new UnitChange();
-        unitChange.country = country;
-        unitChange.previous_country = previous_country;
-        unitChange.axis = axis;
-        unitChange.allies = allies;
-        unitChange.delta_allies = delta_allies;
-        unitChange.delta_axis = delta_axis;
-        unitChange.timestamp = timestamp;
-        return this.manager.save(unitChange);
+    updateUnits(world: Omit<UnitChange, "id">[]) {
+        return this.manager.insert(UnitChange, world);
+    },
+
+    getLastWorld(): Promise<UnitChange[]> {
+        return this.manager
+            .createQueryBuilder(UnitChange, "units")
+            .distinctOn(["units.country"])
+            .select()
+            .orderBy("units.country")
+            .addOrderBy("units.timestamp", "DESC")
+            .getMany();
     },
 });

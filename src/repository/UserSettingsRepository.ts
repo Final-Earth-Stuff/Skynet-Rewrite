@@ -1,4 +1,5 @@
-import { UserSettings, Team } from "../entity/UserSettings";
+import { UserSettings } from "../entity/UserSettings";
+import { Team } from "../service/util/constants";
 
 import { AppDataSource } from "../";
 

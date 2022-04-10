@@ -1,9 +1,10 @@
+import { Team } from "../../service/util/constants";
 import { Statistics, Timers } from "./common";
 
 export interface UserData {
     id: number;
     name: string;
-    team: "Allies" | "Axis" | "None" | "Auto";
+    team: Team;
     joined: number;
     rank: number;
     rating: number;

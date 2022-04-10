@@ -10,6 +10,7 @@ import { BotError, ApiError } from "../../error";
 import { AppDataSource } from "../..";
 
 import { Guild } from "../../entity/Guild";
+import { Team } from "../../service/util/constants";
 
 export class Verify {
     @CommandData({ type: "guild" })
@@ -75,14 +76,14 @@ export class Verify {
 
             let role: string;
             switch (user.team) {
-                case "Allies":
+                case Team.ALLIES:
                     role = guild.allies_role;
                     break;
-                case "Axis":
+                case Team.AXIS:
                     role = guild.axis_role;
                     break;
-                case "None":
-                case "Auto":
+                case Team.NONE:
+                case Team.AUTO:
                     role = guild.spectator_role;
                     break;
             }
