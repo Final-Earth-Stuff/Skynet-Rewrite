@@ -58,10 +58,9 @@ export async function prepareAndSendMessage(
     changedUnits: Units[],
     world: CountryData[]
 ) {
-    const countryInfo: Map<number, CountryData> = new Map();
-    world.map((country) => {
-        countryInfo.set(parseInt(country.id), country);
-    });
+    const countryInfo = new Map(
+        world.map((country) => [parseInt(country.id), country])
+    );
 
     const guildRepository = AppDataSource.getRepository(Guild);
     const guilds = await guildRepository.find();
@@ -71,7 +70,7 @@ export async function prepareAndSendMessage(
                 guild.troop_movement_channel
             ) as TextChannel;
 
-            changedUnits.forEach(async (unit) => {
+            changedUnits.forEach((unit) => {
                 sendTMMessage(unit, channel, countryInfo);
             });
         }
@@ -84,8 +83,11 @@ function sendTMMessage(
     countryInfo: Map<number, CountryData>
 ) {
     const country = countryInfo.get(unit.country);
-    const icon = getIcon(country?.controlTeam ?? 0);
-    const control = getControl(country);
+    if (country == null) {
+        throw new Error("Something went wrong, country id not found.");
+    }
+    const icon = getIcon(country.controlTeam ?? 0);
+    const control = convertAxisControl(country.control, country.controlTeam);
     const team = unit.delta_allies !== 0 ? 1 : 2;
 
     const embed = new MessageEmbed()
@@ -102,21 +104,23 @@ function sendTMMessage(
         )
         .addField("Axis Forces", `${unit.axis} (${unit.delta_axis})`, true)
         .setColor(unit.previous_country ? getColor(team) : Color.BLUE);
-    channel?.send({ embeds: [embed] });
+    channel.send({ embeds: [embed] });
 }
 
 function getEmbedDesc(unit: Units, countryInfo: Map<number, CountryData>) {
     const prevCountry = countryInfo.get(unit.previous_country ?? 0);
+    if (prevCountry == null) {
+        throw new Error("Something went wrong, country id not found.");
+    }
     const prevIcon = getIcon(prevCountry?.controlTeam ?? 0);
     const teamName = unit.delta_allies !== 0 ? "Allied" : "Axis";
-    const control = getControl(prevCountry);
+    const control = convertAxisControl(
+        prevCountry.control,
+        prevCountry.controlTeam
+    );
     const time = buildTravelStr(unit);
 
     return `${teamName} units have arrived from ${prevIcon} ${prevCountry?.name} (${control}%) (${time}mins)`;
-}
-
-function getControl(country: CountryData | undefined) {
-    return convertAxisControl(country?.control ?? 0, country?.controlTeam ?? 0);
 }
 
 function buildTravelStr(unit: Units) {
@@ -150,14 +154,15 @@ function buildUnitChange(country: CountryData, prev: UnitChange): Units {
 function buildAlliesChanges(allies: Map<number, Units[]>) {
     let arr: Units[] = [];
 
-    allies.forEach(function (value) {
+    allies.forEach((value) => {
         if (value.length === 2) {
-            if (value[0].delta_allies > 0 && value[1].delta_allies < 0) {
-                value[0].previous_country = value[1].country;
-                arr.push(value[0]);
-            } else if (value[0].delta_allies < 0 && value[1].delta_allies > 0) {
-                value[1].previous_country = value[0].country;
-                arr.push(value[1]);
+            const [c1, c2] = value;
+            if (c1.delta_allies > 0 && c2.delta_allies < 0) {
+                c1.previous_country = c2.country;
+                arr.push(c1);
+            } else if (c1.delta_allies < 0 && c2.delta_allies > 0) {
+                c2.previous_country = c1.country;
+                arr.push(c2);
             }
         } else {
             arr = arr.concat(value);
@@ -169,14 +174,15 @@ function buildAlliesChanges(allies: Map<number, Units[]>) {
 function buildAxisChanges(axis: Map<number, Units[]>) {
     let arr: Units[] = [];
 
-    axis.forEach(function (value) {
+    axis.forEach((value) => {
         if (value.length === 2) {
-            if (value[0].delta_axis > 0 && value[1].delta_axis < 0) {
-                value[0].previous_country = value[1].country;
-                arr.push(value[0]);
-            } else if (value[0].delta_axis < 0 && value[1].delta_axis > 0) {
-                value[1].previous_country = value[0].country;
-                arr.push(value[1]);
+            const [c1, c2] = value;
+            if (c1.delta_axis > 0 && c2.delta_axis < 0) {
+                c1.previous_country = c2.country;
+                arr.push(c1);
+            } else if (c1.delta_axis < 0 && c2.delta_axis > 0) {
+                c2.previous_country = c1.country;
+                arr.push(c2);
             }
         } else {
             arr = arr.concat(value);
