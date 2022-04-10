@@ -1,3 +1,6 @@
+import { Data } from "../map";
+import { greatCircleDist } from "../map/geometry";
+
 export function travelTime(
     distKm: number,
     points?: number,
@@ -9,4 +12,21 @@ export function travelTime(
             (distKm / 1.609344 / 1000.0) *
             60
     );
+}
+
+export function getDistance(
+    origin: number,
+    destination: number,
+    travelPoints?: number,
+    paratrooper?: boolean | null
+) {
+    const oC = Data.shared.country(origin);
+    const dC = Data.shared.country(destination);
+
+    if (!oC || !dC) {
+        throw new Error("Unknown country id");
+    }
+
+    const distKm = greatCircleDist(oC.coordinates, dC.coordinates);
+    return travelTime(distKm, travelPoints, paratrooper);
 }

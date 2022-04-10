@@ -20,7 +20,7 @@ const logger = makeLogger(module);
 
 export class MonitorWorld {
     @ScheduledJob({ cron: "*/30 * * * * *" })
-    async checkWorld(_client: Client) {
+    async checkWorld(client: Client) {
         logger.info("checking world...");
         try {
             const world: CountryData[] = await wrapper.getWorld(config.apiKey);
@@ -32,7 +32,7 @@ export class MonitorWorld {
 
             const changedUnits = await this.checkTroops(world);
             if (changedUnits.length > 0) {
-                prepareAndSendMessage(_client, changedUnits);
+                prepareAndSendMessage(client, changedUnits, world);
                 UnitChangeRepository.updateUnits(changedUnits);
             }
         } catch (e) {

@@ -5,8 +5,7 @@ import { AppDataSource } from "..";
 import { Guild } from "../entity/Guild";
 import { getIcon, convertAxisControl, getColor } from "./util/team";
 import { Color } from "./util/constants";
-
-const countryInfo: Map<number, CountryData> = new Map();
+import { getDistance } from "../map/util";
 
 type Units = Omit<UnitChange, "id">;
 
@@ -14,65 +13,76 @@ export function changedUnitsFromWorld(
     world: CountryData[],
     prevUnits: UnitChange[]
 ): Units[] {
-    return world.reduce((acc: Units[], country) => {
-        const prev = prevUnits.find(
-            (units) => parseInt(country.id) === units.country
-        );
-        if (prev && !compareUnits(country, prev)) {
-            countryInfo.set(parseInt(country.id), country);
-            acc.push(buildUnitChange(country, prev));
-        }
-        return acc;
-    }, []);
+    return world
+        .map((country) => {
+            const prev = prevUnits.find(
+                (units) => parseInt(country.id) === units.country
+            );
+            if (prev && !compareUnits(country, prev)) {
+                return buildUnitChange(country, prev);
+            }
+            return;
+        })
+        .filter((a) => a) as Units[];
 }
 
 export function detectOrigin(changedWorld: Units[]): Units[] {
-    const duplicatesToRemove: number[] = [];
+    const allies: Map<number, Units[]> = new Map();
+    const axis: Map<number, Units[]> = new Map();
 
-    const addedPrevCountry = changedWorld.map((c1) => {
-        const allies = changedWorld.find((c2) =>
-            linkMovement(c1.delta_allies, c2.delta_allies)
-        );
-        if (allies?.country && allies.country !== c1.country) {
-            c1.previous_country = allies?.country;
-            duplicatesToRemove.push(c1.previous_country);
+    changedWorld.map((c1) => {
+        if (c1.delta_allies !== 0) {
+            const delta = Math.abs(c1.delta_allies);
+            if (allies.has(delta)) {
+                allies.get(delta)?.push(c1);
+            } else {
+                allies.set(delta, [c1]);
+            }
         }
 
-        const axis = changedWorld.find((c2) =>
-            linkMovement(c1.delta_axis, c2.delta_axis)
-        );
-        if (axis?.country && axis.country !== c1.country) {
-            c1.previous_country = axis?.country;
-            duplicatesToRemove.push(c1.previous_country);
+        if (c1.delta_axis !== 0) {
+            const delta = Math.abs(c1.delta_axis);
+            if (axis.has(delta)) {
+                axis.get(delta)?.push(c1);
+            } else {
+                axis.set(delta, [c1]);
+            }
         }
-        return c1;
     });
 
-    return addedPrevCountry.filter((country) => {
-        return !duplicatesToRemove.includes(country.country);
-    });
+    return buildAlliesChanges(allies).concat(buildAxisChanges(axis));
 }
 
 export async function prepareAndSendMessage(
-    _client: Client,
-    changedUnits: Units[]
+    client: Client,
+    changedUnits: Units[],
+    world: CountryData[]
 ) {
+    const countryInfo: Map<number, CountryData> = new Map();
+    world.map((country) => {
+        countryInfo.set(parseInt(country.id), country);
+    });
+
     const guildRepository = AppDataSource.getRepository(Guild);
     const guilds = await guildRepository.find();
-    guilds.forEach(async (guild) => {
+    guilds.forEach((guild) => {
         if (guild.troop_movement_channel) {
-            const channel: TextChannel = _client.channels.cache.get(
+            const channel: TextChannel = client.channels.cache.get(
                 guild.troop_movement_channel
             ) as TextChannel;
 
             changedUnits.forEach(async (unit) => {
-                sendTMMessage(unit, channel);
+                sendTMMessage(unit, channel, countryInfo);
             });
         }
     });
 }
 
-function sendTMMessage(unit: Units, channel: TextChannel) {
+function sendTMMessage(
+    unit: Units,
+    channel: TextChannel,
+    countryInfo: Map<number, CountryData>
+) {
     const country = countryInfo.get(unit.country);
     const icon = getIcon(country?.controlTeam ?? 0);
     const control = getControl(country);
@@ -82,7 +92,7 @@ function sendTMMessage(unit: Units, channel: TextChannel) {
         .setTitle(`${icon} ${country?.name} (${control}%) [${country?.region}]`)
         .setDescription(
             unit.previous_country
-                ? getEmbedDesc(unit)
+                ? getEmbedDesc(unit, countryInfo)
                 : `Change in unit count detected:`
         )
         .addField(
@@ -95,24 +105,38 @@ function sendTMMessage(unit: Units, channel: TextChannel) {
     channel?.send({ embeds: [embed] });
 }
 
-function getEmbedDesc(unit: Units) {
+function getEmbedDesc(unit: Units, countryInfo: Map<number, CountryData>) {
     const prevCountry = countryInfo.get(unit.previous_country ?? 0);
     const prevIcon = getIcon(prevCountry?.controlTeam ?? 0);
     const teamName = unit.delta_allies !== 0 ? "Allied" : "Axis";
     const control = getControl(prevCountry);
+    const time = buildTravelStr(unit);
 
-    return `${teamName} units have arrived from ${prevIcon} ${prevCountry?.name} (${control}%) (?-?mins)`;
+    return `${teamName} units have arrived from ${prevIcon} ${prevCountry?.name} (${control}%) (${time}mins)`;
 }
 
 function getControl(country: CountryData | undefined) {
     return convertAxisControl(country?.control ?? 0, country?.controlTeam ?? 0);
 }
 
+function buildTravelStr(unit: Units) {
+    const maxTravelTime = getDistance(
+        unit.country,
+        unit.previous_country ?? 0,
+        0
+    );
+    const minTravelTime = getDistance(
+        unit.country,
+        unit.previous_country ?? 0,
+        25
+    );
+    return `${minTravelTime}-${maxTravelTime}`;
+}
 function compareUnits(u1: CountryData, u2: UnitChange): boolean {
     return u1.units.axis === u2.axis && u1.units.allies === u2.allies;
 }
 
-function buildUnitChange(country: CountryData, prev: UnitChange) {
+function buildUnitChange(country: CountryData, prev: UnitChange): Units {
     return {
         country: parseInt(country.id),
         axis: country.units.axis,
@@ -123,6 +147,40 @@ function buildUnitChange(country: CountryData, prev: UnitChange) {
     };
 }
 
-function linkMovement(d1: number, d2: number) {
-    return d1 > 0 && Math.abs(d1) === Math.abs(d2);
+function buildAlliesChanges(allies: Map<number, Units[]>) {
+    let arr: Units[] = [];
+
+    allies.forEach(function (value) {
+        if (value.length === 2) {
+            if (value[0].delta_allies > 0 && value[1].delta_allies < 0) {
+                value[0].previous_country = value[1].country;
+                arr.push(value[0]);
+            } else if (value[0].delta_allies < 0 && value[1].delta_allies > 0) {
+                value[1].previous_country = value[0].country;
+                arr.push(value[1]);
+            }
+        } else {
+            arr = arr.concat(value);
+        }
+    });
+    return arr;
+}
+
+function buildAxisChanges(axis: Map<number, Units[]>) {
+    let arr: Units[] = [];
+
+    axis.forEach(function (value) {
+        if (value.length === 2) {
+            if (value[0].delta_axis > 0 && value[1].delta_axis < 0) {
+                value[0].previous_country = value[1].country;
+                arr.push(value[0]);
+            } else if (value[0].delta_axis < 0 && value[1].delta_axis > 0) {
+                value[1].previous_country = value[0].country;
+                arr.push(value[1]);
+            }
+        } else {
+            arr = arr.concat(value);
+        }
+    });
+    return arr;
 }

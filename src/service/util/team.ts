@@ -12,7 +12,7 @@ export function getIcon(team: number) {
 
 export function convertAxisControl(control: number, team: number) {
     if (team === 2) {
-        return control + 50;
+        return 100 - control;
     }
     return control;
 }
