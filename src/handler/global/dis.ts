@@ -1,12 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 
 import { getCountries } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
 import { travelTime } from "../../map/util";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Dis {
     @CommandData({
@@ -53,6 +54,7 @@ export class Dis {
     }
 
     @Command({ name: "dis" })
+    @Guard({ body: commandChannelGuard })
     async dist(interaction: CommandInteraction): Promise<void> {
         const travelPoints = interaction.options.getInteger("points") ?? 0;
         if (travelPoints < 0 || travelPoints > 25) {

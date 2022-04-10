@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Factories {
     @CommandData({ type: "global" })
@@ -13,6 +14,7 @@ export class Factories {
     }
 
     @Command({ name: "factories" })
+    @Guard({ body: commandChannelGuard })
     async factories(interaction: CommandInteraction): Promise<void> {
         await interaction.reply({ content: "Not implemented" });
     }

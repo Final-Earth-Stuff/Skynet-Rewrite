@@ -2,8 +2,9 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
-import { Command, CommandData } from "../../decorators";
+import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
+import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 export class Spawns {
     @CommandData({ type: "global" })
@@ -21,6 +22,7 @@ export class Spawns {
     }
 
     @Command({ name: "spawns" })
+    @Guard({ body: commandChannelGuard })
     async spawns(interaction: CommandInteraction): Promise<void> {
         const hours = interaction.options.getInteger("hours") ?? 0;
         if (hours <= 0) {

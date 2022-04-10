@@ -5,3 +5,4 @@ export * from "./EventHandler";
 export * from "./AfterCommandUpdate";
 export * from "./ScheduledJob";
 export * from "./Completion";
+export * from "./Guard";
