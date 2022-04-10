@@ -3,7 +3,7 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 
 import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
-import { getCountries } from "../../map";
+import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
@@ -80,10 +80,8 @@ export class Nuke {
 
         const tech = interaction.options.getString("tech") ?? "SRBM";
 
-        const countries = await getCountries();
-
-        const oC = countries.get(origin);
-        const dC = countries.get(destination);
+        const oC = Data.shared.country(origin);
+        const dC = Data.shared.country(destination);
 
         if (!oC || !dC) {
             throw new Error("Unknown country id");

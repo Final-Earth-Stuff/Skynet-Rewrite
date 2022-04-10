@@ -1,4 +1,4 @@
-import { getCountries, Country } from "./";
+import { Country } from "./";
 import {
     Coordinates,
     projectToUnitSphere,
@@ -45,18 +45,13 @@ function buildRecursive(
     };
 }
 
-export const getKdTree = async () => {
-    if (!tree) {
-        const countries = await getCountries();
-        const values = [...countries.values()].map(
-            ({ id, coordinates: c }) => ({
-                id,
-                c: projectToUnitSphere(c),
-            })
-        );
-        tree = buildRecursive(values, 0);
-    }
+export const buildTree = (countries: Country[]) => {
+    const values = [...countries.values()].map(({ id, coordinates: c }) => ({
+        id,
+        c: projectToUnitSphere(c),
+    }));
 
+    tree = buildRecursive(values, 0);
     return tree;
 };
 
@@ -67,10 +62,9 @@ interface RangeMatch {
 
 export async function findInRange(
     center: Country,
+    node: TreeNode,
     rangeKm: number
 ): Promise<RangeMatch[]> {
-    const node = await getKdTree();
-
     const range = gcToEuclidean(rangeKm);
 
     return findInRangeRecursive(
