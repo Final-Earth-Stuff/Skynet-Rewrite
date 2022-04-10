@@ -2,6 +2,7 @@ import { AppDataSource } from "..";
 import { config } from "../config";
 import { makeLogger } from "../logger";
 
+import { Data } from "../map";
 import { Country, Region } from "../entity/Country";
 import { getWorld } from "../wrapper/wrapper";
 
@@ -9,7 +10,7 @@ const logger = makeLogger(module);
 
 export async function updateStaticData() {
     try {
-        logger.info("Updating static map data...");
+        logger.info("Writing static map data to database...");
         const world = await getWorld(config.apiKey);
         await AppDataSource.getRepository(Country).upsert(
             world.map((country) => ({
@@ -23,6 +24,10 @@ export async function updateStaticData() {
             })),
             ["id"]
         );
+        logger.info("Success!");
+
+        logger.info("Generating derived data structures and freezing them...");
+        await Data.generate(world);
         logger.info("Success!");
     } catch (e) {
         logger.error("Encountered error while updating static map data: %O", e);
