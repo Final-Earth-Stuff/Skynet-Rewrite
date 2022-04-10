@@ -1,9 +1,5 @@
 import { Column, PrimaryColumn, Entity } from "typeorm";
-
-export enum Team {
-    ALLIES = "allies",
-    AXIS = "axis",
-}
+import { Team } from "../service/util/constants";
 
 @Entity()
 export class UserSettings {

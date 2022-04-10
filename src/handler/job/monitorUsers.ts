@@ -11,6 +11,7 @@ import { UserSettings } from "../../entity/UserSettings";
 import * as wrapper from "../../wrapper/wrapper";
 import { makeLogger } from "../../logger";
 import { NotificationData } from "../../wrapper/models/notification";
+import { Team } from "../../service/util/constants";
 
 const logger = makeLogger(module);
 
@@ -61,7 +62,7 @@ export class MonitorUsers {
         );
         if (user?.enemy_flag && user.api_key) {
             const userData = await wrapper.getUser(user.api_key);
-            let team = "None";
+            let team = Team.NONE;
             team = userData.team;
 
             this.checkEnemies(user, discord, team);
@@ -108,10 +109,10 @@ export class MonitorUsers {
         const country = await wrapper.getCountry(api_key);
         if (country.units) {
             let currentCount: number | undefined;
-            if (team === "Allies") {
+            if (team === Team.ALLIES) {
                 currentCount = country.units.axis;
             }
-            if (team === "Axis") {
+            if (team === Team.AXIS) {
                 currentCount = country.units.allies;
             }
             return {
