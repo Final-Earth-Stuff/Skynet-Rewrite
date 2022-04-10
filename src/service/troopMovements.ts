@@ -30,25 +30,27 @@ export function detectOrigin(changedWorld: Units[]): Units[] {
     const duplicatesToRemove: number[] = [];
 
     const addedPrevCountry = changedWorld.map((c1) => {
-        const allies = changedWorld.find((c2) => linkMovement(c1.delta_allies, c2.delta_allies));
+        const allies = changedWorld.find((c2) =>
+            linkMovement(c1.delta_allies, c2.delta_allies)
+        );
         if (allies?.country && allies.country !== c1.country) {
             c1.previous_country = allies?.country;
-            duplicatesToRemove.push(c1.previous_country)
+            duplicatesToRemove.push(c1.previous_country);
         }
 
-        const axis = changedWorld.find((c2) => linkMovement(c1.delta_axis, c2.delta_axis));
+        const axis = changedWorld.find((c2) =>
+            linkMovement(c1.delta_axis, c2.delta_axis)
+        );
         if (axis?.country && axis.country !== c1.country) {
             c1.previous_country = axis?.country;
-            duplicatesToRemove.push(c1.previous_country)
+            duplicatesToRemove.push(c1.previous_country);
         }
         return c1;
     });
 
-    return addedPrevCountry.filter(
-        (country) =>{
-            return !duplicatesToRemove.includes(country.country)
-        } 
-    );
+    return addedPrevCountry.filter((country) => {
+        return !duplicatesToRemove.includes(country.country);
+    });
 }
 
 export async function prepareAndSendMessage(
@@ -73,13 +75,11 @@ export async function prepareAndSendMessage(
 function sendTMMessage(unit: Units, channel: TextChannel) {
     const country = countryInfo.get(unit.country);
     const icon = getIcon(country?.controlTeam ?? 0);
-    const control = getControl(country)
+    const control = getControl(country);
     const team = unit.delta_allies !== 0 ? 1 : 2;
 
     const embed = new MessageEmbed()
-        .setTitle(
-            `${icon} ${country?.name} (${control}%) [${country?.region}]`
-        )
+        .setTitle(`${icon} ${country?.name} (${control}%) [${country?.region}]`)
         .setDescription(
             unit.previous_country
                 ? getEmbedDesc(unit)
@@ -105,10 +105,7 @@ function getEmbedDesc(unit: Units) {
 }
 
 function getControl(country: CountryData | undefined) {
-    return convertAxisControl(
-        country?.control ?? 0,
-        country?.controlTeam ?? 0
-    );
+    return convertAxisControl(country?.control ?? 0, country?.controlTeam ?? 0);
 }
 
 function compareUnits(u1: CountryData, u2: UnitChange): boolean {
