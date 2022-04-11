@@ -12,8 +12,10 @@ export function convertWorld(world: CountryData[]) {
             rigs: country.facilities.rigs,
             facs: country.facilities.factories,
             mines: country.facilities.mines,
-            is_spawn: country.isActiveSpawn,
-            team_control: country.control,
+            ads: country.facilities.airDefences,
+            gds: country.facilities.groundDefences,
+            is_active_spawn: country.isActiveSpawn,
+            control: country.control,
             timestamp: new Date(),
         };
     });
@@ -29,7 +31,7 @@ export function compareCountry(
         c1.rigs === c2.rigs &&
         c1.facs === c2.facs &&
         c1.mines === c2.mines &&
-        c1.is_spawn === c2.is_spawn &&
-        c1.team_control === c2.team_control
+        c1.is_active_spawn === c2.is_active_spawn &&
+        c1.control === c2.control
     );
 }
