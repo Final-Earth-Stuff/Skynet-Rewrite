@@ -7,7 +7,7 @@ import { AppDataSource } from "../";
 export interface FacQueryRow {
     country: number;
     diff: number;
-    team_control: number;
+    control: number;
     name: string;
 }
 
@@ -59,8 +59,8 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             .from(LandAndFacilities, "laf")
             .addSelect("laf.country", "country")
             .addSelect("laf.facs", "facs")
-            .addSelect("laf.is_spawn", "is_spawn")
-            .addSelect("laf.team_control", "team_control")
+            .addSelect("laf.is_active_spawn", "is_active_spawn")
+            .addSelect("laf.control", "control")
             .distinctOn(["laf.country"])
             .addOrderBy("laf.country")
             .addOrderBy("laf.timestamp", "DESC");
@@ -73,9 +73,9 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             .addCommonTableExpression(current, "current")
             .addSelect("current.country", "country")
             .addSelect("current.facs - past.facs", "diff")
-            .addSelect("current.team_control", "team_control")
+            .addSelect("current.control", "control")
             .addSelect("country.name", "name")
-            .where("current.is_spawn");
+            .where("current.is_active_spawn");
 
         return await query.getRawMany();
     },
@@ -87,7 +87,7 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             .addSelect("laf.facs", "facs")
             .addSelect("laf.rigs", "rigs")
             .addSelect("laf.mines", "mines")
-            .addSelect("laf.team_control", "control")
+            .addSelect("laf.control", "control")
             .distinctOn(["laf.country"])
             .addOrderBy("laf.country")
             .addOrderBy("laf.timestamp", "DESC");
