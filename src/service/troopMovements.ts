@@ -142,7 +142,7 @@ function buildEmbed(unit: Units, countryInfo: Map<number, CountryData>) {
             true
         )
         .addField("Axis Forces", `${unit.axis} (${unit.delta_axis})`, true)
-        .setColor(colourForEvent(unit));
+        .setColor(colorForEvent(unit));
 }
 
 function getEmbedDesc(unit: Units, countryInfo: Map<number, CountryData>) {
@@ -183,7 +183,7 @@ function getEmbedDesc(unit: Units, countryInfo: Map<number, CountryData>) {
     return desc.join("\n");
 }
 
-function colourForEvent(change: Units): Color {
+function colorForEvent(change: Units): Color {
     if (change.delta_allies && !change.delta_axis) {
         return Color.GREEN;
     }
