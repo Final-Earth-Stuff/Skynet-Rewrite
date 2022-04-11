@@ -5,7 +5,6 @@ import { Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
-import { Region } from "../../entity/Country";
 
 export class Totals {
     @CommandData({ type: "global" })

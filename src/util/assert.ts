@@ -1,8 +1,8 @@
 import { makeLogger } from "../logger";
 
-const logger = makeLogger(module);
+import { Some } from "./guard";
 
-type Some<T> = T extends null | undefined ? never : T;
+const logger = makeLogger(module);
 
 export function assertIsSome<T>(opt: T, msg?: string): asserts opt is Some<T> {
     if (opt === undefined || opt === null) {
