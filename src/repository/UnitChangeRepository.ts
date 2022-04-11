@@ -1,6 +1,16 @@
 import { UnitChange } from "../entity/UnitChange";
+import { Region, Country } from "../entity/Country";
+import { LandAndFacilities } from "../entity/LandAndFacilities";
+import { Team } from "../service/util/constants";
 
 import { AppDataSource } from "../";
+
+export interface RegionQueryRow {
+    allies: number;
+    axis: number;
+    name: string;
+    control: number;
+}
 
 export const UnitChangeRepository = AppDataSource.getRepository(
     UnitChange
@@ -17,5 +27,54 @@ export const UnitChangeRepository = AppDataSource.getRepository(
             .orderBy("units.country")
             .addOrderBy("units.timestamp", "DESC")
             .getMany();
+    },
+
+    async getRegion(region: Region, team?: Team): Promise<RegionQueryRow[]> {
+        const current = AppDataSource.createQueryBuilder()
+            .distinctOn(["uc.country"])
+            .from(UnitChange, "uc")
+            .addSelect("uc.country", "country")
+            .addSelect("uc.allies", "allies")
+            .addSelect("uc.axis", "axis")
+            .orderBy("uc.country")
+            .addOrderBy("uc.timestamp", "DESC");
+
+        const query = AppDataSource.createQueryBuilder()
+            .addCommonTableExpression(current, "current")
+            .from("current", "current")
+            .innerJoin(Country, "country", "country.id=current.country")
+            .addSelect("country.name", "name")
+            .addSelect("current.allies", "allies")
+            .addSelect("current.axis", "axis")
+            .addSelect(
+                (qb) =>
+                    qb
+                        .from(LandAndFacilities, "laf")
+                        .select("laf.control", "control")
+                        .where("laf.country=current.country")
+                        .orderBy("timestamp", "DESC")
+                        .limit(1),
+                "control"
+            )
+            .where("country.region=:region", { region });
+
+        switch (team) {
+            case Team.ALLIES:
+                query
+                    .andWhere("current.allies <> 0")
+                    .orderBy("current.allies", "DESC");
+                break;
+            case Team.AXIS:
+                query
+                    .andWhere("current.axis <> 0")
+                    .orderBy("current.axis", "DESC");
+                break;
+            default:
+                query
+                    .addSelect("current.allies + current.axis", "total")
+                    .orderBy("total", "DESC");
+        }
+
+        return await query.getRawMany();
     },
 });
