@@ -35,8 +35,8 @@ export class Spawns {
             new Date(Date.now() - hoursInMs)
         );
 
-        const allies = facs.filter((c) => c.team_control === 100);
-        const axis = facs.filter((c) => c.team_control === 0);
+        const allies = facs.filter((c) => c.control === 100);
+        const axis = facs.filter((c) => c.control === 0);
 
         const heading1 = `Changes over last ${hours} hours:\n🟢 ALLIES`;
         const heading2 = `🔴 AXIS`;

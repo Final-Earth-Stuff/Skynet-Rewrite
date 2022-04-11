@@ -21,12 +21,18 @@ export class LandAndFacilities {
     @Column({ type: "int4" })
     mines!: number;
 
+    @Column({ type: "int4" })
+    ads!: number;
+
+    @Column({ type: "int4" })
+    gds!: number;
+
     @Column()
-    is_spawn!: boolean;
+    is_active_spawn!: boolean;
 
     @Column({ type: "timestamp without time zone" })
     timestamp!: Date;
 
     @Column()
-    team_control!: number;
+    control!: number;
 }
