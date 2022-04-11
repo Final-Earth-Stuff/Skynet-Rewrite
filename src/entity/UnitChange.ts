@@ -10,7 +10,10 @@ export class UnitChange {
     country!: number;
 
     @Column({ nullable: true })
-    previous_country?: number;
+    previous_country_allies?: number;
+
+    @Column({ nullable: true })
+    previous_country_axis?: number;
 
     @Column()
     axis!: number;
@@ -24,6 +27,6 @@ export class UnitChange {
     @Column()
     delta_allies!: number;
 
-    @Column()
-    timestamp!: Date;
+    @Column({ default: () => "now()" })
+    timestamp?: Date;
 }

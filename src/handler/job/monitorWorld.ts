@@ -9,7 +9,6 @@ import { CountryData } from "../../wrapper/models/country";
 import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
 
 import {
-    detectOrigin,
     changedUnitsFromWorld,
     prepareAndSendMessage,
 } from "../../service/troopMovements";
@@ -30,10 +29,10 @@ export class MonitorWorld {
                 LandAndFacilitiesRepository.updateWorld(changedFacilities);
             }
 
-            const changedUnits = await this.checkTroops(world);
-            if (changedUnits.length > 0) {
-                prepareAndSendMessage(client, changedUnits, world);
-                UnitChangeRepository.updateUnits(changedUnits);
+            const { changes, notifications } = await this.checkTroops(world);
+            if (changes.length > 0) {
+                prepareAndSendMessage(client, notifications, world);
+                UnitChangeRepository.updateUnits(changes);
             }
         } catch (e) {
             logger.error(e);
@@ -51,6 +50,6 @@ export class MonitorWorld {
 
     async checkTroops(world: CountryData[]) {
         const prevUnits = await UnitChangeRepository.getLastWorld();
-        return detectOrigin(changedUnitsFromWorld(world, prevUnits));
+        return changedUnitsFromWorld(world, prevUnits);
     }
 }
