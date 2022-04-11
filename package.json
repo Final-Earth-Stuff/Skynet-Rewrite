@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
   "dependencies": {
-    "@discordjs/builders": "^0.9.0",
+    "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.3.0",
     "bufferutil": "^4.0.5",
     "discord-api-types": "^0.31.0",

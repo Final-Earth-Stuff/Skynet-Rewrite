@@ -45,16 +45,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@discordjs/builders@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@discordjs/builders@npm:0.9.0"
+"@discordjs/builders@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@discordjs/builders@npm:0.12.0"
   dependencies:
-    "@sindresorhus/is": ^4.2.0
-    discord-api-types: ^0.24.0
+    "@sindresorhus/is": ^4.3.0
+    discord-api-types: ^0.26.1
     ts-mixer: ^6.0.0
     tslib: ^2.3.1
     zod: ^3.11.6
-  checksum: 75278bd4cb2ba09a83e9d308d357e6550fc55af77d7b95d1749ba351d97df80af840144f14f849aa2910966f26a85fcde2271bc1ff5342bbb8ffabe76dd2640c
+  checksum: 3c4ef256371121938d5d75571e19f0697b1575dd9fb31a7ca47337d00a1ec45b2c1ce19a1261650a5f6393ac4116f8ed9e82120ce5de534be562dde919a2a6d7
   languageName: node
   linkType: hard
 
@@ -187,6 +187,13 @@ __metadata:
   version: 4.2.0
   resolution: "@sindresorhus/is@npm:4.2.0"
   checksum: 59040dfb75c2eb6ab76e8c7ac10b7f7f6ba740f0b5ac618a89a8bcdbaf923836a8e998078d59d81f6f13f4b6bbe15bfe1bca962c877edcbe9160d1c100c56fd7
+  languageName: node
+  linkType: hard
+
+"@sindresorhus/is@npm:^4.3.0":
+  version: 4.6.0
+  resolution: "@sindresorhus/is@npm:4.6.0"
+  checksum: 83839f13da2c29d55c97abc3bc2c55b250d33a0447554997a85c539e058e57b8da092da396e252b11ec24a0279a0bed1f537fa26302209327060643e327f81d2
   languageName: node
   linkType: hard
 
@@ -906,13 +913,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-api-types@npm:^0.24.0":
-  version: 0.24.0
-  resolution: "discord-api-types@npm:0.24.0"
-  checksum: b1a17cb3be4ade974193cedb92fb37e51ba8f1832dfe3ec0d188ba41f255f3dab8359c9d618d32469f1e648126258f9d6ed8828dc1cb50b74d9fd9d875f3390a
-  languageName: node
-  linkType: hard
-
 "discord-api-types@npm:^0.26.0, discord-api-types@npm:^0.26.1":
   version: 0.26.1
   resolution: "discord-api-types@npm:0.26.1"
@@ -1264,7 +1264,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "finalearth@workspace:."
   dependencies:
-    "@discordjs/builders": ^0.9.0
+    "@discordjs/builders": ^0.12.0
     "@discordjs/rest": ^0.3.0
     "@types/glob": ^7.2.0
     "@types/node": ^16.11.13
