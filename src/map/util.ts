@@ -14,6 +14,19 @@ export function travelTime(
     );
 }
 
+export function convertToKm(
+    travelTime: number,
+    points: number,
+    paratrooper: boolean
+): number {
+    return (
+        (travelTime * 1.609344 * 1000.0) /
+        60 /
+        (paratrooper ? 0.9 : 1) /
+        (1 - points / 100)
+    );
+}
+
 export function getDistance(
     origin: number,
     destination: number,

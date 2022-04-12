@@ -1,6 +1,7 @@
 import { Country } from "./";
 import {
     Coordinates,
+    GeoCoordinates,
     projectToUnitSphere,
     gcToEuclidean,
     euclideanMetric,
@@ -60,18 +61,14 @@ interface RangeMatch {
     distKm: number;
 }
 
-export async function findInRange(
-    center: Country,
+export function findInRange(
     node: TreeNode,
+    center: GeoCoordinates,
     rangeKm: number
-): Promise<RangeMatch[]> {
+): RangeMatch[] {
     const range = gcToEuclidean(rangeKm);
 
-    return findInRangeRecursive(
-        node,
-        projectToUnitSphere(center.coordinates),
-        range
-    );
+    return findInRangeRecursive(node, projectToUnitSphere(center), range);
 }
 
 function findInRangeRecursive(

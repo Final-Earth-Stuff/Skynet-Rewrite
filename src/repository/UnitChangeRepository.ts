@@ -12,6 +12,14 @@ export interface RegionQueryRow {
     control: number;
 }
 
+export interface UnitQuery {
+    id: number;
+    allies: number;
+    axis: number;
+    name: string;
+    control: number;
+}
+
 export const UnitChangeRepository = AppDataSource.getRepository(
     UnitChange
 ).extend({
@@ -77,5 +85,47 @@ export const UnitChangeRepository = AppDataSource.getRepository(
         }
 
         return await query.getRawMany();
+    },
+
+    async getUnitsForCountries(
+        ids: number[],
+        team: Team
+    ): Promise<UnitQuery[]> {
+        const unitQuery = AppDataSource.createQueryBuilder()
+            .subQuery()
+            .from("unit_change", "uc")
+            .addSelect("uc.allies", "allies")
+            .addSelect("uc.axis", "axis")
+            .where("uc.country=country.id")
+            .orderBy("uc.timestamp", "DESC")
+            .limit(1);
+
+        const controlQuery = AppDataSource.createQueryBuilder()
+            .subQuery()
+            .from("land_and_facilities", "laf")
+            .addSelect("laf.control", "control")
+            .where("laf.country=country.id")
+            .orderBy("laf.timestamp", "DESC")
+            .limit(1);
+
+        let tail: string;
+        switch (team) {
+            case Team.ALLIES:
+                tail = " and allies <> 0";
+                break;
+            case Team.AXIS:
+                tail = " and axis <> 0";
+                break;
+            default:
+                tail = "";
+        }
+
+        // I CAPITULATE
+        return await AppDataSource.query(
+            `select id, name, allies, axis, control from country, lateral ${unitQuery.getQuery()} units, lateral ${controlQuery.getQuery()} laf where id in (${ids
+                .map((_, i) => `$${i + 1}`)
+                .join(", ")})${tail}`,
+            ids
+        );
     },
 });
