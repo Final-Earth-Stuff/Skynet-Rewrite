@@ -13,7 +13,12 @@ import {
     prepareAndSendMessage,
 } from "../../service/troopMovements";
 
-import { convertWorld, compareCountry } from "../../service/facilitiesChanges";
+import {
+    convertWorld,
+    compareCountry,
+    logChangesToChannel,
+} from "../../service/facilitiesChanges";
+import { LandAndFacilities } from "src/entity/LandAndFacilities";
 
 const logger = makeLogger(module);
 
@@ -24,8 +29,19 @@ export class MonitorWorld {
         try {
             const world: CountryData[] = await wrapper.getWorld(config.apiKey);
 
-            const changedFacilities = await this.checkFacilities(world);
+            const prevFacilties =
+                await LandAndFacilitiesRepository.getLastWorld();
+            const changedFacilities = await this.checkFacilities(
+                world,
+                prevFacilties
+            );
             if (changedFacilities.length > 0) {
+                logChangesToChannel(
+                    client,
+                    changedFacilities,
+                    prevFacilties,
+                    world
+                );
                 LandAndFacilitiesRepository.updateWorld(changedFacilities);
             }
 
@@ -39,9 +55,11 @@ export class MonitorWorld {
         }
     }
 
-    async checkFacilities(world: CountryData[]) {
+    async checkFacilities(
+        world: CountryData[],
+        prevFacilties: LandAndFacilities[]
+    ) {
         const currFacilties = convertWorld(world);
-        const prevFacilties = await LandAndFacilitiesRepository.getLastWorld();
         return currFacilties.filter(
             (item1) =>
                 !prevFacilties.some((item2) => compareCountry(item1, item2))
