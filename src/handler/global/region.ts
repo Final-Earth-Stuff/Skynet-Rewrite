@@ -26,7 +26,7 @@ export class Region {
                     .addChoices([
                         ["Europe", "europe"],
                         ["Middle East", "middle east"],
-                        ["Asia", "Asia"],
+                        ["Asia", "asia"],
                         ["North America", "north america"],
                         ["South America", "south america"],
                         ["Australasia", "australasia"],
