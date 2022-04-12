@@ -36,7 +36,7 @@ export function compareCountry(c1: Laf, c2: LandAndFacilities) {
         c1.ads === c2.ads &&
         c1.gds === c2.gds &&
         c1.is_active_spawn === c2.is_active_spawn &&
-        c1.control === c2.control 
+        c1.control === c2.control
     );
 }
 
@@ -53,13 +53,10 @@ export async function logChangesToChannel(
     const prev = new Map(prevLand.map((c) => [c.country, c]));
 
     const curr = changedLand.filter(
-        (item1) =>
-            !prevLand.some((item2) => compareFacilities(item1, item2))
+        (item1) => !prevLand.some((item2) => compareFacilities(item1, item2))
     );
 
-    const embeds = curr.map((land) =>
-        buildEmbed(land, prev, countryInfo)
-    );
+    const embeds = curr.map((land) => buildEmbed(land, prev, countryInfo));
 
     const guildRepository = AppDataSource.getRepository(Guild);
     const guilds = await guildRepository.find();
@@ -134,6 +131,6 @@ function compareFacilities(c1: Laf, c2: LandAndFacilities) {
         c1.facs === c2.facs &&
         c1.mines === c2.mines &&
         c1.ads === c2.ads &&
-        c1.gds === c2.gds 
+        c1.gds === c2.gds
     );
 }
