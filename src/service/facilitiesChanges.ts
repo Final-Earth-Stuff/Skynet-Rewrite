@@ -35,7 +35,8 @@ export function compareCountry(c1: Laf, c2: LandAndFacilities) {
         c1.mines === c2.mines &&
         c1.ads === c2.ads &&
         c1.gds === c2.gds &&
-        c1.control === c2.control
+        c1.is_active_spawn === c2.is_active_spawn &&
+        c1.control === c2.control 
     );
 }
 
@@ -51,7 +52,12 @@ export async function logChangesToChannel(
 
     const prev = new Map(prevLand.map((c) => [c.country, c]));
 
-    const embeds = changedLand.map((land) =>
+    const curr = changedLand.filter(
+        (item1) =>
+            !prevLand.some((item2) => compareFacilities(item1, item2))
+    );
+
+    const embeds = curr.map((land) =>
         buildEmbed(land, prev, countryInfo)
     );
 
@@ -118,4 +124,16 @@ function colorForEvent(laf: Laf, prev: LandAndFacilities): Color {
 
 function isNuclearStrike(laf: Laf, prev: LandAndFacilities) {
     return laf.land !== prev.land;
+}
+
+function compareFacilities(c1: Laf, c2: LandAndFacilities) {
+    return (
+        c1.country === c2.country &&
+        c1.land === c2.land &&
+        c1.rigs === c2.rigs &&
+        c1.facs === c2.facs &&
+        c1.mines === c2.mines &&
+        c1.ads === c2.ads &&
+        c1.gds === c2.gds 
+    );
 }
