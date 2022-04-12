@@ -1,5 +1,6 @@
-import { Column, PrimaryColumn, Entity } from "typeorm";
+import { Column, PrimaryColumn, Entity, OneToMany } from "typeorm";
 import { Team } from "../service/util/constants";
+import { Reminder } from "./Reminder";
 
 @Entity()
 export class UserSettings {
@@ -21,8 +22,8 @@ export class UserSettings {
     @Column({ type: "int2", nullable: true })
     country?: number;
 
-    @Column({ type: "timestamp without time zone", array: true, default: [] })
-    reminders!: Date[];
+    @OneToMany(() => Reminder, (reminder) => reminder.user)
+    reminders?: Reminder[];
 
     @Column({ default: false })
     war_flag!: boolean;
