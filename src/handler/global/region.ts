@@ -24,14 +24,14 @@ export class Region {
                     .setDescription("Region which should be summarized")
                     .setRequired(true)
                     .addChoices([
-                        ["Europe", "europe"],
-                        ["Middle East", "middle east"],
-                        ["Asia", "asia"],
-                        ["North America", "north america"],
-                        ["South America", "south america"],
-                        ["Australasia", "australasia"],
-                        ["Caribbean", "carribean"],
-                        ["Africa", "africa"],
+                        ["Europe", RegionEnum.EUROPE],
+                        ["Middle East", RegionEnum.MIDDLE_EAST],
+                        ["Asia", RegionEnum.ASIA],
+                        ["North America", RegionEnum.NORTH_AMERICA],
+                        ["South America", RegionEnum.SOUTH_AMERICA],
+                        ["Australasia", RegionEnum.AUSTRALASIA],
+                        ["Caribbean", RegionEnum.CARIBBEAN],
+                        ["Africa", RegionEnum.AFRICA],
                     ])
             )
             .addStringOption((option) =>
@@ -50,18 +50,19 @@ export class Region {
     @Command({ name: "region" })
     @Guard({ body: commandChannelGuard })
     async region(interaction: CommandInteraction): Promise<void> {
-        const reg = interaction.options.getString("region", true);
-        const regionEnum = reg.toLowerCase() as RegionEnum;
+        const reg = interaction.options.getString("region", true) as RegionEnum;
         const team = interaction.options.getString("team") as Team | undefined;
 
-        const totals = await LandAndFacilitiesRepository.totals(regionEnum);
+        const totals = await LandAndFacilitiesRepository.totals(reg);
 
         const embed = buildTotals(
             totals,
-            reg,
+            reg.replace(/\w*/g, (w) =>
+                w.replace(/^\w/, (c) => c.toUpperCase())
+            ),
             "Displaying Allies vs. Axis for the region:"
         );
-        const units = await UnitChangeRepository.getRegion(regionEnum, team);
+        const units = await UnitChangeRepository.getRegion(reg, team);
         const unitString = buildRegionUnitList(units);
 
         const embeds = new Array<MessageEmbed>();
