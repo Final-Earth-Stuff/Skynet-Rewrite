@@ -72,6 +72,7 @@ export const UnitChangeRepository = AppDataSource.getRepository(
             default:
                 query
                     .addSelect("current.allies + current.axis", "total")
+                    .andWhere("not (current.allies=0 and current.axis=0)")
                     .orderBy("total", "DESC");
         }
 

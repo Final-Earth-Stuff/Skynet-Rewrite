@@ -16,3 +16,13 @@ export function convertAxisControl(control: number, team: number) {
     }
     return control;
 }
+
+export function teamFromControl(control: number): number {
+    if (control < 50) {
+        return 2;
+    } else if (control > 50) {
+        return 1;
+    } else {
+        return 0;
+    }
+}

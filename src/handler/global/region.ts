@@ -1,8 +1,14 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 
 import { Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+
+import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
+import { Region as RegionEnum } from "../../entity/Country";
+import { Team } from "../../service/util/constants";
+import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
 
 export class Region {
     @CommandData({ type: "global" })
@@ -18,14 +24,14 @@ export class Region {
                     .setDescription("Region which should be summarized")
                     .setRequired(true)
                     .addChoices([
-                        ["Europe", "Europe"],
-                        ["Middle East", "Middle East"],
+                        ["Europe", "europe"],
+                        ["Middle East", "middle east"],
                         ["Asia", "Asia"],
-                        ["North America", "North America"],
-                        ["South America", "South America"],
-                        ["Australasia", "Australasia"],
-                        ["Caribbean", "Carribean"],
-                        ["Africa", "Africa"],
+                        ["North America", "north america"],
+                        ["South America", "south america"],
+                        ["Australasia", "australasia"],
+                        ["Caribbean", "carribean"],
+                        ["Africa", "africa"],
                     ])
             )
             .addStringOption((option) =>
@@ -44,6 +50,32 @@ export class Region {
     @Command({ name: "region" })
     @Guard({ body: commandChannelGuard })
     async region(interaction: CommandInteraction): Promise<void> {
-        await interaction.reply({ content: "Not implemented" });
+        const reg = interaction.options.getString("region", true);
+        const regionEnum = reg.toLowerCase() as RegionEnum;
+        const team = interaction.options.getString("team") as Team | undefined;
+
+        const totals = await LandAndFacilitiesRepository.totals(regionEnum);
+
+        const embed = buildTotals(
+            totals,
+            reg,
+            "Displaying Allies vs. Axis for the region:"
+        );
+        const units = await UnitChangeRepository.getRegion(regionEnum, team);
+        const unitString = buildRegionUnitList(units);
+
+        const embeds = new Array<MessageEmbed>();
+        if (unitString.length > 1024) {
+            const unitEmbed = new MessageEmbed()
+                .setTitle("Units")
+                .setDescription(unitString)
+                .setColor("DARK_BLUE");
+            embeds.push(embed, unitEmbed);
+        } else {
+            embed.addField("Units", unitString);
+            embeds.push(embed);
+        }
+
+        await interaction.reply({ embeds });
     }
 }
