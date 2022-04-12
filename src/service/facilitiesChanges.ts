@@ -6,6 +6,7 @@ import { Guild } from "../entity/Guild";
 import { getIcon, convertAxisControl } from "./util/team";
 import { Color } from "./util/constants";
 import { unwrap } from "../util/assert";
+import { isSome } from "../util/guard";
 
 type Laf = Omit<LandAndFacilities, "id">;
 
@@ -50,13 +51,19 @@ export async function logChangesToChannel(
         world.map((country) => [parseInt(country.id), country])
     );
 
-    const prev = new Map(prevLand.map((c) => [c.country, c]));
-
     const curr = changedLand.filter(
         (item1) => !prevLand.some((item2) => compareFacilities(item1, item2))
     );
 
-    const embeds = curr.map((land) => buildEmbed(land, prev, countryInfo));
+    const prevMap = new Map(prevLand.map((c) => [c.country, c]));
+    const embeds = curr
+        .map((land) => {
+            const prev = prevMap.get(land.country);
+            if (prev) {
+                return buildEmbed(land, prev, countryInfo);
+            }
+        })
+        .filter(isSome);
 
     const guildRepository = AppDataSource.getRepository(Guild);
     const guilds = await guildRepository.find();
@@ -80,11 +87,10 @@ export async function logChangesToChannel(
 
 function buildEmbed(
     laf: Laf,
-    prevLand: Map<number, LandAndFacilities>,
+    prev: LandAndFacilities,
     countryInfo: Map<number, CountryData>
 ) {
     const country = unwrap(countryInfo.get(laf.country));
-    const prev = unwrap(prevLand.get(laf.country));
     const icon = getIcon(country.controlTeam);
     const control = convertAxisControl(country.control, country.controlTeam);
 
