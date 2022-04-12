@@ -2,7 +2,8 @@ secure.json
 node_modules/
 resources/
 dist/
-.yarn
+.yarn/cache
+.yarn/install-state.gz
 
 .DS_STORE
 *.swp
