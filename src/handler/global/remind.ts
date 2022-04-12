@@ -55,7 +55,7 @@ export class Remind {
         
         if (!user) {
             user = new UserSettings();
-            user.discord_id = interaction.id;
+            user.discord_id = interaction.user.id;
             UserSettingsRepository.save(user);
         } 
         const reminder = new Reminder();
