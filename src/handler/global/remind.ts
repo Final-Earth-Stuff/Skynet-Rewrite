@@ -47,27 +47,29 @@ export class Remind {
             return;
         }
 
-        let  user = await UserSettingsRepository.getUserByDiscordId(
+        let user = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
         );
-        
+
         const minutesInMs = 60000 * minutes;
-        
+
         if (!user) {
             user = new UserSettings();
             user.discord_id = interaction.user.id;
             UserSettingsRepository.save(user);
-        } 
+        }
         const reminder = new Reminder();
         if (message) {
             reminder.message = message;
         }
-        reminder.timestamp = new Date(Date.now() + minutesInMs)
+        reminder.timestamp = new Date(Date.now() + minutesInMs);
         reminder.user = user;
         const ReminderRepository = AppDataSource.getRepository(Reminder);
 
         ReminderRepository.save(reminder);
 
-        await interaction.reply({ content: `You will be reminded in ${minutes} minutes.` });
+        await interaction.reply({
+            content: `You will be reminded in ${minutes} minutes.`,
+        });
     }
 }

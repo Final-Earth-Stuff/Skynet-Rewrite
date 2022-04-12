@@ -23,7 +23,7 @@ export class UserSettings {
     country?: number;
 
     @OneToMany(() => Reminder, (reminder) => reminder.user)
-    reminders?: Reminder[]
+    reminders?: Reminder[];
 
     @Column({ default: false })
     war_flag!: boolean;
