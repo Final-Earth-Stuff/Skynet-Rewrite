@@ -1,9 +1,13 @@
 import { MessageEmbed } from "discord.js";
 
-import { TotalsQueryRow } from "../repository/LandAndFacilitiesRepository";
+import {
+    TotalsQueryRow,
+    IncomeQuery,
+} from "../repository/LandAndFacilitiesRepository";
 import { RegionQueryRow } from "../repository/UnitChangeRepository";
 
 import { getIcon, teamFromControl, convertAxisControl } from "./util/team";
+import { Color } from "./util/constants";
 
 export function buildTotals(
     totals: TotalsQueryRow,
@@ -59,7 +63,63 @@ export function buildTotals(
             `${alliesIncome.toFixed(1)}B vs. ${axisIncome.toFixed(1)}B`,
             true
         )
-        .setColor("DARK_BLUE");
+        .setColor(Color.BLUE);
+}
+
+export function buildIncome(
+    results: IncomeQuery,
+    title: string,
+    type: string,
+    incomePer: number
+): MessageEmbed {
+    return new MessageEmbed()
+        .setTitle(title)
+        .setDescription(
+            `${type} income generating countries (displaying >5% of team total)`
+        )
+        .addField(
+            "Totals",
+            `${results.allies_total} (${formatMoney(
+                results.allies_total * incomePer
+            )}) vs. ${results.axis_total} (${formatMoney(
+                results.axis_total * incomePer
+            )})`
+        )
+        .addField(
+            "Allies",
+            results.allies
+                .filter(({ num }) => num > results.axis_total * 0.05)
+                .map(
+                    ({ num, name }) =>
+                        `${getIcon(1)} ${name} — ${num} (${formatMoney(
+                            num * incomePer
+                        )})`
+                )
+                .join("\n") || "\u200B",
+            true
+        )
+        .addField(
+            "Axis",
+            results.axis
+                .filter(({ num }) => num > results.axis_total * 0.05)
+                .map(
+                    ({ num, name }) =>
+                        `${getIcon(2)} ${name} — ${num} (${formatMoney(
+                            num * incomePer
+                        )})`
+                )
+                .join("\n") || "\u200B",
+            true
+        )
+        .setColor(Color.BLUE);
+}
+
+export function formatMoney(amount: number): string {
+    if (amount < 1_000_000_000) {
+        return "$" + Math.round(amount / 100_000) / 10 + "M";
+    } else {
+        return "$" + Math.round(amount / 100_000_000) / 10 + "B";
+    }
 }
 
 export function buildRegionUnitList(units: RegionQueryRow[]): string {
