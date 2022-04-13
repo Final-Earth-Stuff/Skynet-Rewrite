@@ -24,7 +24,6 @@ export class MonitorReminders {
                 ReminderRepository.delete(remindersToDelete);
             }
         } catch (e) {
-            console.log("here");
             logger.error(e);
         }
     }
