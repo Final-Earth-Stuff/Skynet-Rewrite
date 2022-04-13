@@ -16,4 +16,5 @@ export enum Color {
     GREEN = "DARK_GREEN",
     BLUE = "DARK_BLUE",
     NUKE = "ORANGE",
+    YELLOW = "YELLOW"
 }
