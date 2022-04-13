@@ -28,6 +28,19 @@ export interface TotalsQueryRow {
     total_axis: number;
 }
 
+export interface IncomeQuery {
+    allies_total: number;
+    axis_total: number;
+    allies: {
+        name: string;
+        num: number;
+    }[];
+    axis: {
+        name: string;
+        num: number;
+    }[];
+}
+
 export const LandAndFacilitiesRepository = AppDataSource.getRepository(
     LandAndFacilities
 ).extend({
@@ -152,5 +165,41 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
         }
 
         return unwrap(await query.getRawOne());
+    },
+
+    async getFactories(): Promise<IncomeQuery[]> {
+        const query = `select 
+    to_json(sum(facs) filter (where control=100)) as allies_total,
+    to_json(sum(facs) filter (where control=0)) as axis_total,
+    json_agg(json_build_object('name', name, 'num', facs) order by facs desc) filter (where control=100) as allies,
+    json_agg(json_build_object('name', name, 'num', facs) order by facs desc) filter (where control=0) as axis
+from 
+    country,
+    lateral (select facs, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
+        return await AppDataSource.query(query);
+    },
+
+    async getMines(): Promise<IncomeQuery[]> {
+        const query = `select 
+    to_json(sum(mines) filter (where control=100)) as allies_total,
+    to_json(sum(mines) filter (where control=0)) as axis_total,
+    json_agg(json_build_object('name', name, 'num', mines) order by mines desc) filter (where control=100) as allies,
+    json_agg(json_build_object('name', name, 'num', mines) order by mines desc) filter (where control=0) as axis
+from 
+    country,
+    lateral (select mines, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
+        return await AppDataSource.query(query);
+    },
+
+    async getRigs(): Promise<IncomeQuery[]> {
+        const query = `select 
+    to_json(sum(rigs) filter (where control=100)) as allies_total,
+    to_json(sum(rigs) filter (where control=0)) as axis_total,
+    json_agg(json_build_object('name', name, 'num', rigs) order by rigs desc) filter (where control=100) as allies,
+    json_agg(json_build_object('name', name, 'num', rigs) order by rigs desc) filter (where control=0) as axis
+from 
+    country,
+    lateral (select rigs, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
+        return await AppDataSource.query(query);
     },
 });
