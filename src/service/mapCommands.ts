@@ -88,7 +88,7 @@ export function buildIncome(
         .addField(
             "Allies",
             results.allies
-                .filter(({ num }) => num > results.axis_total * 0.05)
+                .filter(({ num }) => num > results.allies_total * 0.05)
                 .map(
                     ({ num, name }) =>
                         `${getIcon(1)} ${name} — ${num} (${formatMoney(
