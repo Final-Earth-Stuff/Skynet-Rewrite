@@ -6,6 +6,7 @@ import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 import { buildIncome } from "../../service/mapCommands";
+import { FacilityIncome } from "../../service/util/constants";
 
 export class Mines {
     @CommandData({ type: "global" })
@@ -22,7 +23,14 @@ export class Mines {
         const mines = await LandAndFacilitiesRepository.getMines();
 
         await interaction.reply({
-            embeds: [buildIncome(mines[0], "Mine income", "Mine", 500_000)],
+            embeds: [
+                buildIncome(
+                    mines[0],
+                    "Mine income",
+                    "Mine",
+                    FacilityIncome.MINE
+                ),
+            ],
         });
     }
 }
