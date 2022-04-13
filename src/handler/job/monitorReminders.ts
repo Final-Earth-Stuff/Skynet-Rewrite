@@ -1,9 +1,7 @@
 import { Client } from "discord.js";
 import { ScheduledJob } from "../../decorators";
 import { makeLogger } from "../../logger";
-import {
-    ReminderRepository
-} from "../../repository/ReminderRepository";
+import { ReminderRepository } from "../../repository/ReminderRepository";
 import { processReminder } from "../../service/reminders";
 import { isSome } from "../../util/guard";
 
@@ -13,18 +11,20 @@ export class MonitorReminders {
     @ScheduledJob({ cron: "*/30 * * * * *" })
     async checkReminders(client: Client) {
         try {
-            const reminders = await ReminderRepository.getReminders(new Date())
-            
+            const reminders = await ReminderRepository.getReminders(new Date());
+
             if (reminders.length > 0) {
-                const result = await Promise.all(reminders.map(async reminder => {
-                    return await processReminder(reminder, client);
-                }));
+                const result = await Promise.all(
+                    reminders.map(async (reminder) => {
+                        return await processReminder(reminder, client);
+                    })
+                );
                 const remindersToDelete = result.filter(isSome);
 
-                ReminderRepository.delete(remindersToDelete)
+                ReminderRepository.delete(remindersToDelete);
             }
         } catch (e) {
-            console.log("here")
+            console.log("here");
             logger.error(e);
         }
     }
