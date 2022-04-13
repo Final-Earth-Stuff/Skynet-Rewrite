@@ -17,3 +17,9 @@ export enum Color {
     BLUE = "DARK_BLUE",
     NUKE = "ORANGE",
 }
+
+export enum FacilityIncome {
+    FACTORY = 1_500_000,
+    MINE = 500_000,
+    RIG = 100_000_000,
+}

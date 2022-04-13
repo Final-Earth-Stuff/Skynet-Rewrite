@@ -7,28 +7,24 @@ import {
 import { RegionQueryRow } from "../repository/UnitChangeRepository";
 
 import { getIcon, teamFromControl, convertAxisControl } from "./util/team";
-import { Color } from "./util/constants";
+import { Color, FacilityIncome } from "./util/constants";
 
 export function buildTotals(
     totals: TotalsQueryRow,
     title: string,
     desc: string
 ): MessageEmbed {
-    const alliesIncome =
-        Math.round(
-            (totals.total_allies_rigs * 0.1 +
-                totals.total_allies_facs * 0.0015 +
-                totals.total_allies_mines * 0.0005) *
-                10
-        ) / 10;
+    const alliesIncome = formatMoney(
+        totals.total_allies_rigs * FacilityIncome.RIG +
+            totals.total_allies_facs * FacilityIncome.FACTORY +
+            totals.total_allies_mines * FacilityIncome.MINE
+    );
 
-    const axisIncome =
-        Math.round(
-            (totals.total_axis_rigs * 0.1 +
-                totals.total_axis_facs * 0.0015 +
-                totals.total_axis_mines * 0.0005) *
-                10
-        ) / 10;
+    const axisIncome = formatMoney(
+        totals.total_axis_rigs * FacilityIncome.RIG +
+            totals.total_axis_facs * FacilityIncome.FACTORY +
+            totals.total_axis_mines * FacilityIncome.MINE
+    );
 
     return new MessageEmbed()
         .setTitle(title)
@@ -58,11 +54,7 @@ export function buildTotals(
             `${totals.total_allies_mines} vs. ${totals.total_axis_mines}`,
             true
         )
-        .addField(
-            "Income",
-            `${alliesIncome.toFixed(1)}B vs. ${axisIncome.toFixed(1)}B`,
-            true
-        )
+        .addField("Income", `${alliesIncome} vs. ${axisIncome}`, true)
         .setColor(Color.BLUE);
 }
 
@@ -75,7 +67,7 @@ export function buildIncome(
     return new MessageEmbed()
         .setTitle(title)
         .setDescription(
-            `${type} income generating countries (displaying >5% of team total)`
+            `${type} income generating countries (displaying >1% of team total)`
         )
         .addField(
             "Totals",
@@ -88,7 +80,7 @@ export function buildIncome(
         .addField(
             "Allies",
             results.allies
-                .filter(({ num }) => num > results.allies_total * 0.05)
+                .filter(({ num }) => num > results.allies_total * 0.01)
                 .map(
                     ({ num, name }) =>
                         `${getIcon(1)} ${name} — ${num} (${formatMoney(
@@ -101,7 +93,7 @@ export function buildIncome(
         .addField(
             "Axis",
             results.axis
-                .filter(({ num }) => num > results.axis_total * 0.05)
+                .filter(({ num }) => num > results.axis_total * 0.01)
                 .map(
                     ({ num, name }) =>
                         `${getIcon(2)} ${name} — ${num} (${formatMoney(

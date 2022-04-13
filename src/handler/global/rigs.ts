@@ -6,6 +6,7 @@ import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 import { buildIncome } from "../../service/mapCommands";
+import { FacilityIncome } from "../../service/util/constants";
 
 export class Rigs {
     @CommandData({ type: "global" })
@@ -23,7 +24,12 @@ export class Rigs {
 
         await interaction.reply({
             embeds: [
-                buildIncome(rigs[0], "Oil rig income", "Oil rig", 100_000_000),
+                buildIncome(
+                    rigs[0],
+                    "Oil rig income",
+                    "Oil rig",
+                    FacilityIncome.RIG
+                ),
             ],
         });
     }

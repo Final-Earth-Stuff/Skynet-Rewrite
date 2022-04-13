@@ -6,6 +6,7 @@ import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 import { buildIncome } from "../../service/mapCommands";
+import { FacilityIncome } from "../../service/util/constants";
 
 export class Factories {
     @CommandData({ type: "global" })
@@ -27,7 +28,7 @@ export class Factories {
                     factories[0],
                     "Factory income",
                     "Factory",
-                    1_500_000
+                    FacilityIncome.FACTORY
                 ),
             ],
         });
