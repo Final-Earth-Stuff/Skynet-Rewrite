@@ -1,7 +1,7 @@
 # Skynet-Rewrite
 A rewrite of the original Skynet Discord bot for the browser game [Final Earth](https://www.finalearth.com)
 
-The rewrite is intended to make maintaining and adding new features easier. 
+The rewrite is intended to make maintaining and adding new features easier.
 
 ## Running the Bot Locally
 A quick guide to setting up the bot to run locally for development purposes.
@@ -17,24 +17,30 @@ Find the bot token and populate in your .env file
 
 Install PostGres database
 
-`sudo apt install postgresql postgresql-contrib`
+```bash
+sudo apt install postgresql postgresql-contrib
+```
 
 
-Start the server 
+Start the server
 
-`sudo service postgresql start`
+```bash
+sudo service postgresql start
+```
 
 
 Open Psql terminal
 
-`sudo -u postgres psql` 
+```bash
+sudo -u postgres psql
+```
 
 
 Create a user and database and then enter those values into your .env file
 
 ### Configuration
 Create a .env file with the following info:
-```
+```env
 BOT_TOKEN=xxxxx
 API_KEY=xxxxx
 DATABASE_NAME=xxxxx
@@ -45,12 +51,26 @@ DATABASE_PASSWORD=xxxxx
 ### Run
 Make sure you are using Node version 16 and up
 
-Install dependencies 
+Install dependencies
 
-`yarn install` 
+```bash
+yarn install
+```
 
+Transpile the code
 
-Use one of the run commands to start the bot
+```bash
+yarn run build
+```
 
-`yarn run watch` `yarn run dev` 
+Before first usage, you have to generate static assets and update the bot's application commands
 
+```bash
+yarn run prod update_resources && yarn run prod update_commands
+```
+
+To bot can then be run
+
+```bash
+yarn run prod bot
+```
