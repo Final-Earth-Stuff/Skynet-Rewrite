@@ -1,28 +1,16 @@
 import "reflect-metadata";
 
-import { DataSource } from "typeorm";
-
-import { config } from "./config";
 import { parser } from "./parser";
 
-export const AppDataSource = new DataSource({
-    type: "postgres",
-    host: config.databaseHost,
-    port: config.databasePort,
-    username: config.databaseUser,
-    password: config.databasePassword,
-    database: config.databaseName,
-    synchronize: true,
-    entities: ["dist/entity/**/*.js"],
-    migrations: ["dist/migration/**/*.js"],
-});
+import { AppDataSource } from "./datasource";
+export { AppDataSource } from "./datasource";
 
 AppDataSource.initialize().then(async () => {
     const args = await parser.argv;
     switch (args._[0]) {
         case "bot": {
             const { bootstrap } = await import("./bot");
-            bootstrap();
+            await bootstrap();
             break;
         }
         case "update_commands": {
