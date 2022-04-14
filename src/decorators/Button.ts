@@ -5,6 +5,8 @@ import { makeLogger } from "../logger";
 
 import { buttons } from "./data";
 
+import { Color } from "../service/util/constants";
+
 const logger = makeLogger(module);
 
 export interface ButtonOptions {
@@ -34,7 +36,7 @@ export const Button =
                 } catch (e) {
                     if (e instanceof BotError) {
                         const embed = new MessageEmbed()
-                            .setColor("#ec3030")
+                            .setColor(Color.BRIGHT_RED)
                             .setDescription(e.message);
                         await interaction.followUp({
                             embeds: [embed],

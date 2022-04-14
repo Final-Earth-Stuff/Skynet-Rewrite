@@ -8,6 +8,7 @@ import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
 import { travelTime } from "../../map/util";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { Color } from "../../service/util/constants";
 
 export class Dis {
     @CommandData({
@@ -87,7 +88,7 @@ export class Dis {
                         : ""
                 }`
             )
-            .setColor("DARK_BLUE")
+            .setColor(Color.BLUE)
             .addField("Distance", `${Math.floor(distKm)}km`, true)
             .addField("Travel time", `${time} minutes`, true);
 

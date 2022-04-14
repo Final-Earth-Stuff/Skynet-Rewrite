@@ -4,6 +4,7 @@ import { ApiError, BotError } from "../error";
 import { makeLogger } from "../logger";
 
 import { commands, adminCommands } from "./data";
+import { Color } from "../service/util/constants";
 
 const logger = makeLogger(module);
 
@@ -54,7 +55,7 @@ export const Command =
                             message = "Something went wrong";
                         }
                         const embed = new MessageEmbed()
-                            .setColor("#ec3030")
+                            .setColor(Color.BRIGHT_RED)
                             .setDescription(message);
 
                         if (interaction.deferred) {

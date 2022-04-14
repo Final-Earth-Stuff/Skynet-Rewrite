@@ -5,6 +5,7 @@ import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesR
 import { Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { Color } from "../../service/util/constants";
 
 export class Spawns {
     @CommandData({ type: "global" })
@@ -53,7 +54,7 @@ export class Spawns {
             .setDescription(
                 `${heading1}\n${alliesMessage}\n${heading2}\n${axisMessage}`
             )
-            .setColor("DARK_BLUE");
+            .setColor(Color.BLUE);
         interaction.reply({ embeds: [embed] });
     }
 }
