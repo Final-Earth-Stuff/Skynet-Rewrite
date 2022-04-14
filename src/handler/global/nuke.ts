@@ -6,6 +6,7 @@ import { BotError } from "../../error";
 import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { Color } from "../../service/util/constants";
 
 function rangeLimit(tech: string): number {
     switch (tech) {
@@ -96,7 +97,7 @@ export class Nuke {
                     `Destination is not within range of the launch site (${tech})!`
                 )
                 .addField("Distance", `${distKm}km`)
-                .setColor("DARK_ORANGE");
+                .setColor(Color.NUKE);
 
             await interaction.reply({ embeds: [embed] });
             return;
@@ -109,7 +110,7 @@ export class Nuke {
             .setDescription(
                 `From **${oC.name}** to **${dC.name}** with the ${tech} technology`
             )
-            .setColor("DARK_BLUE")
+            .setColor(Color.BLUE)
             .addField("Distance", `${distKm}km`, true)
             .addField("Travel time", `${time.toFixed(1)} minutes`, true);
 

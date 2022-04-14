@@ -11,7 +11,7 @@ import { AppDataSource } from "../..";
 
 import { Guild } from "../../entity/Guild";
 
-import { Team } from "../../service/util/constants";
+import { Team, Color } from "../../service/util/constants";
 
 export class Verify {
     @CommandData({ type: "guild" })
@@ -90,7 +90,7 @@ export class Verify {
             .setDescription(
                 `Successfully verified user ${interaction.user.tag}!`
             )
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
 
         await interaction.reply({ embeds: [embed] });
     }

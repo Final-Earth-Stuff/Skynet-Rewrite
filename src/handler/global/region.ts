@@ -9,6 +9,7 @@ import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesR
 import { Region as RegionEnum } from "../../entity/Country";
 import { Team } from "../../service/util/constants";
 import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
+import { Color } from "../../service/util/constants";
 
 export class Region {
     @CommandData({ type: "global" })
@@ -70,7 +71,7 @@ export class Region {
             const unitEmbed = new MessageEmbed()
                 .setTitle("Units")
                 .setDescription(unitString)
-                .setColor("DARK_BLUE");
+                .setColor(Color.BLUE);
             embeds.push(embed, unitEmbed);
         } else {
             embed.addField("Units", unitString);
