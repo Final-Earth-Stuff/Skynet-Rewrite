@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 
 @Entity()
-@Index(["country", "timestamp"])
+@Index("uc_uc_country_ts", { synchronize: false })
 export class UnitChange {
     @PrimaryGeneratedColumn()
     id!: number;

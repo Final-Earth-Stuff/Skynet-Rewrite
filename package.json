@@ -8,7 +8,8 @@
     "prod": "NODE_ENV=production node dist/index.js",
     "watch": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/index.js bot\"",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --check \"**/*.ts\""
+    "format": "prettier --check \"**/*.ts\"",
+    "migrate": "typeorm migration:run -d dist/datasource.js"
   },
   "repository": {
     "type": "git",
