@@ -10,7 +10,7 @@ import { BotError, ApiError } from "../../error";
 import { AppDataSource } from "../..";
 
 import { Guild } from "../../entity/Guild";
-import { Team } from "../../service/util/constants";
+import { Team, Color } from "../../service/util/constants";
 
 export class Verify {
     @CommandData({ type: "guild" })
@@ -48,7 +48,7 @@ export class Verify {
         {
             const embed = new MessageEmbed()
                 .setDescription("Will now verify all guild members...")
-                .setColor("DARK_BLUE");
+                .setColor(Color.GREEN);
 
             await interaction.reply({ embeds: [embed] });
         }
@@ -68,7 +68,7 @@ export class Verify {
                         .setDescription(
                             `User ${member.user.tag} is not verified with Final Earth!`
                         )
-                        .setColor("ORANGE");
+                        .setColor(Color.NUKE);
                     await logChannel.send({ embeds: [embed] });
                 }
                 continue;
@@ -114,7 +114,7 @@ export class Verify {
                     .setDescription(
                         `Successfully verified user ${member.user.tag}!`
                     )
-                    .setColor("DARK_GREEN");
+                    .setColor(Color.GREEN);
                 logChannel.send({ embeds: [embed] });
             }
         }
@@ -122,7 +122,7 @@ export class Verify {
         {
             const embed = new MessageEmbed()
                 .setDescription("Finished!")
-                .setColor("DARK_GREEN");
+                .setColor(Color.GREEN);
 
             await interaction.followUp({ embeds: [embed] });
         }

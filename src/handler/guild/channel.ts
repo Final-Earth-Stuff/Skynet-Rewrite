@@ -7,6 +7,7 @@ import { BotError } from "../../error";
 
 import { AppDataSource } from "../..";
 import { Guild as GuildEntity } from "../../entity/Guild";
+import { Color } from "../../service/util/constants";
 
 export class Channel {
     @CommandData({ type: "guild" })
@@ -130,7 +131,7 @@ export class Channel {
             .setDescription(
                 `Successfully added command channel <#${channelID}>!`
             )
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
     }
 
@@ -149,7 +150,7 @@ export class Channel {
             .setDescription(
                 `Successfully set ${type} channel to <#${channelID}>!`
             )
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
 
         await interaction.editReply({ embeds: [success] });
     }
@@ -192,7 +193,7 @@ export class Channel {
             .setDescription(
                 `Successfully removed command channel <#${channelID}>!`
             )
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
     }
 
@@ -208,7 +209,7 @@ export class Channel {
 
         const success = new MessageEmbed()
             .setDescription(`Successfully unset ${type} channel!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
 
         await interaction.editReply({ embeds: [success] });
     }
@@ -255,7 +256,7 @@ export class Channel {
                     ? guild.command_channels.map((r) => `<#${r}>`).join(" ")
                     : "Not configured"
             )
-            .setColor("DARK_BLUE");
+            .setColor(Color.BLUE);
 
         await interaction.reply({ embeds: [embed] });
     }

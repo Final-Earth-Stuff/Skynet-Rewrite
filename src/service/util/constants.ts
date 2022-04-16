@@ -17,6 +17,13 @@ export enum Color {
     BLUE = "DARK_BLUE",
     NUKE = "ORANGE",
     YELLOW = "YELLOW",
+    BRIGHT_RED = "RED",
+}
+
+export enum FacilityIncome {
+    FACTORY = 1_500_000,
+    MINE = 500_000,
+    RIG = 100_000_000,
 }
 
 export const rankMap = new Map<number, string>([

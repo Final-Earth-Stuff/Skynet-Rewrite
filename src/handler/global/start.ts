@@ -6,6 +6,7 @@ import { UserSettingsRepository } from "../../repository/UserSettingsRepository"
 import { getUser } from "../../wrapper/wrapper";
 import { BotError } from "../../error";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { Color } from "../../service/util/constants";
 
 export class Start {
     @CommandData({ type: "global" })
@@ -46,7 +47,7 @@ export class Start {
         );
         const success = new MessageEmbed()
             .setDescription(`Successfully saved user data!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
         return;
     }

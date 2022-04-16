@@ -19,6 +19,7 @@ import { adminCommands, guildCommandsData } from "../../decorators/data";
 import { AppDataSource } from "../..";
 import { CommandRepository } from "../../repository/CommandRepository";
 import { Guild as GuildEntity } from "../../entity/Guild";
+import { Color } from "../../service/util/constants";
 
 async function updatePermissionsForGuild(
     guildEntity: GuildEntity,
@@ -171,7 +172,7 @@ export class Role {
 
         const success = new MessageEmbed()
             .setDescription(`Successfully added admin role <@&${roleID}>!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
     }
 
@@ -188,7 +189,7 @@ export class Role {
 
         const success = new MessageEmbed()
             .setDescription(`Successfully set ${type} role to <@&${roleID}>!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
 
         await interaction.editReply({ embeds: [success] });
     }
@@ -236,7 +237,7 @@ export class Role {
 
         const success = new MessageEmbed()
             .setDescription(`Successfully removed admin role <@&${roleID}>!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
     }
 
@@ -252,7 +253,7 @@ export class Role {
 
         const success = new MessageEmbed()
             .setDescription(`Successfully unset ${type} role!`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
 
         await interaction.editReply({ embeds: [success] });
     }
@@ -290,7 +291,7 @@ export class Role {
                     ? guild.admin_roles.map((r) => `<@&${r}>`).join(" ")
                     : "Not configured"
             )
-            .setColor("DARK_BLUE");
+            .setColor(Color.BLUE);
 
         await interaction.reply({ embeds: [embed] });
     }

@@ -4,6 +4,10 @@ import { CommandInteraction } from "discord.js";
 import { Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
+import { buildIncome } from "../../service/mapCommands";
+import { FacilityIncome } from "../../service/util/constants";
+
 export class Mines {
     @CommandData({ type: "global" })
     minesData() {
@@ -16,6 +20,17 @@ export class Mines {
     @Command({ name: "mines" })
     @Guard({ body: commandChannelGuard })
     async mines(interaction: CommandInteraction): Promise<void> {
-        await interaction.reply({ content: "Not implemented" });
+        const mines = await LandAndFacilitiesRepository.getMines();
+
+        await interaction.reply({
+            embeds: [
+                buildIncome(
+                    mines[0],
+                    "Mine income",
+                    "Mine",
+                    FacilityIncome.MINE
+                ),
+            ],
+        });
     }
 }

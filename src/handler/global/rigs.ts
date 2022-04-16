@@ -4,6 +4,10 @@ import { CommandInteraction } from "discord.js";
 import { Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
+import { buildIncome } from "../../service/mapCommands";
+import { FacilityIncome } from "../../service/util/constants";
+
 export class Rigs {
     @CommandData({ type: "global" })
     rigsData() {
@@ -16,6 +20,17 @@ export class Rigs {
     @Command({ name: "rigs" })
     @Guard({ body: commandChannelGuard })
     async rigs(interaction: CommandInteraction) {
-        await interaction.reply({ content: "Not implemented" });
+        const rigs = await LandAndFacilitiesRepository.getRigs();
+
+        await interaction.reply({
+            embeds: [
+                buildIncome(
+                    rigs[0],
+                    "Oil rig income",
+                    "Oil rig",
+                    FacilityIncome.RIG
+                ),
+            ],
+        });
     }
 }

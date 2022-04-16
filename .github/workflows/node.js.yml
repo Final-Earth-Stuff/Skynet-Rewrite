@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   pull_request:
-    branches: 
+    branches:
       - master
 
 jobs:
@@ -15,6 +15,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          node_modules
+          .yarn/cache
+          .yarn/install-state.gz
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - name: Use Node.js 17
       uses: actions/setup-node@v2
       with:

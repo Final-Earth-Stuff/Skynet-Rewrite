@@ -4,6 +4,7 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { Color } from "../../service/util/constants";
 
 export class Delete {
     @CommandData({ type: "global" })
@@ -23,7 +24,7 @@ export class Delete {
         UserSettingsRepository.deleteByDiscordId(interaction.user.id);
         const success = new MessageEmbed()
             .setDescription(`All your data has been deleted.`)
-            .setColor("DARK_GREEN");
+            .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });
     }
 }
