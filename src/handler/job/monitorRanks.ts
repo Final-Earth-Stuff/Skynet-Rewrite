@@ -17,7 +17,7 @@ import { makeLogger } from "../../logger";
 const logger = makeLogger(module);
 
 export class MonitorRanks {
-    @ScheduledJob({ cron: "*/30 * * * * *" })
+    @ScheduledJob({ cron: "*/10 * * * *" })
     async checkRanks(client: Client) {
         logger.info(`checking user ranks...`);
         const users = await UserRankRepository.getCurrentUsers();
