@@ -18,3 +18,24 @@ export enum Color {
     NUKE = "ORANGE",
     YELLOW = "YELLOW",
 }
+
+export const rankMap = new Map<number, string>([
+    [1, "Pvt."],
+    [2, "Cpl."],
+    [3, "Sgt."],
+    [4, "Lt."],
+    [5, "Cap."],
+    [6, "Maj."],
+    [7, "Ltc."],
+    [8, "Col."],
+    [9, "Brg."],
+    [10, "Mg."],
+    [11, "Ltg."],
+    [12, "Gen."],
+    [13, "Mar."],
+    [14, "Gov."],
+    [15, "Amb."],
+    [16, "Sen."],
+    [17, "V.P."],
+    [18, "Pres."],
+]);

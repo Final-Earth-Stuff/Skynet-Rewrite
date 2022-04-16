@@ -18,7 +18,7 @@ export class Verify {
     verifyData() {
         return new SlashCommandBuilder()
             .setName("verify")
-            .setDescription("Attempt to verify all users in the server")
+            .setDescription("Verify User")
             .toJSON();
     }
 
@@ -46,7 +46,7 @@ export class Verify {
             where: { guild_id: interaction.guildId ?? "" },
         });
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
-            throw new BotError("Roles are not configure for this guild");
+            throw new BotError("Roles are not configured for this guild");
 
         let role: string;
         switch (user.team) {
