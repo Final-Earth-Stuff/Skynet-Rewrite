@@ -5,6 +5,8 @@ import {
     MessageActionRow,
     MessageButton,
 } from "discord.js";
+import { UserSettings } from "src/entity/UserSettings";
+import { BotError } from "../../error";
 
 import { Command, CommandData, Button, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
@@ -13,104 +15,7 @@ import {
     Toggles,
 } from "../../repository/UserSettingsRepository";
 
-export const data = new SlashCommandBuilder()
-    .setName("settings")
-    .setDescription("View and toggle settings for notifications");
-
-enum Color {
-    PRIMARY = "PRIMARY",
-    SECONDARY = "SECONDARY",
-}
-
-function getColorFromBoolean(bool: boolean): Color {
-    if (bool) {
-        return Color.PRIMARY;
-    } else {
-        return Color.SECONDARY;
-    }
-}
-
-async function getStyle(discordId: string, setting: Toggles): Promise<Color> {
-    const values = await UserSettingsRepository.getUserByDiscordId(discordId);
-    return getColorFromBoolean(values?.[setting] ?? false);
-}
-
-async function createRows(discordId: string): Promise<MessageActionRow[]> {
-    const row = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.ENEMY)
-                .setLabel("Enemy Movements")
-                .setEmoji("☠️")
-                .setStyle(await getStyle(discordId, Toggles.ENEMY))
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.WAR)
-                .setLabel("War Timer")
-                .setEmoji("🔫")
-                .setStyle(await getStyle(discordId, Toggles.WAR))
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.QUEUE)
-                .setLabel("Empty Queue")
-                .setEmoji("🧠")
-                .setStyle(await getStyle(discordId, Toggles.QUEUE))
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.REIMB)
-                .setLabel("Reimb Ready")
-                .setEmoji("💰")
-                .setStyle(await getStyle(discordId, Toggles.REIMB))
-        );
-
-    const row2 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.EVENT)
-                .setLabel("New Event")
-                .setEmoji("❗")
-                .setStyle(await getStyle(discordId, Toggles.EVENT))
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.MAIL)
-                .setLabel("New Mail")
-                .setEmoji("📧")
-                .setStyle(await getStyle(discordId, Toggles.MAIL))
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId(Toggles.PAUSED)
-                .setLabel("Pause Notifications")
-                .setEmoji("💤")
-                .setStyle(await getStyle(discordId, Toggles.PAUSED))
-        );
-
-    return [row, row2];
-}
-
-async function updateSetting(interaction: ButtonInteraction) {
-    const settings = await UserSettingsRepository.getUserByDiscordId(
-        interaction.user.id
-    );
-    if (settings) {
-        const toggle = interaction.customId as Toggles;
-        await UserSettingsRepository.updateSetting(
-            interaction.user.id,
-            toggle,
-            !settings[toggle]
-        );
-        interaction.update({
-            content: "Settings updated!",
-            components: await createRows(interaction.user.id),
-        });
-    } else {
-        interaction.reply({ content: "Something went wrong!" });
-    }
-}
+import { ButtonColor } from "../../service/util/constants";
 
 export class Settings {
     @CommandData({ type: "global" })
@@ -127,22 +32,21 @@ export class Settings {
         const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
         );
-        if (settings) {
-            if (!settings.valid_key) {
-                interaction.reply({
-                    content:
-                        "Please save your API with the bot in order to use this feature",
-                });
-            } else {
-                await interaction.reply({
-                    content:
-                        "Here are your current settings, click a button to enable/disable the setting.",
-                    components: await createRows(interaction.user.id),
-                });
-            }
-        } else {
-            interaction.reply({ content: "Something went wrong!" });
+        const user = await UserSettingsRepository.getUserByDiscordId(
+            interaction.user.id
+        );
+
+        if (!user || !settings?.valid_key) {
+            throw new BotError(
+                "Please use the /start command to store  your API key in order to use this feature."
+            );
         }
+
+        await interaction.reply({
+            content:
+                "Here are your current settings, click a button to enable/disable the setting.",
+            components: createRows(user),
+        });
     }
 
     @Button({ customId: Toggles.WAR })
@@ -179,4 +83,94 @@ export class Settings {
     async paused(interaction: ButtonInteraction) {
         await updateSetting(interaction);
     }
+}
+
+async function updateSetting(interaction: ButtonInteraction) {
+    const settings = await UserSettingsRepository.getUserByDiscordId(
+        interaction.user.id
+    );
+    if (settings) {
+        const toggle = interaction.customId as Toggles;
+        settings[toggle] = !settings[toggle];
+
+        await UserSettingsRepository.updateSetting(
+            interaction.user.id,
+            toggle,
+            settings[toggle]
+        );
+        interaction.update({
+            content: `"Settings updated!"`,
+            components: createRows(settings),
+        });
+    } else {
+        throw new BotError("Something went wrong!");
+    }
+}
+
+function createRows(user: UserSettings) {
+    console.log(user);
+    const row = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.ENEMY)
+                .setLabel("Enemy Movements")
+                .setEmoji("☠️")
+                .setStyle(getButtonColor(user.enemy_flag))
+                .setDisabled(user.paused_flag)
+        )
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.WAR)
+                .setLabel("War Timer")
+                .setEmoji("🔫")
+                .setStyle(getButtonColor(user.war_flag))
+                .setDisabled(user.paused_flag)
+        )
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.QUEUE)
+                .setLabel("Empty Queue")
+                .setEmoji("🧠")
+                .setStyle(getButtonColor(user.queue_flag))
+                .setDisabled(user.paused_flag)
+        )
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.REIMB)
+                .setLabel("Reimb Ready")
+                .setEmoji("💰")
+                .setStyle(getButtonColor(user.reimb_flag))
+                .setDisabled(user.paused_flag)
+        );
+
+    const row2 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.EVENT)
+                .setLabel("New Event")
+                .setEmoji("❗")
+                .setStyle(getButtonColor(user.event_flag))
+                .setDisabled(user.paused_flag)
+        )
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.MAIL)
+                .setLabel("New Mail")
+                .setEmoji("📧")
+                .setStyle(getButtonColor(user.mail_flag))
+                .setDisabled(user.paused_flag)
+        )
+        .addComponents(
+            new MessageButton()
+                .setCustomId(Toggles.PAUSED)
+                .setLabel("Pause Notifications")
+                .setEmoji("💤")
+                .setStyle(getButtonColor(user.paused_flag))
+        );
+
+    return [row, row2];
+}
+
+function getButtonColor(flag: boolean) {
+    return flag ? ButtonColor.ENABLED : ButtonColor.DISABLED;
 }

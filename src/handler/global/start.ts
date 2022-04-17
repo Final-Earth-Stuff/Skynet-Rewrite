@@ -25,12 +25,9 @@ export class Start {
             .toJSON();
     }
 
-    /**
-     * @todo Add additional handling for invalid api key
-     */
     @Command({ name: "start" })
     @Guard({ body: commandChannelGuard })
-    async start(interaction: CommandInteraction): Promise<void> {
+    async start(interaction: CommandInteraction) {
         await interaction.deferReply();
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
@@ -38,7 +35,14 @@ export class Start {
                 "API keys must be 10 characters, please check your key and try again."
             );
         }
-        const user = await getUser(apiKey);
+        let user;
+        try {
+            user = await getUser(apiKey);
+        } catch (e) {
+            throw new BotError(
+                "This key could not be validated, please check your key and try again."
+            );
+        }
         UserSettingsRepository.saveSettings(
             interaction.user.id,
             apiKey,

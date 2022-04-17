@@ -25,3 +25,8 @@ export enum FacilityIncome {
     MINE = 500_000,
     RIG = 100_000_000,
 }
+
+export enum ButtonColor {
+    ENABLED = "PRIMARY",
+    DISABLED = "SECONDARY",
+}
