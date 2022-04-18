@@ -9,5 +9,5 @@ export class RankRole {
     guild_id?: string;
 
     @Column({ type: "int2", nullable: true })
-    rank?: number;
+    rank!: number;
 }

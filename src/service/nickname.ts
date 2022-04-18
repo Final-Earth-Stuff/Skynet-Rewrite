@@ -19,17 +19,17 @@ const logger = makeLogger(module);
 export async function processUser(
     u: UserRank,
     guilds: Collection<string, OAuth2Guild>
-) {
+): Promise<void> {
     try {
         const user = await getUser(config.apiKey, u.discord_id);
         if ((guilds && user.name != u.user_name) || user.rank != u.rank) {
-            u.guild_ids.forEach(async (g) => {
+            for (const g of u.guild_ids) {
                 const guild = await guilds.get(g)?.fetch();
                 if (guild) {
                     const member = await guild.members.fetch(u.discord_id);
-                    processMember(member, user, u.id);
+                    await processMember(member, user, u.id);
                 }
-            });
+            }
         }
     } catch (e) {
         logger.debug(e);
@@ -39,8 +39,12 @@ export async function processUser(
 /**
  * @todo Add rank role
  */
-async function processMember(member: GuildMember, user: UserData, id: string) {
-    if (member?.manageable) {
+async function processMember(
+    member: GuildMember,
+    user: UserData,
+    id: string
+): Promise<void> {
+    if (member.manageable) {
         const rank = rankMap.get(user.rank) ?? "";
         await member.edit({
             nick: `${rank} ${user.name}`,
@@ -55,7 +59,7 @@ async function processMember(member: GuildMember, user: UserData, id: string) {
 export async function buildMember(
     member: GuildMember,
     repository: Repository<UserRank>
-) {
+): Promise<UserRank | undefined> {
     const userRank = await repository.findOne({
         where: { discord_id: member.id },
     });
@@ -75,7 +79,7 @@ export async function buildMember(
 export async function removeMembers(
     member: GuildMember | PartialGuildMember,
     repository: Repository<UserRank>
-) {
+): Promise<UserRank | undefined> {
     const userRank = await repository.findOne({
         where: { discord_id: member.id },
     });
