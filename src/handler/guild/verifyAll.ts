@@ -17,7 +17,7 @@ export class Verify {
     verifyAllData() {
         return new SlashCommandBuilder()
             .setName("verify-all")
-            .setDescription("Verify user")
+            .setDescription("Attempt to verify all users in the server")
             .setDefaultPermission(false)
             .toJSON();
     }
