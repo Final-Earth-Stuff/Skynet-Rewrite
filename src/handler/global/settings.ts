@@ -85,7 +85,7 @@ export class Settings {
     }
 }
 
-async function updateSetting(interaction: ButtonInteraction) {
+async function updateSetting(interaction: ButtonInteraction): Promise<void> {
     const settings = await UserSettingsRepository.getUserByDiscordId(
         interaction.user.id
     );
@@ -107,8 +107,7 @@ async function updateSetting(interaction: ButtonInteraction) {
     }
 }
 
-function createRows(user: UserSettings) {
-    console.log(user);
+function createRows(user: UserSettings): MessageActionRow[] {
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -171,6 +170,6 @@ function createRows(user: UserSettings) {
     return [row, row2];
 }
 
-function getButtonColor(flag: boolean) {
+function getButtonColor(flag: boolean): ButtonColor {
     return flag ? ButtonColor.ENABLED : ButtonColor.DISABLED;
 }

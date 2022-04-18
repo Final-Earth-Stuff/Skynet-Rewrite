@@ -4,7 +4,7 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
-import { BotError } from "../../error";
+import { ApiError, BotError } from "../../error";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { Color } from "../../service/util/constants";
 
@@ -39,8 +39,13 @@ export class Start {
         try {
             user = await getUser(apiKey);
         } catch (e) {
+            if (e instanceof ApiError && e.code === 1) {
+                throw new BotError(
+                    "This is not a valid API key, please check your key and try again."
+                );
+            }
             throw new BotError(
-                "This key could not be validated, please check your key and try again."
+                "Something went wrong with calling the API, please check your key and try again."
             );
         }
         UserSettingsRepository.saveSettings(
