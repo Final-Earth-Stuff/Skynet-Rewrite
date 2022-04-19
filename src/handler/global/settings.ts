@@ -9,7 +9,7 @@ import { UserSettings } from "src/entity/UserSettings";
 import { BotError } from "../../error";
 
 import { Command, CommandData, Button, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { dmGuard } from "../../guard/dmGuard";
 import {
     UserSettingsRepository,
     Toggles,
@@ -27,7 +27,7 @@ export class Settings {
     }
 
     @Command({ name: "settings" })
-    @Guard({ body: commandChannelGuard })
+    @Guard({ body: dmGuard })
     async settings(interaction: CommandInteraction): Promise<void> {
         const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id

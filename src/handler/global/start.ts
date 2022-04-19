@@ -5,7 +5,7 @@ import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
 import { ApiError, BotError } from "../../error";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { dmGuard } from "../../guard/dmGuard";
 import { Color } from "../../service/util/constants";
 
 export class Start {
@@ -26,7 +26,7 @@ export class Start {
     }
 
     @Command({ name: "start" })
-    @Guard({ body: commandChannelGuard })
+    @Guard({ body: dmGuard })
     async start(interaction: CommandInteraction) {
         await interaction.deferReply();
         const apiKey = interaction.options.getString("apikey", true);
