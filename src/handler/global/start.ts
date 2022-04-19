@@ -4,8 +4,8 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
-import { BotError } from "../../error";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { ApiError, BotError } from "../../error";
+import { dmGuard } from "../../guard/dmGuard";
 import { Color } from "../../service/util/constants";
 
 export class Start {
@@ -25,12 +25,9 @@ export class Start {
             .toJSON();
     }
 
-    /**
-     * @todo Add additional handling for invalid api key
-     */
     @Command({ name: "start" })
-    @Guard({ body: commandChannelGuard })
-    async start(interaction: CommandInteraction): Promise<void> {
+    @Guard({ body: dmGuard })
+    async start(interaction: CommandInteraction) {
         await interaction.deferReply();
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
@@ -38,7 +35,19 @@ export class Start {
                 "API keys must be 10 characters, please check your key and try again."
             );
         }
-        const user = await getUser(apiKey);
+        let user;
+        try {
+            user = await getUser(apiKey);
+        } catch (e) {
+            if (e instanceof ApiError && e.code === 1) {
+                throw new BotError(
+                    "This is not a valid API key, please check your key and try again."
+                );
+            }
+            throw new BotError(
+                "Something went wrong with calling the API, please check your key and try again."
+            );
+        }
         UserSettingsRepository.saveSettings(
             interaction.user.id,
             apiKey,

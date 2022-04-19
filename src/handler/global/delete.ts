@@ -3,7 +3,7 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 
 import { Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { dmGuard } from "../../guard/dmGuard";
 import { Color } from "../../service/util/constants";
 
 export class Delete {
@@ -18,7 +18,7 @@ export class Delete {
     }
 
     @Command({ name: "delete" })
-    @Guard({ body: commandChannelGuard })
+    @Guard({ body: dmGuard })
     async delete(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
         UserSettingsRepository.deleteByDiscordId(interaction.user.id);

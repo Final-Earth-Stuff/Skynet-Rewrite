@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 
 import { Command, CommandData, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { dmGuard } from "../../guard/dmGuard";
 import { Reminder } from "../../entity/Reminder";
 import { AppDataSource } from "../..";
 import { UserSettings } from "../../entity/UserSettings";
@@ -34,7 +34,7 @@ export class Remind {
     }
 
     @Command({ name: "remind" })
-    @Guard({ body: commandChannelGuard })
+    @Guard({ body: dmGuard })
     async remind(interaction: CommandInteraction): Promise<void> {
         const minutes = interaction.options.getInteger("minutes", true);
         const message = interaction.options.getString("message", false);

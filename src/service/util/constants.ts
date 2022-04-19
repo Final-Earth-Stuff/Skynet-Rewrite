@@ -26,6 +26,10 @@ export enum FacilityIncome {
     RIG = 100_000_000,
 }
 
+export enum ButtonColor {
+    ENABLED = "PRIMARY",
+    DISABLED = "SECONDARY",
+}
 export const rankMap = new Map<number, string>([
     [1, "Pvt."],
     [2, "Cpl."],
