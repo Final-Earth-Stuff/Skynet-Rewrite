@@ -72,7 +72,7 @@ async function buildStatsEmbed(
         logger.error(e);
     }
     const rank = rankMap.get(user.rank) ?? "";
-    let formatter = Intl.NumberFormat("en", {
+    const formatter = Intl.NumberFormat("en", {
         notation: "compact",
         maximumFractionDigits: 2,
     });
