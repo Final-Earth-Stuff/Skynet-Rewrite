@@ -1,6 +1,9 @@
 import { UserData } from "./models/user";
 import { NotificationData } from "./models/notification";
 import { CountryData } from "./models/country";
+import { FormationData } from "./models/formation";
+import { UnitsData } from "./models/units";
+import { AllUnitsData } from "./models/allunits";
 import { FEResponse, isErrorResponse } from "./models/common";
 import fetch, { Response } from "node-fetch";
 import { ApiError } from "../error";
@@ -39,6 +42,20 @@ export async function getCountry(
 
 export async function getWorld(key: string): Promise<CountryData[]> {
     const response = await fetch(url("world", key));
+    return handleErrors(response);
+}
+
+export async function getFormation(key: string): Promise<FormationData> {
+    const response = await fetch(url("formation", key));
+    return handleErrors(response);
+}
+
+export async function getUnits(key: string): Promise<UnitsData[]> {
+    const response = await fetch(url("units", key));
+    return handleErrors(response);
+}
+export async function getAllUnits(key: string): Promise<AllUnitsData[]> {
+    const response = await fetch(url("allunits", key));
     return handleErrors(response);
 }
 
