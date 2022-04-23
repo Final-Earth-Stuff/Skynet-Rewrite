@@ -104,7 +104,11 @@ async function buildStatsEmbed(
             true
         )
         .addField("Points", `${getPoints(user)} total points`, true)
-        .addField("Networth", `$${await calculateNetworth(user, apiKey)} total`, true)
+        .addField(
+            "Networth",
+            `$${await calculateNetworth(user, apiKey)} total`,
+            true
+        )
         .addField(
             "Facilities",
             `$${destroyed} worth destroyed \n $${built} worth built`,
