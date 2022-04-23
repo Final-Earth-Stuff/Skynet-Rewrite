@@ -95,7 +95,7 @@ async function buildStatsEmbed(
             "Record",
             `${
                 user.personalStats.wins.allies + user.personalStats.wins.axis
-            } wins \n ${user.personalStats.losses} losses`,
+            } round wins \n ${user.personalStats.losses} round losses`,
             true
         )
         .addField(
@@ -104,7 +104,7 @@ async function buildStatsEmbed(
             true
         )
         .addField("Points", `${getPoints(user)} total points`, true)
-        .addField("Networth", `$${await calculateNetworth(user, apiKey)}`, true)
+        .addField("Networth", `$${await calculateNetworth(user, apiKey)} total`, true)
         .addField(
             "Facilities",
             `$${destroyed} worth destroyed \n $${built} worth built`,
@@ -159,14 +159,14 @@ async function calculateNetworth(user: UserData, apiKey: string) {
         total += user.funds;
         total += user.reimbursement.amount;
         total += checkForSoldUnits(user.reimbursement.fullInformation);
-        return numberWithCommas(total);
+        const formatter = Intl.NumberFormat("en", {
+            notation: "compact",
+            maximumFractionDigits: 2,
+        });
+        return formatter.format(total);
     } catch (e) {
         logger.error(e);
     }
-}
-
-function numberWithCommas(x: number): string {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function checkForSoldUnits(info: ReimbursementInfo[]): number {
