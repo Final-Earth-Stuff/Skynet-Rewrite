@@ -71,12 +71,12 @@ export interface Skills {
 export interface Reimbursement {
     amount: number;
     isLocked: boolean;
-    fullInformation: [
-        {
-            amount: number;
-            type: string;
-            time: boolean;
-            id: number;
-        }
-    ];
+    fullInformation: ReimbursementInfo[];
+}
+
+export interface ReimbursementInfo {
+    amount: number;
+    type: string;
+    time: number;
+    id: string;
 }
