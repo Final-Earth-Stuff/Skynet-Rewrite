@@ -1,15 +1,15 @@
-import glob from "glob";
-import path from "path";
-
-import { Client, Intents } from "discord.js";
+import { Client, Intents, MessageEmbed } from "discord.js";
 
 import { schedule } from "node-cron";
 
 import { config } from "./config";
 import { makeLogger } from "./logger";
+import { BotError } from "./error";
 import { Data } from "./map";
 
 import * as decoratorData from "./decorators/data";
+import { loadHandlers } from "./decorators";
+import { Color } from "./service/util/constants";
 
 const logger = makeLogger(module);
 
@@ -19,10 +19,7 @@ export const bootstrap = async () => {
     await Data.shared.initialise();
 
     logger.info("Loading handlers...");
-    glob.sync("dist/handler/**/*.js").forEach((match) => {
-        const file = path.relative(module.path, match);
-        require("./" + file);
-    });
+    const handlers = await loadHandlers();
 
     const client = new Client({
         intents: [
@@ -43,10 +40,50 @@ export const bootstrap = async () => {
 
     client.on("interactionCreate", async (interaction) => {
         if (interaction.isCommand()) {
-            logger.debug("Received command '%s'", interaction.commandName);
-            await decoratorData.commands.get(interaction.commandName)?.(
-                interaction
-            );
+            try {
+                const handler = handlers.commands.get(interaction.commandName);
+                if (!handler) {
+                    throw new Error(
+                        `Unknown command: '${interaction.commandName}`
+                    );
+                }
+                logger.debug("Received command '%s'", interaction.commandName);
+                await handler._handleCommand(interaction);
+            } catch (e) {
+                let message: string;
+                let ephemeral = false;
+                if (e instanceof BotError) {
+                    message = e.message;
+                    logger.info(
+                        "Caught '%s: %s' while processing command '%s'",
+                        e.name,
+                        e.message,
+                        interaction.commandName
+                    );
+                    ephemeral = e.ephemeral;
+                } else {
+                    logger.error(
+                        "Encountered unexpected error while processing command '%s': %O",
+                        interaction.commandName,
+                        e
+                    );
+                    message = "Something went wrong";
+                }
+                const embed = new MessageEmbed()
+                    .setColor(Color.BRIGHT_RED)
+                    .setDescription(message);
+
+                if (interaction.deferred) {
+                    await interaction.editReply({
+                        embeds: [embed],
+                    });
+                } else {
+                    await interaction.reply({
+                        embeds: [embed],
+                        ephemeral,
+                    });
+                }
+            }
         } else if (interaction.isButton()) {
             logger.debug(
                 "Received button interaction for '%s'",
