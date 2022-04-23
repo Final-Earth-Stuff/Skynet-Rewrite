@@ -89,7 +89,9 @@ async function buildStatsEmbed(
                 formation
                     ? getFormationStr(formation, user)
                     : "Not currently in a Formation"
-            } | Motto: ${user.motto} | Elo: ${user.rating}`
+            } | ${user.motto ? `Motto: ${user.motto} |` : ""} Elo: ${
+                user.rating
+            }`
         )
         .addField(
             "Record",
