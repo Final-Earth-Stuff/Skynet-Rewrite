@@ -1,7 +1,7 @@
 import glob from "glob";
 import path from "path";
 
-import { isCommandScope } from "./CommandScope";
+import { isCommandHandler } from "./CommandHandler";
 
 export * from "./Command";
 export * from "./Button";
@@ -20,7 +20,7 @@ export async function loadHandlers() {
     }
 
     const commandScopes = exports
-        .filter(isCommandScope)
+        .filter(isCommandHandler)
         .map((constr) => new constr());
 
     return {

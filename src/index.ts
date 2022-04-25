@@ -5,6 +5,8 @@ import { parser } from "./parser";
 import { AppDataSource } from "./datasource";
 export { AppDataSource } from "./datasource";
 
+require("./decorators/CommandScope");
+
 AppDataSource.initialize().then(async () => {
     const args = await parser.argv;
     switch (args._[0]) {

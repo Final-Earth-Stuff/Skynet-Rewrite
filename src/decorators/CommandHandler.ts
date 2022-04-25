@@ -3,14 +3,16 @@ import type { CommandInteraction, ApplicationCommandData } from "discord.js";
 
 import { Constructor, ensureBaseScope } from "./BaseScope";
 
-export type CommandHandler = (interaction: CommandInteraction) => Promise<void>;
+export type CommandHandlerBody = (
+    interaction: CommandInteraction
+) => Promise<void>;
 
 export const Command =
     () =>
     (
         target: any,
         propertyKey: string,
-        _descriptor: TypedPropertyDescriptor<CommandHandler>
+        _descriptor: TypedPropertyDescriptor<CommandHandlerBody>
     ) => {
         if (Reflect.hasMetadata("handler:command", target.constructor)) {
             throw new Error(
@@ -37,7 +39,7 @@ export const SubCommand =
     (
         target: any,
         propertyKey: string,
-        _descriptor: TypedPropertyDescriptor<CommandHandler>
+        _descriptor: TypedPropertyDescriptor<CommandHandlerBody>
     ) => {
         if (Reflect.hasMetadata("handler:command", target.constructor)) {
             throw new Error("Cannot combine `@Command` and `@SubCommand`");
@@ -100,7 +102,7 @@ export const Guard =
         Reflect.defineMetadata("handler:guard", guards, target);
     };
 
-interface CommandScopeOptions {
+interface CommandHandlerOptions {
     name: string;
 }
 
@@ -110,8 +112,8 @@ interface ICommandScope {
     _handleCommand(interaction: CommandInteraction): Promise<void>;
 }
 
-export const CommandScope =
-    (options: CommandScopeOptions) =>
+export const CommandHandler =
+    (options: CommandHandlerOptions) =>
     <T extends Constructor>(target: T) => {
         ensureBaseScope(target);
         Reflect.getMetadata("scope:type", target).add("command");
@@ -195,5 +197,5 @@ export const CommandScope =
         };
     };
 
-export const isCommandScope = (obj: any): obj is Constructor<ICommandScope> =>
+export const isCommandHandler = (obj: any): obj is Constructor<ICommandScope> =>
     Reflect.getMetadata("scope:type", obj)?.has("command");

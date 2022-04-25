@@ -1,24 +1,28 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+    Guard,
+} from "../../decorators/CommandHandler";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
 import { buildTotals } from "../../service/mapCommands";
 
+@CommandHandler({ name: "totals" })
+@Guard(commandChannelGuard, { guildOnly: true })
 export class Totals {
     @CommandData({ type: "global" })
-    totalsData() {
-        return new SlashCommandBuilder()
-            .setName("totals")
-            .setDescription("Shows units, facilities and income by team")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("totals")
+        .setDescription("Shows units, facilities and income by team")
+        .toJSON();
 
-    @Command({ name: "totals" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async totals(interaction: CommandInteraction) {
         const totals = await LandAndFacilitiesRepository.totals();
 
