@@ -25,6 +25,7 @@ export class Verify {
     @Command({ name: "verify" })
     @Guard({ body: verifyGuard })
     async totals(interaction: CommandInteraction) {
+        await interaction.deferReply();
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
@@ -92,6 +93,6 @@ export class Verify {
             )
             .setColor(Color.GREEN);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
     }
 }
