@@ -32,6 +32,7 @@ export class PersonalStats {
     @Command({ name: "personalstats" })
     @Guard({ body: commandChannelGuard })
     async stats(interaction: CommandInteraction): Promise<void> {
+        await interaction.deferReply();
         const user = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
         );
@@ -55,7 +56,7 @@ export class PersonalStats {
             );
         }
 
-        await interaction.reply({
+        await interaction.editReply({
             embeds: [await buildStatsEmbed(userData, user.api_key)],
         });
     }
