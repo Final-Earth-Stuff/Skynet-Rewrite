@@ -1,10 +1,15 @@
-import { GuildMember, Guild, PartialGuildMember } from "discord.js";
+import {
+    GuildMember,
+    Guild,
+    PartialGuildMember,
+    MessageEmbed,
+} from "discord.js";
 import { Guild as GuildEntity } from "../entity/Guild";
 
 import { Team } from "../service/util/constants";
 import { setNickname } from "../service/nickname";
 import { UserData } from "../wrapper/models/user";
-import { BotError } from "../error";
+import { ApiError, BotError } from "../error";
 import { AppDataSource } from "..";
 import { EventHandler } from "../decorators";
 import { makeLogger } from "../logger";
@@ -13,6 +18,7 @@ import { removeMembers, buildMember } from "../service/nickname";
 import { isSome } from "../util/guard";
 import { getUser } from "../wrapper/wrapper";
 import { config } from "../config";
+import { Color } from "../service/util/constants";
 
 const logger = makeLogger(module);
 
@@ -20,9 +26,27 @@ export class VerifyService {
     @EventHandler({ event: "guildMemberAdd" })
     async initUserRank(member: GuildMember) {
         logger.info(`${member.displayName} joined ${member.guild.name}`);
-        const userData = await getUser(config.apiKey, member.id);
-        const guild = await getGuild(member.guild.id);
-        updateRoleAndNickname(userData, guild, member);
+        try {
+            const userData = await getUser(config.apiKey, member.id);
+            const guild = await getGuild(member.guild.id);
+            updateRoleAndNickname(userData, guild, member);
+            sendMessage(
+                member,
+                `Successfully verified user ${member.user.tag}!`,
+                Color.GREEN
+            );
+        } catch (e) {
+            if (e instanceof ApiError && e.code === 2) {
+                sendMessage(
+                    member,
+                    `Your discord account is not verified with Final Earth.
+                Please visit [here](https://www.finalearth.com/discord) and follow the instructions.`,
+                    Color.RED
+                );
+            } else {
+                logger.error(e);
+            }
+        }
     }
 
     @EventHandler({ event: "guildMemberRemove" })
@@ -94,4 +118,30 @@ export async function getGuild(guildId: string): Promise<GuildEntity> {
     return await guildRepository.findOneOrFail({
         where: { guild_id: guildId },
     });
+}
+
+async function sendMessage(member: GuildMember, message: string, color: Color) {
+    const guild = await getGuild(member.guild.id);
+    if (!guild) {
+        throw new BotError("Guild not found, something is very wrong.");
+    }
+    const embed = new MessageEmbed()
+        .setAuthor({
+            name: member.displayName,
+            iconURL: member.user.displayAvatarURL(),
+        })
+        .setDescription(message)
+        .setColor(color);
+
+    const verifyChannel = await getVerifyChannel(member, guild);
+
+    if (verifyChannel && verifyChannel.isText()) {
+        verifyChannel.send({ embeds: [embed] });
+    }
+}
+
+async function getVerifyChannel(member: GuildMember, guild: GuildEntity) {
+    return guild.verify_channel
+        ? member.guild.channels.cache.get(guild.verify_channel)
+        : undefined;
 }
