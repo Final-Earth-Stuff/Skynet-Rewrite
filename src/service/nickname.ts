@@ -13,6 +13,7 @@ import { UserRank } from "../entity/UserRank";
 import { UserData } from "../wrapper/models/user";
 import { Repository } from "typeorm";
 import { makeLogger } from "../logger";
+import { AppDataSource } from "..";
 
 const logger = makeLogger(module);
 
@@ -33,6 +34,18 @@ export async function processUser(
         }
     } catch (e) {
         logger.debug(e);
+    }
+}
+
+export async function setNickname(
+    member: GuildMember,
+    userData: UserData
+): Promise<void> {
+    const repository = AppDataSource.getRepository(UserRank);
+    const userRank = await buildMember(member, repository);
+    if (userRank) {
+        repository.save(userRank);
+        processMember(member, userData, userRank.id);
     }
 }
 

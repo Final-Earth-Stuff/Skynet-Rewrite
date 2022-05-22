@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageEmbed, GuildMember } from "discord.js";
 
 import { Command, CommandData } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
@@ -7,10 +7,8 @@ import { UserData } from "../../wrapper/models/user";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 
-import { AppDataSource } from "../..";
-
-import { Guild } from "../../entity/Guild";
-import { Team, Color } from "../../service/util/constants";
+import { Color } from "../../service/util/constants";
+import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
 
 export class Verify {
     @CommandData({ type: "guild" })
@@ -27,23 +25,20 @@ export class Verify {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
-        const guildRepository = AppDataSource.getRepository(Guild);
-        const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId ?? "" },
-        });
+        const guild = await getGuild(interaction.guildId ?? "");
 
         const logChannel = guild.log_channel
             ? interaction.client.channels.cache.get(guild.log_channel)
             : undefined;
 
-        if (logChannel && !logChannel.isText()) {
+        if (!logChannel || !logChannel.isText()) {
             throw new BotError(
-                "The configured log channel is not a text channel"
+                "The log channel is not a text channel or no log channel is configured"
             );
         }
 
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
-            throw new BotError("Roles are not configure for this guild");
+            throw new BotError("Roles are not configured for this guild");
 
         {
             const embed = new MessageEmbed()
@@ -59,64 +54,34 @@ export class Verify {
             try {
                 user = await getUser(config.apiKey, member.id);
             } catch (e) {
-                if (e instanceof ApiError && e.code == 2 && logChannel) {
-                    const embed = new MessageEmbed()
-                        .setAuthor({
-                            name: member.user.username,
-                            iconURL: member.user.displayAvatarURL(),
-                        })
-                        .setDescription(
-                            `User ${member.user.tag} is not verified with Final Earth!`
-                        )
-                        .setColor(Color.NUKE);
+                if (e instanceof ApiError && e.code == 2) {
+                    const embed = buildEmbed(
+                        `User ${member.user.tag} is not verified with Final Earth!`,
+                        member,
+                        Color.NUKE
+                    );
                     await logChannel.send({ embeds: [embed] });
                 }
                 continue;
             }
 
-            let role: string;
-            switch (user.team) {
-                case Team.ALLIES:
-                    role = guild.allies_role;
-                    break;
-                case Team.AXIS:
-                    role = guild.axis_role;
-                    break;
-                case Team.NONE:
-                case Team.AUTO:
-                    role = guild.spectator_role;
-                    break;
+            try {
+                await updateRoleAndNickname(user, guild, member);
+            } catch (e) {
+                const embed = buildEmbed(
+                    `User ${member.user.tag} could not be assigned a role! Check that the bot role is ranked above the role you want to assign.`,
+                    member,
+                    Color.NUKE
+                );
+                await logChannel.send({ embeds: [embed] });
+                continue;
             }
-
-            await member.roles.set([
-                role,
-                ...[...member.roles.cache.keys()].filter(
-                    (r) =>
-                        ![
-                            guild.allies_role,
-                            guild.axis_role,
-                            guild.spectator_role,
-                        ].includes(r)
-                ),
-            ]);
-            if (member.manageable) {
-                await member.edit({
-                    nick: user.name,
-                });
-            }
-
-            if (logChannel) {
-                const embed = new MessageEmbed()
-                    .setAuthor({
-                        name: user.name,
-                        iconURL: member.displayAvatarURL(),
-                    })
-                    .setDescription(
-                        `Successfully verified user ${member.user.tag}!`
-                    )
-                    .setColor(Color.GREEN);
-                logChannel.send({ embeds: [embed] });
-            }
+            const embed = buildEmbed(
+                `Successfully verified user ${member.user.tag}!`,
+                member,
+                Color.GREEN
+            );
+            logChannel.send({ embeds: [embed] });
         }
 
         {
@@ -127,4 +92,14 @@ export class Verify {
             await interaction.followUp({ embeds: [embed] });
         }
     }
+}
+
+function buildEmbed(message: string, member: GuildMember, color: Color) {
+    return new MessageEmbed()
+        .setAuthor({
+            name: member.user.username,
+            iconURL: member.user.displayAvatarURL(),
+        })
+        .setDescription(message)
+        .setColor(color);
 }
