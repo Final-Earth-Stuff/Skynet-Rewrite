@@ -1,55 +1,18 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import type { REST } from "@discordjs/rest";
-import {
-    Routes,
-    APIGuild,
-    ApplicationCommandPermissionType,
-} from "discord-api-types/v10";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
 
 import {
     Command,
     CommandData,
-    AfterCommandUpdate,
     EventHandler,
 } from "../../decorators";
 import { BotError } from "../../error";
-import { adminCommands, guildCommandsData } from "../../decorators/data";
+import { guildCommandsData } from "../../decorators/data";
 
 import { AppDataSource } from "../..";
 import { CommandRepository } from "../../repository/CommandRepository";
 import { Guild as GuildEntity } from "../../entity/Guild";
 import { Color } from "../../service/util/constants";
-
-async function updatePermissionsForGuild(
-    guildEntity: GuildEntity,
-    guild: Guild
-): Promise<void> {
-    const commandIDs = await CommandRepository.getGuildCommandIdsByName(
-        [...adminCommands],
-        guild.id
-    );
-
-    const fullPermissions = commandIDs.map((commandID) => ({
-        id: commandID,
-        permissions: [
-            {
-                id: guild.ownerId,
-                type: "USER" as const,
-                permission: true,
-            },
-            ...guildEntity.admin_roles.map((id) => ({
-                id,
-                type: "ROLE" as const,
-                permission: true,
-            })),
-        ],
-    }));
-
-    await guild.commands.permissions.set({
-        fullPermissions,
-    });
-}
 
 export class Role {
     @CommandData({ type: "guild" })
@@ -164,7 +127,7 @@ export class Role {
 
                 if (!interaction.guild)
                     throw new BotError("Something went wrong");
-                await updatePermissionsForGuild(guildEntity, interaction.guild);
+                //TODO auto setup permissions when new discord.js version is out
 
                 manager.save(GuildEntity, guildEntity);
             }
@@ -229,7 +192,7 @@ export class Role {
 
                 if (!interaction.guild)
                     throw new BotError("Something went wrong");
-                await updatePermissionsForGuild(guildEntity, interaction.guild);
+                //TODO auto setup permissions when new discord.js version is out
 
                 manager.save(GuildEntity, guildEntity);
             }
@@ -313,42 +276,6 @@ export class Role {
             guild.id
         );
 
-        await updatePermissionsForGuild(guildEntity, guild);
-    }
-
-    @AfterCommandUpdate()
-    async migratePermissions(guild_id: string, app_id: string, rest: REST) {
-        const guildRepository = AppDataSource.getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneByOrFail({
-            guild_id,
-        });
-
-        const commandIDs = await CommandRepository.getGuildCommandIdsByName(
-            [...adminCommands],
-            guild_id
-        );
-
-        const guild = (await rest.get(Routes.guild(guild_id))) as APIGuild;
-
-        const fullPermissions = commandIDs.map((commandID) => ({
-            id: commandID,
-            permissions: [
-                {
-                    id: guild.owner_id,
-                    type: ApplicationCommandPermissionType.User,
-                    permission: true,
-                },
-                ...guildEntity.admin_roles.map((id) => ({
-                    id,
-                    type: ApplicationCommandPermissionType.Role,
-                    permission: true,
-                })),
-            ],
-        }));
-
-        await rest.put(
-            Routes.guildApplicationCommandsPermissions(app_id, guild_id),
-            { body: fullPermissions }
-        );
+        //TODO auto setup permissions when new discord.js version is out
     }
 }
