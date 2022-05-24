@@ -1,11 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
 
-import {
-    Command,
-    CommandData,
-    EventHandler,
-} from "../../decorators";
+import { Command, CommandData, EventHandler } from "../../decorators";
 import { BotError } from "../../error";
 import { guildCommandsData } from "../../decorators/data";
 
