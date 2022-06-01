@@ -23,7 +23,7 @@ export async function processUser(
 ): Promise<void> {
     try {
         const user = await getUser(config.apiKey, u.discord_id);
-        if (guilds && user) {
+        if (guilds) {
             for (const g of u.guild_ids) {
                 const guild = await guilds.get(g)?.fetch();
                 if (guild) {
@@ -46,11 +46,10 @@ export async function setNickname(
     const guild = member.guild.id;
 
     if (!userRank) {
-        const rank = buildUserRank(member)
+        const rank = buildUserRank(member);
         repository.save(rank);
         processMember(member, userData, rank.id);
-    }
-    else if (!userRank.guild_ids.some((id) => id === guild)) {
+    } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
         repository.save(userRank);
         processMember(member, userData, userRank.id);
@@ -66,7 +65,7 @@ async function processMember(
     member: GuildMember,
     user: UserData,
     id: string
-): Promise<void> {    
+): Promise<void> {
     if (member.manageable) {
         await member.edit({
             nick: buildRankNickname(user),
@@ -78,24 +77,30 @@ async function processMember(
     }
 }
 
-export function buildUserRank(
-    member: GuildMember
-): UserRank {
+export function buildUserRank(member: GuildMember): UserRank {
     const user = new UserRank();
     user.discord_id = member.id;
     user.guild_ids = [member.guild.id];
     return user;
 }
 
-function checkForChange(userRank: UserRank, user: UserData, member: GuildMember) {
-    if (user.name != userRank.user_name || user.rank != userRank.rank || buildRankNickname(user) != member.nickname) {
-       processMember(member, user, userRank.id);
+function checkForChange(
+    userRank: UserRank,
+    user: UserData,
+    member: GuildMember
+) {
+    if (
+        user.name != userRank.user_name ||
+        user.rank != userRank.rank ||
+        buildRankNickname(user) != member.nickname
+    ) {
+        processMember(member, user, userRank.id);
     }
 }
 
 function buildRankNickname(user: UserData) {
     const rank = rankMap.get(user.rank) ?? "";
-    return `${rank} ${user.name}`
+    return `${rank} ${user.name}`;
 }
 
 export async function removeMembers(
