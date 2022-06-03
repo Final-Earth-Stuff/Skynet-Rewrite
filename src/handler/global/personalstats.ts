@@ -39,7 +39,7 @@ export class PersonalStats {
 
         if (!user || !user.valid_key || !user.api_key) {
             throw new BotError(
-                "Please use the /start command to store  your API key in order to use this feature."
+                "Please DM the bot the /start command to store  your API key in order to use this feature."
             );
         }
         let userData;
