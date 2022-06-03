@@ -14,7 +14,7 @@ import { AppDataSource } from "..";
 import { EventHandler } from "../decorators";
 import { makeLogger } from "../logger";
 import { UserRank } from "../entity/UserRank";
-import { removeMembers, buildMember } from "../service/nickname";
+import { removeMembers } from "../service/nickname";
 import { isSome } from "../util/guard";
 import { getUser } from "../wrapper/wrapper";
 import { config } from "../config";
