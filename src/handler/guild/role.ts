@@ -12,6 +12,7 @@ import {
     CommandData,
     AfterCommandUpdate,
     EventHandler,
+    DiscordEvent,
 } from "../../decorators";
 import { BotError } from "../../error";
 import { adminCommands, guildCommandsData } from "../../decorators/data";
@@ -51,6 +52,7 @@ async function updatePermissionsForGuild(
     });
 }
 
+@EventHandler()
 export class Role {
     @CommandData({ type: "guild" })
     roleData() {
@@ -296,7 +298,7 @@ export class Role {
         await interaction.reply({ embeds: [embed] });
     }
 
-    @EventHandler({ event: "guildCreate" })
+    @DiscordEvent("guildCreate")
     async setPermission(guild: Guild) {
         const guildEntity = new GuildEntity();
         guildEntity.guild_id = guild.id;

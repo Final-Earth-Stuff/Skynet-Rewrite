@@ -106,7 +106,7 @@ interface CommandHandlerOptions {
     name: string;
 }
 
-interface ICommandScope {
+export interface ICommandScope {
     readonly _commandName: string;
     readonly _data: CommandDataDescription;
     _handleCommand(interaction: CommandInteraction): Promise<void>;

@@ -2,6 +2,7 @@ import glob from "glob";
 import path from "path";
 
 import { isCommandHandler } from "./CommandHandler";
+import { isEventHandler } from "./EventHandler";
 
 export * from "./Command";
 export * from "./Button";
@@ -23,9 +24,14 @@ export async function loadHandlers() {
         .filter(isCommandHandler)
         .map((constr) => new constr());
 
+    const eventHandlers = exports
+        .filter(isEventHandler)
+        .map((constr) => new constr());
+
     return {
         commands: new Map(
             commandScopes.map((scope) => [scope._commandName, scope])
         ),
+        events: eventHandlers,
     };
 }

@@ -2,7 +2,6 @@ import { Collection, ApplicationCommandData } from "discord.js";
 
 import { CommandHandler } from "./Command";
 import { ButtonHandler } from "./Button";
-import { EventKey, EventHandlerType } from "./EventHandler";
 import { UpdateHook } from "./AfterCommandUpdate";
 import { JobBody } from "./ScheduledJob";
 import { AutocompleteHandler } from "./Completion";
@@ -15,10 +14,6 @@ export const buttons = new Collection<string, ButtonHandler>();
 
 export const globalCommandsData = new Array<ApplicationCommandData>();
 export const guildCommandsData = new Array<ApplicationCommandData>();
-
-export const eventHandlers = {} as {
-    [K in EventKey]: Array<EventHandlerType<K>>;
-};
 
 export const updateHooks = new Set<UpdateHook>();
 

@@ -1,5 +1,5 @@
 import { Client, Guild, GuildMember, PartialGuildMember } from "discord.js";
-import { EventHandler, ScheduledJob } from "../../decorators";
+import { EventHandler, DiscordEvent, ScheduledJob } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { config } from "../../config";
 
@@ -17,6 +17,7 @@ import { isSome } from "../../util/guard";
 
 const logger = makeLogger(module);
 
+@EventHandler()
 export class MonitorRanks {
     @ScheduledJob({ cron: "*/10 * * * *" })
     async checkRanks(client: Client) {
@@ -28,7 +29,7 @@ export class MonitorRanks {
         });
     }
 
-    @EventHandler({ event: "guildCreate" })
+    @DiscordEvent("guildCreate")
     async initUserRanks(guild: Guild) {
         logger.info(`Bot added to guild: ${guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);
@@ -41,7 +42,7 @@ export class MonitorRanks {
         if (users.length > 0) repository.save(users);
     }
 
-    @EventHandler({ event: "guildMemberAdd" })
+    @DiscordEvent("guildMemberAdd")
     async initUserRank(member: GuildMember) {
         logger.info(`${member.displayName} joined ${member.guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);
@@ -58,7 +59,7 @@ export class MonitorRanks {
         }
     }
 
-    @EventHandler({ event: "guildMemberRemove" })
+    @DiscordEvent("guildMemberRemove")
     async memberLeft(member: GuildMember | PartialGuildMember) {
         logger.info(`${member.displayName} left ${member.guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);
@@ -66,7 +67,7 @@ export class MonitorRanks {
         if (userRank) repository.save(userRank);
     }
 
-    @EventHandler({ event: "guildDelete" })
+    @DiscordEvent("guildDelete")
     async guildDelete(guild: Guild) {
         logger.info(`Bot kicked from guild: ${guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);

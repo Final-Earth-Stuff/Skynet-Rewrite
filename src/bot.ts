@@ -38,6 +38,10 @@ export const bootstrap = async () => {
         logger.info("Bot is ready");
     });
 
+    handlers.events.forEach((handler) =>
+        handler._registerDiscordHandlers(client)
+    );
+
     client.on("interactionCreate", async (interaction) => {
         if (interaction.isCommand()) {
             try {
@@ -132,20 +136,6 @@ export const bootstrap = async () => {
             }
         }
     });
-
-    for (const event in decoratorData.eventHandlers) {
-        client.on(event, async (...args) => {
-            try {
-                await Promise.all(
-                    decoratorData.eventHandlers[
-                        event as keyof typeof decoratorData.eventHandlers
-                    ].map((handler: CallableFunction) => handler(...args))
-                );
-            } catch (e) {
-                logger.error("Error in event handler '%s': %O", event, e);
-            }
-        });
-    }
 
     client.login(config.botToken);
 };
