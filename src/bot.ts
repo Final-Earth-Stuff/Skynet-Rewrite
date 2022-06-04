@@ -136,7 +136,7 @@ export const bootstrap = async () => {
                 focused.name
             );
 
-            const handlerID = decoratorData.optionCompletionMap
+            const handlerID = handlers.completionMap
                 .get(interaction.commandName)
                 ?.get(focused.name);
 
@@ -145,7 +145,7 @@ export const bootstrap = async () => {
                 return;
             }
 
-            const handler = decoratorData.completionHandlers.get(handlerID);
+            const handler = handlers.completions.get(handlerID);
 
             if (!handler) {
                 logger.error(
@@ -156,7 +156,10 @@ export const bootstrap = async () => {
             }
 
             try {
-                const completions = await handler(focused.value as string);
+                const completions = await handler._handle(
+                    handlerID,
+                    focused.value as string
+                );
                 await interaction.respond(completions);
             } catch (e) {
                 logger.error(

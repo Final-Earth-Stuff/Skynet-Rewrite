@@ -50,7 +50,7 @@ export const ButtonHandler =
                 const key = handlerMap.get(interaction.customId);
                 if (!key) return;
 
-                Reflect.get(this, key).call(this, interaction);
+                await Reflect.get(this, key).call(this, interaction);
             }
         };
     };
