@@ -1,11 +1,4 @@
-import {
-    EventHandler,
-    DiscordEvent,
-    ScheduledJob,
-    Cron,
-} from "../../decorators";
-import { getUser } from "../../wrapper/wrapper";
-import { config } from "../../config";
+import { EventHandler, ScheduledJob, Cron } from "../../decorators";
 import { Client } from "discord.js";
 
 import { UserRankRepository } from "../../repository/UserRankRepository";
