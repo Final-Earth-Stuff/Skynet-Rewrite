@@ -13,6 +13,7 @@ import { UserRank } from "../entity/UserRank";
 import { UserData } from "../wrapper/models/user";
 import { Repository } from "typeorm";
 import { makeLogger } from "../logger";
+import { AppDataSource } from "..";
 
 const logger = makeLogger(module);
 
@@ -22,17 +23,38 @@ export async function processUser(
 ): Promise<void> {
     try {
         const user = await getUser(config.apiKey, u.discord_id);
-        if ((guilds && user.name != u.user_name) || user.rank != u.rank) {
+        if (guilds) {
             for (const g of u.guild_ids) {
                 const guild = await guilds.get(g)?.fetch();
                 if (guild) {
                     const member = await guild.members.fetch(u.discord_id);
-                    await processMember(member, user, u.id);
+                    checkForChange(u, user, member);
                 }
             }
         }
     } catch (e) {
         logger.debug(e);
+    }
+}
+
+export async function setNickname(
+    member: GuildMember,
+    userData: UserData
+): Promise<void> {
+    const repository = AppDataSource.getRepository(UserRank);
+    const userRank = await UserRankRepository.findByDiscordId(member.id);
+    const guild = member.guild.id;
+
+    if (!userRank) {
+        const rank = buildUserRank(member);
+        repository.save(rank);
+        processMember(member, userData, rank.id);
+    } else if (!userRank.guild_ids.some((id) => id === guild)) {
+        userRank.guild_ids.push(guild);
+        repository.save(userRank);
+        processMember(member, userData, userRank.id);
+    } else {
+        checkForChange(userRank, userData, member);
     }
 }
 
@@ -45,9 +67,8 @@ async function processMember(
     id: string
 ): Promise<void> {
     if (member.manageable) {
-        const rank = rankMap.get(user.rank) ?? "";
         await member.edit({
-            nick: `${rank} ${user.name}`,
+            nick: buildRankNickname(user),
         });
         UserRankRepository.updateNameAndRank(id, user.rank, user.name);
         logger.debug(
@@ -56,24 +77,30 @@ async function processMember(
     }
 }
 
-export async function buildMember(
-    member: GuildMember,
-    repository: Repository<UserRank>
-): Promise<UserRank | undefined> {
-    const userRank = await repository.findOne({
-        where: { discord_id: member.id },
-    });
-    const guild = member.guild.id;
-    if (userRank === null) {
-        const user = new UserRank();
-        user.discord_id = member.id;
-        user.guild_ids = [guild];
-        return user;
-    } else if (!userRank.guild_ids.some((id) => id === guild)) {
-        userRank.guild_ids.push(guild);
-        return userRank;
+export function buildUserRank(member: GuildMember): UserRank {
+    const user = new UserRank();
+    user.discord_id = member.id;
+    user.guild_ids = [member.guild.id];
+    return user;
+}
+
+function checkForChange(
+    userRank: UserRank,
+    user: UserData,
+    member: GuildMember
+) {
+    if (
+        user.name != userRank.user_name ||
+        user.rank != userRank.rank ||
+        buildRankNickname(user) != member.nickname
+    ) {
+        processMember(member, user, userRank.id);
     }
-    return;
+}
+
+function buildRankNickname(user: UserData) {
+    const rank = rankMap.get(user.rank) ?? "";
+    return `${rank} ${user.name}`;
 }
 
 export async function removeMembers(

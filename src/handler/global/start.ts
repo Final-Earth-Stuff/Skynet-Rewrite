@@ -31,7 +31,10 @@ export class Start {
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             throw new BotError(
-                "API keys must be 10 characters, please check your key and try again."
+                "API keys must be 10 characters, please check your key and try again.",
+                {
+                    ephemeral: true,
+                }
             );
         }
         let user;
@@ -40,11 +43,17 @@ export class Start {
         } catch (e) {
             if (e instanceof ApiError && e.code === 1) {
                 throw new BotError(
-                    "This is not a valid API key, please check your key and try again."
+                    "This is not a valid API key, please check your key and try again.",
+                    {
+                        ephemeral: true,
+                    }
                 );
             }
             throw new BotError(
-                "Something went wrong with calling the API, please check your key and try again."
+                "Something went wrong with calling the API, please check your key and try again.",
+                {
+                    ephemeral: true,
+                }
             );
         }
         UserSettingsRepository.saveSettings(

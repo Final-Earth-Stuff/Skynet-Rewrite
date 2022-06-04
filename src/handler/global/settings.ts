@@ -45,7 +45,7 @@ export class Settings {
 
         if (!user || !settings?.valid_key) {
             throw new BotError(
-                "Please use the /start command to store  your API key in order to use this feature."
+                "Please DM the bot the /start command to store  your API key in order to use this feature."
             );
         }
 

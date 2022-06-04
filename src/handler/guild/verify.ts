@@ -7,11 +7,8 @@ import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 import { verifyGuard } from "../../guard/verifyGuard";
 
-import { AppDataSource } from "../..";
-
-import { Guild } from "../../entity/Guild";
-
-import { Team, Color } from "../../service/util/constants";
+import { Color } from "../../service/util/constants";
+import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
 
 @CommandHandler({ name: "verify" })
 @Guard(verifyGuard)
@@ -24,6 +21,7 @@ export class Verify {
 
     @Command()
     async totals(interaction: CommandInteraction) {
+        await interaction.deferReply();
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
@@ -40,45 +38,19 @@ export class Verify {
             }
         );
 
-        const guildRepository = AppDataSource.getRepository(Guild);
-        const guild = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId ?? "" },
-        });
+        const guild = await getGuild(interaction.guildId ?? "");
+
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
             throw new BotError("Roles are not configured for this guild");
-
-        let role: string;
-        switch (user.team) {
-            case Team.ALLIES:
-                role = guild.allies_role;
-                break;
-            case Team.AXIS:
-                role = guild.axis_role;
-                break;
-            case Team.NONE:
-            case Team.AUTO:
-                role = guild.spectator_role;
-                break;
-        }
 
         const member = await interaction.guild.members.fetch(
             interaction.user.id
         );
-        await member.roles.set([
-            role,
-            ...[...member.roles.cache.keys()].filter(
-                (r) =>
-                    ![
-                        guild.allies_role,
-                        guild.axis_role,
-                        guild.spectator_role,
-                    ].includes(r)
-            ),
-        ]);
-        if (member.manageable) {
-            await member.edit({
-                nick: user.name,
-            });
+
+        try {
+            await updateRoleAndNickname(user, guild, member);
+        } catch (e) {
+            throw new BotError("Role could not be assigned!");
         }
 
         const embed = new MessageEmbed()
@@ -91,6 +63,6 @@ export class Verify {
             )
             .setColor(Color.GREEN);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
     }
 }

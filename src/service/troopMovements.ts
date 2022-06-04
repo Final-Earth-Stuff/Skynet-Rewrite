@@ -176,7 +176,7 @@ function getEmbedDesc(unit: Units, countryInfo: Map<number, CountryData>) {
         const time = buildTravelStr(unit.country, unit.previous_country_axis);
 
         desc.push(
-            `Allied units have arrived from ${prevIcon} ${prevAxis.name} (${prevControl}%) (${time}mins):`
+            `Axis units have arrived from ${prevIcon} ${prevAxis.name} (${prevControl}%) (${time}mins):`
         );
     }
 

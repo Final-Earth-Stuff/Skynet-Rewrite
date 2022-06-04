@@ -38,8 +38,6 @@ export async function updateCommands(globalsToGuilds: boolean) {
             guildCommands.push(...handlers.globalData);
         }
 
-        console.log(guildCommands);
-
         const guilds = await AppDataSource.getRepository(Guild).find({
             select: { guild_id: true },
         });

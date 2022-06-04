@@ -14,4 +14,9 @@ export const UserRankRepository = AppDataSource.getRepository(UserRank).extend({
             rank: rank,
         });
     },
+    findByDiscordId(id: string): Promise<UserRank | null> {
+        return this.manager.findOne(UserRank, {
+            where: { discord_id: id },
+        });
+    },
 });
