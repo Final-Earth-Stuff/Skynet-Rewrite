@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { BotError } from "../../error";
 import { Data } from "../../map";
@@ -17,60 +17,57 @@ import {
     convertAxisControl,
 } from "../../service/util/team";
 
+@CommandHandler({ name: "prox" })
+@Guard(commandChannelGuard)
 export class Prox {
-    @CommandData({ type: "global", completions: { center: "country" } })
-    proxData() {
-        return new SlashCommandBuilder()
-            .setName("prox")
-            .setDescription(
-                "Shows all units within the provided distance of a country"
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("center")
-                    .setDescription(
-                        "The country on which the search is centered"
-                    )
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("radius")
-                    .setDescription("Radius of the search (minutes)")
-                    .setRequired(true)
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("team")
-                    .setDescription("Only show results for one team")
-                    .setRequired(false)
-                    .setChoices([
-                        ["Allies", Team.ALLIES],
-                        ["Axis", Team.AXIS],
-                    ])
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("points")
-                    .setDescription(
-                        "Number of points spent on the travel time reduction skill"
-                    )
-                    .setRequired(false)
-            )
-            .addBooleanOption((option) =>
-                option
-                    .setName("paratroopers")
-                    .setDescription(
-                        "Whether or not the team has researched the Paratrooper Training technology"
-                    )
-                    .setRequired(false)
-            )
-            .toJSON();
-    }
+    @CommandData({ type: "global", completion: { center: "country" } })
+    readonly data = new SlashCommandBuilder()
+        .setName("prox")
+        .setDescription(
+            "Shows all units within the provided distance of a country"
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("center")
+                .setDescription("The country on which the search is centered")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("radius")
+                .setDescription("Radius of the search (minutes)")
+                .setRequired(true)
+        )
+        .addStringOption((option) =>
+            option
+                .setName("team")
+                .setDescription("Only show results for one team")
+                .setRequired(false)
+                .setChoices([
+                    ["Allies", Team.ALLIES],
+                    ["Axis", Team.AXIS],
+                ])
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("points")
+                .setDescription(
+                    "Number of points spent on the travel time reduction skill"
+                )
+                .setRequired(false)
+        )
+        .addBooleanOption((option) =>
+            option
+                .setName("paratroopers")
+                .setDescription(
+                    "Whether or not the team has researched the Paratrooper Training technology"
+                )
+                .setRequired(false)
+        )
+        .toJSON();
 
-    @Command({ name: "prox" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async prox(interaction: CommandInteraction): Promise<void> {
         const center = interaction.options.getInteger("center", true);
         const radius = interaction.options.getInteger("radius", true);

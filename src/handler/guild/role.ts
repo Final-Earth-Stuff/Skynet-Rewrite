@@ -8,7 +8,8 @@ import {
 import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
 
 import {
-    Command,
+    CommandHandler,
+    SubCommand,
     CommandData,
     AfterCommandUpdate,
     EventHandler,
@@ -52,6 +53,7 @@ async function updatePermissionsForGuild(
     });
 }
 
+@CommandHandler({ name: "role" })
 @EventHandler()
 export class Role {
     @CommandData({ type: "guild" })
@@ -113,27 +115,7 @@ export class Role {
             .toJSON();
     }
 
-    @Command({ name: "role", admin: true })
-    async role(interaction: CommandInteraction): Promise<void> {
-        const subCommand = interaction.options.getSubcommand(true);
-
-        switch (subCommand) {
-            case "add":
-                await this.roleAdd(interaction);
-                break;
-
-            case "remove":
-                await this.roleRemove(interaction);
-                break;
-
-            case "info":
-                await this.roleInfo(interaction);
-                break;
-            default:
-                throw new BotError("Not implemented");
-        }
-    }
-
+    @SubCommand({ name: "add" })
     async roleAdd(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
@@ -196,6 +178,7 @@ export class Role {
         await interaction.editReply({ embeds: [success] });
     }
 
+    @SubCommand({ name: "remove" })
     async roleRemove(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
@@ -260,6 +243,7 @@ export class Role {
         await interaction.editReply({ embeds: [success] });
     }
 
+    @SubCommand({ name: "info" })
     async roleInfo(interaction: CommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({

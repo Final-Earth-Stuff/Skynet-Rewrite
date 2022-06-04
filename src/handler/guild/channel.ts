@@ -2,100 +2,81 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord-api-types/v10";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData } from "../../decorators";
+import { CommandHandler, SubCommand, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 
 import { AppDataSource } from "../..";
 import { Guild as GuildEntity } from "../../entity/Guild";
 import { Color } from "../../service/util/constants";
 
+@CommandHandler({ name: "channel" })
 export class Channel {
     @CommandData({ type: "guild" })
-    channelData() {
-        return new SlashCommandBuilder()
-            .setName("channel")
-            .setDescription("Configure channels")
-            .setDefaultPermission(false)
-            .addSubcommand((subcommand) =>
-                subcommand
-                    .setName("add")
-                    .setDescription("Add new channel")
-                    .addStringOption((option) =>
-                        option
-                            .setName("type")
-                            .setDescription(
-                                "Which type of channel to configure"
-                            )
-                            .setRequired(true)
-                            .addChoices([
-                                ["Log", "log"],
-                                ["Verify", "verify"],
-                                ["Troop Movements", "troop_movement"],
-                                ["Facility Updates", "land_facility"],
-                                ["Command", "command"],
-                            ])
-                    )
-                    .addChannelOption((option) =>
-                        option
-                            .setName("channel")
-                            .setDescription("Which channel to use")
-                            // broken typings :/
-                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                            .addChannelType(ChannelType.GuildText as any)
-                            .setRequired(true)
-                    )
-            )
-            .addSubcommand((subcommand) =>
-                subcommand
-                    .setName("remove")
-                    .setDescription("Unset a configured channel")
-                    .addStringOption((option) =>
-                        option
-                            .setName("type")
-                            .setDescription("Which type of channel to unset")
-                            .setRequired(true)
-                            .addChoices([
-                                ["Log", "log"],
-                                ["Verify", "verify"],
-                                ["Troop Movements", "troop_movement"],
-                                ["Facility Updates", "land_facility"],
-                                ["Command", "command"],
-                            ])
-                    )
-                    .addChannelOption((option) =>
-                        option
-                            .setName("channel")
-                            .setDescription("Which channel to use")
-                            // broken typings :/
-                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                            .addChannelType(ChannelType.GuildText as any)
-                    )
-            )
-            .addSubcommand((subcommand) =>
-                subcommand
-                    .setName("info")
-                    .setDescription("List configured channels")
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("channel")
+        .setDescription("Configure channels")
+        .setDefaultPermission(false)
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("add")
+                .setDescription("Add new channel")
+                .addStringOption((option) =>
+                    option
+                        .setName("type")
+                        .setDescription("Which type of channel to configure")
+                        .setRequired(true)
+                        .addChoices([
+                            ["Log", "log"],
+                            ["Verify", "verify"],
+                            ["Troop Movements", "troop_movement"],
+                            ["Facility Updates", "land_facility"],
+                            ["Command", "command"],
+                        ])
+                )
+                .addChannelOption((option) =>
+                    option
+                        .setName("channel")
+                        .setDescription("Which channel to use")
+                        // broken typings :/
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                        .addChannelType(ChannelType.GuildText as any)
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("remove")
+                .setDescription("Unset a configured channel")
+                .addStringOption((option) =>
+                    option
+                        .setName("type")
+                        .setDescription("Which type of channel to unset")
+                        .setRequired(true)
+                        .addChoices([
+                            ["Log", "log"],
+                            ["Verify", "verify"],
+                            ["Troop Movements", "troop_movement"],
+                            ["Facility Updates", "land_facility"],
+                            ["Command", "command"],
+                        ])
+                )
+                .addChannelOption((option) =>
+                    option
+                        .setName("channel")
+                        .setDescription("Which channel to use")
+                        // broken typings :/
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                        .addChannelType(ChannelType.GuildText as any)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("info")
+                .setDescription("List configured channels")
+        )
+        .toJSON();
 
-    @Command({ name: "channel", admin: true })
-    async channel(interaction: CommandInteraction): Promise<void> {
-        switch (interaction.options.getSubcommand()) {
-            case "add":
-                await this.channelAdd(interaction);
-                break;
-            case "remove":
-                await this.channelRemove(interaction);
-                break;
-            case "info":
-                await this.channelInfo(interaction);
-                break;
-            default:
-                throw new BotError("Not implemented");
-        }
-    }
-
+    @SubCommand({ name: "add" })
     async channelAdd(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
@@ -155,6 +136,7 @@ export class Channel {
         await interaction.editReply({ embeds: [success] });
     }
 
+    @SubCommand({ name: "remove" })
     async channelRemove(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
@@ -214,6 +196,7 @@ export class Channel {
         await interaction.editReply({ embeds: [success] });
     }
 
+    @SubCommand({ name: "info" })
     async channelInfo(interaction: CommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({

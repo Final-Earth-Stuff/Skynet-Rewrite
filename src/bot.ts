@@ -89,13 +89,45 @@ export const bootstrap = async () => {
                 }
             }
         } else if (interaction.isButton()) {
-            logger.debug(
-                "Received button interaction for '%s'",
-                interaction.customId
-            );
-            await decoratorData.buttons.get(interaction.customId)?.(
-                interaction
-            );
+            try {
+                const handler = handlers.buttons.get(interaction.customId);
+                if (!handler) {
+                    throw new Error(`Unknown button: '${interaction.customId}`);
+                }
+                logger.debug(
+                    "Received button interaction for '%s'",
+                    interaction.customId
+                );
+                await handler._handle(interaction);
+            } catch (e) {
+                let message: string;
+                let ephemeral = false;
+                if (e instanceof BotError) {
+                    message = e.message;
+                    logger.info(
+                        "Caught '%s: %s' while processing button '%s'",
+                        e.name,
+                        e.message,
+                        interaction.customId
+                    );
+                    ephemeral = e.ephemeral;
+                } else {
+                    logger.error(
+                        "Encountered unexpected error while processing button '%s': %O",
+                        interaction.customId,
+                        e
+                    );
+                    message = "Something went wrong";
+                }
+                const embed = new MessageEmbed()
+                    .setColor(Color.BRIGHT_RED)
+                    .setDescription(message);
+
+                await interaction.followUp({
+                    embeds: [embed],
+                    ephemeral,
+                });
+            }
         } else if (interaction.isAutocomplete()) {
             const focused = interaction.options.getFocused(true);
             logger.debug(

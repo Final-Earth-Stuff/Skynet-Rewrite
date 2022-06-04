@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
@@ -34,10 +34,15 @@ function travelSpeed(tech: string): number {
     }
 }
 
+@CommandHandler({ name: "nuke" })
+@Guard(commandChannelGuard)
 export class Nuke {
     @CommandData({
         type: "global",
-        completions: { origin: "country", destination: "country" },
+        completion: {
+            origin: "country",
+            destination: "country",
+        },
     })
     nukeData() {
         return new SlashCommandBuilder()
@@ -73,8 +78,7 @@ export class Nuke {
             .toJSON();
     }
 
-    @Command({ name: "nuke" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async nuke(interaction: CommandInteraction): Promise<void> {
         const origin = interaction.options.getInteger("origin", true);
         const destination = interaction.options.getInteger("destination", true);

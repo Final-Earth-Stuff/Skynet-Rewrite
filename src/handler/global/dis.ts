@@ -1,12 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import {
-    Command,
-    CommandData,
-    CommandHandler,
-    Guard,
-} from "../../decorators/CommandHandler";
+import { Command, CommandData, CommandHandler, Guard } from "../../decorators";
 import { BotError } from "../../error";
 
 import { Data } from "../../map";
