@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
@@ -11,45 +11,44 @@ import { Team } from "../../service/util/constants";
 import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
 import { Color } from "../../service/util/constants";
 
+@CommandHandler({ name: "region" })
+@Guard(commandChannelGuard)
 export class Region {
     @CommandData({ type: "global" })
-    regionData() {
-        return new SlashCommandBuilder()
-            .setName("region")
-            .setDescription(
-                "Shows units, facilities and income by team for the provided region"
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("region")
-                    .setDescription("Region which should be summarized")
-                    .setRequired(true)
-                    .addChoices([
-                        ["Europe", RegionEnum.EUROPE],
-                        ["Middle East", RegionEnum.MIDDLE_EAST],
-                        ["Asia", RegionEnum.ASIA],
-                        ["North America", RegionEnum.NORTH_AMERICA],
-                        ["South America", RegionEnum.SOUTH_AMERICA],
-                        ["Australasia", RegionEnum.AUSTRALASIA],
-                        ["Caribbean", RegionEnum.CARIBBEAN],
-                        ["Africa", RegionEnum.AFRICA],
-                    ])
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("team")
-                    .setDescription("Only show one team")
-                    .setRequired(false)
-                    .addChoices([
-                        ["axis", "Axis"],
-                        ["allies", "Allies"],
-                    ])
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("region")
+        .setDescription(
+            "Shows units, facilities and income by team for the provided region"
+        )
+        .addStringOption((option) =>
+            option
+                .setName("region")
+                .setDescription("Region which should be summarized")
+                .setRequired(true)
+                .addChoices([
+                    ["Europe", RegionEnum.EUROPE],
+                    ["Middle East", RegionEnum.MIDDLE_EAST],
+                    ["Asia", RegionEnum.ASIA],
+                    ["North America", RegionEnum.NORTH_AMERICA],
+                    ["South America", RegionEnum.SOUTH_AMERICA],
+                    ["Australasia", RegionEnum.AUSTRALASIA],
+                    ["Caribbean", RegionEnum.CARIBBEAN],
+                    ["Africa", RegionEnum.AFRICA],
+                ])
+        )
+        .addStringOption((option) =>
+            option
+                .setName("team")
+                .setDescription("Only show one team")
+                .setRequired(false)
+                .addChoices([
+                    ["axis", "Axis"],
+                    ["allies", "Allies"],
+                ])
+        )
+        .toJSON();
 
-    @Command({ name: "region" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async region(interaction: CommandInteraction): Promise<void> {
         const reg = interaction.options.getString("region", true) as RegionEnum;
         const team = interaction.options.getString("team") as Team | undefined;

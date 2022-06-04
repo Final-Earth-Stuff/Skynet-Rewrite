@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
@@ -10,18 +10,17 @@ import { verifyGuard } from "../../guard/verifyGuard";
 import { Color } from "../../service/util/constants";
 import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
 
+@CommandHandler({ name: "verify" })
+@Guard(verifyGuard)
 export class Verify {
     @CommandData({ type: "guild" })
-    verifyData() {
-        return new SlashCommandBuilder()
-            .setName("verify")
-            .setDescription("Verify User")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("verify")
+        .setDescription("Verify User")
+        .toJSON();
 
-    @Command({ name: "verify" })
-    @Guard({ body: verifyGuard })
-    async verify(interaction: CommandInteraction) {
+    @Command()
+    async totals(interaction: CommandInteraction) {
         await interaction.deferReply();
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");

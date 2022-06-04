@@ -2,28 +2,27 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { Color } from "../../service/util/constants";
 
+@CommandHandler({ name: "spawns" })
+@Guard(commandChannelGuard)
 export class Spawns {
     @CommandData({ type: "global" })
-    SpawnsData() {
-        return new SlashCommandBuilder()
-            .setName("spawns")
-            .setDescription("Check increase in all spawn's factory counts.")
-            .addIntegerOption((option) =>
-                option
-                    .setName("hours")
-                    .setDescription("How many hours change to check")
-                    .setRequired(true)
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("spawns")
+        .setDescription("Check increase in all spawn's factory counts.")
+        .addIntegerOption((option) =>
+            option
+                .setName("hours")
+                .setDescription("How many hours change to check")
+                .setRequired(true)
+        )
+        .toJSON();
 
-    @Command({ name: "spawns" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async spawns(interaction: CommandInteraction): Promise<void> {
         const hours = interaction.options.getInteger("hours") ?? 0;
         if (hours <= 0) {

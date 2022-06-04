@@ -1,5 +1,5 @@
+import { EventHandler, ScheduledJob, Cron } from "../../decorators";
 import { Client } from "discord.js";
-import { ScheduledJob } from "../../decorators";
 
 import { UserRankRepository } from "../../repository/UserRankRepository";
 
@@ -8,8 +8,10 @@ import { makeLogger } from "../../logger";
 
 const logger = makeLogger(module);
 
+@EventHandler()
+@ScheduledJob()
 export class MonitorRanks {
-    @ScheduledJob({ cron: "*/10 * * * *" })
+    @Cron("*/10 * * * *")
     async checkRanks(client: Client) {
         logger.info(`checking user ranks...`);
         const users = await UserRankRepository.getCurrentUsers();

@@ -3,11 +3,12 @@ import { ApplicationCommandOptionChoice } from "discord.js";
 import { go } from "fuzzysort";
 
 import { unwrap } from "../../util/assert";
-import { Completion } from "../../decorators";
+import { CompletionProvider, Completion } from "../../decorators";
 import { Data } from "../../map";
 
+@CompletionProvider()
 export class CountryComplete {
-    @Completion({ id: "country" })
+    @Completion("country")
     async countryComplete(
         value: string
     ): Promise<ApplicationCommandOptionChoice[]> {

@@ -1,32 +1,31 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
 import { ApiError, BotError } from "../../error";
 import { dmGuard } from "../../guard/dmGuard";
 import { Color } from "../../service/util/constants";
 
+@CommandHandler({ name: "start" })
+@Guard(dmGuard)
 export class Start {
     @CommandData({ type: "global" })
-    startData() {
-        return new SlashCommandBuilder()
-            .setName("start")
-            .setDescription(
-                "Add api key to bot to start using notification functions"
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("apikey")
-                    .setDescription("Your api key")
-                    .setRequired(true)
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("start")
+        .setDescription(
+            "Add api key to bot to start using notification functions"
+        )
+        .addStringOption((option) =>
+            option
+                .setName("apikey")
+                .setDescription("Your api key")
+                .setRequired(true)
+        )
+        .toJSON();
 
-    @Command({ name: "start" })
-    @Guard({ body: dmGuard })
+    @Command()
     async start(interaction: CommandInteraction) {
         await interaction.deferReply();
         const apiKey = interaction.options.getString("apikey", true);

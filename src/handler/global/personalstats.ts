@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 
 import { Color } from "../../service/util/constants";
@@ -20,17 +20,16 @@ import { makeLogger } from "../../logger";
 
 const logger = makeLogger(module);
 
+@CommandHandler({ name: "personalstats" })
+@Guard(commandChannelGuard)
 export class PersonalStats {
     @CommandData({ type: "global" })
-    personalStats() {
-        return new SlashCommandBuilder()
-            .setName("personalstats")
-            .setDescription("Display your personal stats")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("personalstats")
+        .setDescription("Display your personal stats")
+        .toJSON();
 
-    @Command({ name: "personalstats" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async stats(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
         const user = await UserSettingsRepository.getUserByDiscordId(

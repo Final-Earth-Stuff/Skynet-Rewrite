@@ -2,39 +2,34 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { dmGuard } from "../../guard/dmGuard";
 import { Reminder } from "../../entity/Reminder";
 import { AppDataSource } from "../..";
 import { UserSettings } from "../../entity/UserSettings";
 
+@CommandHandler({ name: "remind" })
+@Guard(dmGuard)
 export class Remind {
     @CommandData({ type: "global" })
-    remindData() {
-        return new SlashCommandBuilder()
-            .setName("remind")
-            .setDescription("Schedule a reminder")
-            .addIntegerOption((option) =>
-                option
-                    .setName("minutes")
-                    .setDescription(
-                        "Number of minutes after which to remind you"
-                    )
-                    .setRequired(true)
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("message")
-                    .setDescription(
-                        "Message that should accompany the reminder"
-                    )
-                    .setRequired(false)
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("remind")
+        .setDescription("Schedule a reminder")
+        .addIntegerOption((option) =>
+            option
+                .setName("minutes")
+                .setDescription("Number of minutes after which to remind you")
+                .setRequired(true)
+        )
+        .addStringOption((option) =>
+            option
+                .setName("message")
+                .setDescription("Message that should accompany the reminder")
+                .setRequired(false)
+        )
+        .toJSON();
 
-    @Command({ name: "remind" })
-    @Guard({ body: dmGuard })
+    @Command()
     async remind(interaction: CommandInteraction): Promise<void> {
         const minutes = interaction.options.getInteger("minutes", true);
         const message = interaction.options.getString("message", false);

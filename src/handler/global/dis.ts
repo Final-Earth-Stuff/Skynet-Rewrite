@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { Command, CommandData, CommandHandler, Guard } from "../../decorators";
 import { BotError } from "../../error";
 
 import { Data } from "../../map";
@@ -10,52 +10,51 @@ import { travelTime } from "../../map/util";
 import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { Color } from "../../service/util/constants";
 
+@CommandHandler({ name: "dis" })
+@Guard(commandChannelGuard)
 export class Dis {
     @CommandData({
         type: "global",
-        completions: { origin: "country", destination: "country" },
+        completion: { origin: "country", destination: "country" },
     })
-    distData() {
-        return new SlashCommandBuilder()
-            .setName("dis")
-            .setDescription(
-                "Determines the distance and travel time between two countries"
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("origin")
-                    .setDescription("Starting country")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("destination")
-                    .setDescription("Destination")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("points")
-                    .setDescription(
-                        "Number of points spent on the travel time reduction skill"
-                    )
-                    .setRequired(false)
-            )
-            .addBooleanOption((option) =>
-                option
-                    .setName("paratroopers")
-                    .setDescription(
-                        "Whether or not the team has researched the Paratrooper Training technology"
-                    )
-                    .setRequired(false)
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("dis")
+        .setDescription(
+            "Determines the distance and travel time between two countries"
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("origin")
+                .setDescription("Starting country")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("destination")
+                .setDescription("Destination")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("points")
+                .setDescription(
+                    "Number of points spent on the travel time reduction skill"
+                )
+                .setRequired(false)
+        )
+        .addBooleanOption((option) =>
+            option
+                .setName("paratroopers")
+                .setDescription(
+                    "Whether or not the team has researched the Paratrooper Training technology"
+                )
+                .setRequired(false)
+        )
+        .toJSON();
 
-    @Command({ name: "dis" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async dist(interaction: CommandInteraction): Promise<void> {
         const travelPoints = interaction.options.getInteger("points") ?? 0;
         if (travelPoints < 0 || travelPoints > 25) {

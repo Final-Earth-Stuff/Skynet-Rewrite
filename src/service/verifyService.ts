@@ -11,7 +11,7 @@ import { setNickname } from "../service/nickname";
 import { UserData } from "../wrapper/models/user";
 import { ApiError, BotError } from "../error";
 import { AppDataSource } from "..";
-import { EventHandler } from "../decorators";
+import { EventHandler, DiscordEvent } from "../decorators";
 import { makeLogger } from "../logger";
 import { UserRank } from "../entity/UserRank";
 import { removeMembers } from "../service/nickname";
@@ -22,8 +22,9 @@ import { Color } from "../service/util/constants";
 
 const logger = makeLogger(module);
 
+@EventHandler()
 export class VerifyService {
-    @EventHandler({ event: "guildMemberAdd" })
+    @DiscordEvent("guildMemberAdd")
     async initUserRank(member: GuildMember) {
         logger.info(`${member.displayName} joined ${member.guild.name}`);
         try {
@@ -49,7 +50,7 @@ export class VerifyService {
         }
     }
 
-    @EventHandler({ event: "guildMemberRemove" })
+    @DiscordEvent("guildMemberRemove")
     async memberLeft(member: GuildMember | PartialGuildMember) {
         logger.info(`${member.displayName} left ${member.guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);
@@ -57,7 +58,7 @@ export class VerifyService {
         if (userRank) repository.save(userRank);
     }
 
-    @EventHandler({ event: "guildDelete" })
+    @DiscordEvent("guildDelete")
     async guildDelete(guild: Guild) {
         logger.info(`Bot kicked from guild: ${guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);

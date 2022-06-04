@@ -1,64 +1,60 @@
-import { ButtonInteraction, MessageEmbed } from "discord.js";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ButtonInteraction } from "discord.js";
 
-import { BotError } from "../error";
-import { makeLogger } from "../logger";
-
-import { buttons } from "./data";
-
-import { Color } from "../service/util/constants";
-
-const logger = makeLogger(module);
+import { Constructor, ensureBaseScope } from "./BaseScope";
 
 export interface ButtonOptions {
     customId: string;
 }
 
-export type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
+export type ButtonHandlerBody = (
+    interaction: ButtonInteraction
+) => Promise<void>;
 
 export const Button =
     (options: ButtonOptions) =>
     (
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         target: any,
-        _propertyKey: string,
-        descriptor: TypedPropertyDescriptor<ButtonHandler>
+        propertyKey: string,
+        _descriptor: TypedPropertyDescriptor<ButtonHandlerBody>
     ) => {
-        const shared = target.shared ?? new target.constructor();
-        if (!target.shared) {
-            target.shared = shared;
-        }
-        let handler = descriptor.value;
-        if (handler) {
-            handler = handler.bind(shared);
-            const wrapped = async (interaction: ButtonInteraction) => {
-                try {
-                    await handler?.(interaction);
-                } catch (e) {
-                    if (e instanceof BotError) {
-                        const embed = new MessageEmbed()
-                            .setColor(Color.BRIGHT_RED)
-                            .setDescription(e.message);
-                        await interaction.followUp({
-                            embeds: [embed],
-                            ephemeral: e.ephemeral,
-                        });
-                        logger.info(
-                            "Caught 'BotError: %s' while processing button '%s'",
-                            e.message,
-                            options.customId
-                        );
-                        if (e.source) {
-                            logger.debug("Source: %O", e.source);
-                        }
-                    } else {
-                        logger.error(
-                            "Encountered unexpected error while processing button '%s': %O",
-                            options.customId,
-                            e
-                        );
-                    }
-                }
-            };
-            buttons.set(options.customId, wrapped);
-        }
+        const handlers: Map<string, string> =
+            Reflect.getMetadata("handler:button", target.constructor) ??
+            new Map();
+        handlers.set(options.customId, propertyKey);
+        Reflect.defineMetadata("handler:button", handlers, target.constructor);
     };
+
+export interface IButtonHandlerScope {
+    _handles: Set<string>;
+
+    _handle(interaction: ButtonInteraction): Promise<void>;
+}
+
+export const ButtonHandler =
+    () =>
+    <T extends Constructor>(target: T) => {
+        ensureBaseScope(target);
+        Reflect.getMetadata("scope:type", target).add("button");
+
+        const handlerMap: Map<string, string> =
+            Reflect.getMetadata("handler:button", target) ?? new Map();
+
+        return class extends target implements IButtonHandlerScope {
+            get _handles(): Set<string> {
+                return new Set(handlerMap.keys());
+            }
+
+            async _handle(interaction: ButtonInteraction): Promise<void> {
+                const key = handlerMap.get(interaction.customId);
+                if (!key) return;
+
+                await Reflect.get(this, key).call(this, interaction);
+            }
+        };
+    };
+
+export const isButtonHandler = (
+    obj: any
+): obj is Constructor<IButtonHandlerScope> =>
+    Reflect.getMetadata("scope:type", obj)?.has("button");

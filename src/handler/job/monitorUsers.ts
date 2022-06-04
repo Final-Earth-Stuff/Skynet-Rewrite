@@ -1,6 +1,6 @@
 import { Client, User } from "discord.js";
 
-import { ScheduledJob } from "../../decorators";
+import { ScheduledJob, Cron } from "../../decorators";
 
 import {
     UserSettingsRepository,
@@ -15,8 +15,9 @@ import { Team } from "../../service/util/constants";
 
 const logger = makeLogger(module);
 
+@ScheduledJob()
 export class MonitorUsers {
-    @ScheduledJob({ cron: "*/30 * * * * *" })
+    @Cron("*/30 * * * * *")
     async checkUsers(client: Client) {
         logger.info("checking all users...");
         try {

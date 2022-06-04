@@ -8,7 +8,14 @@ import {
 import { UserSettings } from "src/entity/UserSettings";
 import { BotError } from "../../error";
 
-import { Command, CommandData, Button, Guard } from "../../decorators";
+import {
+    Command,
+    CommandData,
+    CommandHandler,
+    Button,
+    ButtonHandler,
+    Guard,
+} from "../../decorators";
 import { dmGuard } from "../../guard/dmGuard";
 import {
     UserSettingsRepository,
@@ -17,17 +24,17 @@ import {
 
 import { ButtonColor } from "../../service/util/constants";
 
+@CommandHandler({ name: "settings" })
+@ButtonHandler()
+@Guard(dmGuard)
 export class Settings {
     @CommandData({ type: "global" })
-    settingsData() {
-        return new SlashCommandBuilder()
-            .setName("settings")
-            .setDescription("View and toggle settings for notifications")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("settings")
+        .setDescription("View and toggle settings for notifications")
+        .toJSON();
 
-    @Command({ name: "settings" })
-    @Guard({ body: dmGuard })
+    @Command()
     async settings(interaction: CommandInteraction): Promise<void> {
         const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { BotError } from "../../error";
 import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
@@ -34,47 +34,47 @@ function travelSpeed(tech: string): number {
     }
 }
 
+@CommandHandler({ name: "nuke" })
+@Guard(commandChannelGuard)
 export class Nuke {
     @CommandData({
         type: "global",
-        completions: { origin: "country", destination: "country" },
+        completion: {
+            origin: "country",
+            destination: "country",
+        },
     })
-    nukeData() {
-        return new SlashCommandBuilder()
-            .setName("nuke")
-            .setDescription("Shows nuke travel time")
-            .addIntegerOption((option) =>
-                option
-                    .setName("origin")
-                    .setDescription("The country in which the nuke is launched")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("destination")
-                    .setDescription("The country the nuke is launched at")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("tech")
-                    .setDescription(
-                        "The technology used for launching the nuke"
-                    )
-                    .setRequired(false)
-                    .addChoices([
-                        ["Nuke I: SRBMs", "SRBM"],
-                        ["Nuke II: IRBMs", "IRBM"],
-                        ["Nuke III: ICBMs", "ICBM"],
-                    ])
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("nuke")
+        .setDescription("Shows nuke travel time")
+        .addIntegerOption((option) =>
+            option
+                .setName("origin")
+                .setDescription("The country in which the nuke is launched")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("destination")
+                .setDescription("The country the nuke is launched at")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addStringOption((option) =>
+            option
+                .setName("tech")
+                .setDescription("The technology used for launching the nuke")
+                .setRequired(false)
+                .addChoices([
+                    ["Nuke I: SRBMs", "SRBM"],
+                    ["Nuke II: IRBMs", "IRBM"],
+                    ["Nuke III: ICBMs", "ICBM"],
+                ])
+        )
+        .toJSON();
 
-    @Command({ name: "nuke" })
-    @Guard({ body: commandChannelGuard })
+    @Command()
     async nuke(interaction: CommandInteraction): Promise<void> {
         const origin = interaction.options.getInteger("origin", true);
         const destination = interaction.options.getInteger("destination", true);

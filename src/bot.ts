@@ -1,17 +1,19 @@
-import glob from "glob";
-import path from "path";
-
-import { Client, Intents } from "discord.js";
+import { Client, Intents, MessageEmbed } from "discord.js";
 
 import { schedule } from "node-cron";
 
 import { config } from "./config";
 import { makeLogger } from "./logger";
+import { BotError } from "./error";
 import { Data } from "./map";
 
-import * as decoratorData from "./decorators/data";
+import { loadHandlers } from "./decorators";
+import { Color } from "./service/util/constants";
 
 const logger = makeLogger(module);
+
+export let handlers: Awaited<ReturnType<typeof loadHandlers>> | undefined =
+    undefined;
 
 export const bootstrap = async () => {
     logger.info("Starting bot...");
@@ -19,10 +21,7 @@ export const bootstrap = async () => {
     await Data.shared.initialise();
 
     logger.info("Loading handlers...");
-    glob.sync("dist/handler/**/*.js").forEach((match) => {
-        const file = path.relative(module.path, match);
-        require("./" + file);
-    });
+    handlers = await loadHandlers();
 
     const client = new Client({
         intents: [
@@ -34,27 +33,116 @@ export const bootstrap = async () => {
 
     client.on("ready", async (client) => {
         logger.info("Scheduling jobs...");
-        decoratorData.jobs.forEach((cronJobs, cron) =>
-            schedule(cron, () => cronJobs.forEach((job) => job(client)))
+        handlers?.cronJobs.forEach((cronJobs, cron) =>
+            schedule(cron, () =>
+                cronJobs.forEach((job) => {
+                    Promise.resolve({
+                        then: (resolve: CallableFunction) => {
+                            resolve(job(client));
+                        },
+                    }).catch((e) =>
+                        logger.error(
+                            "Error while executing scheduled job: %O",
+                            e
+                        )
+                    );
+                })
+            )
         );
 
         logger.info("Bot is ready");
     });
 
+    handlers.events.forEach((handler) =>
+        handler._registerDiscordHandlers(client)
+    );
+
     client.on("interactionCreate", async (interaction) => {
         if (interaction.isCommand()) {
-            logger.debug("Received command '%s'", interaction.commandName);
-            await decoratorData.commands.get(interaction.commandName)?.(
-                interaction
-            );
+            try {
+                const handler = handlers?.commands.get(interaction.commandName);
+                if (!handler) {
+                    throw new Error(
+                        `Unknown command: '${interaction.commandName}`
+                    );
+                }
+                logger.debug("Received command '%s'", interaction.commandName);
+                await handler._handleCommand(interaction);
+            } catch (e) {
+                let message: string;
+                let ephemeral = false;
+                if (e instanceof BotError) {
+                    message = e.message;
+                    logger.info(
+                        "Caught '%s: %s' while processing command '%s'",
+                        e.name,
+                        e.message,
+                        interaction.commandName
+                    );
+                    ephemeral = e.ephemeral;
+                } else {
+                    logger.error(
+                        "Encountered unexpected error while processing command '%s': %O",
+                        interaction.commandName,
+                        e
+                    );
+                    message = "Something went wrong";
+                }
+                const embed = new MessageEmbed()
+                    .setColor(Color.BRIGHT_RED)
+                    .setDescription(message);
+
+                if (interaction.deferred) {
+                    await interaction.editReply({
+                        embeds: [embed],
+                    });
+                } else {
+                    await interaction.reply({
+                        embeds: [embed],
+                        ephemeral,
+                    });
+                }
+            }
         } else if (interaction.isButton()) {
-            logger.debug(
-                "Received button interaction for '%s'",
-                interaction.customId
-            );
-            await decoratorData.buttons.get(interaction.customId)?.(
-                interaction
-            );
+            try {
+                const handler = handlers?.buttons.get(interaction.customId);
+                if (!handler) {
+                    throw new Error(`Unknown button: '${interaction.customId}`);
+                }
+                logger.debug(
+                    "Received button interaction for '%s'",
+                    interaction.customId
+                );
+                await handler._handle(interaction);
+            } catch (e) {
+                let message: string;
+                let ephemeral = false;
+                if (e instanceof BotError) {
+                    message = e.message;
+                    logger.info(
+                        "Caught '%s: %s' while processing button '%s'",
+                        e.name,
+                        e.message,
+                        interaction.customId
+                    );
+                    ephemeral = e.ephemeral;
+                } else {
+                    logger.error(
+                        "Encountered unexpected error while processing button '%s': %O",
+                        interaction.customId,
+                        e
+                    );
+                    message = "Something went wrong";
+                }
+                const embed = new MessageEmbed()
+                    .setColor(Color.BRIGHT_RED)
+                    .setDescription(message);
+
+                await interaction.followUp({
+                    embeds: [embed],
+                    ephemeral,
+                });
+            }
         } else if (interaction.isAutocomplete()) {
             const focused = interaction.options.getFocused(true);
             logger.debug(
@@ -63,7 +151,7 @@ export const bootstrap = async () => {
                 focused.name
             );
 
-            const handlerID = decoratorData.optionCompletionMap
+            const handlerID = handlers?.completionMap
                 .get(interaction.commandName)
                 ?.get(focused.name);
 
@@ -72,7 +160,7 @@ export const bootstrap = async () => {
                 return;
             }
 
-            const handler = decoratorData.completionHandlers.get(handlerID);
+            const handler = handlers?.completions.get(handlerID);
 
             if (!handler) {
                 logger.error(
@@ -83,7 +171,10 @@ export const bootstrap = async () => {
             }
 
             try {
-                const completions = await handler(focused.value as string);
+                const completions = await handler._handle(
+                    handlerID,
+                    focused.value as string
+                );
                 await interaction.respond(completions);
             } catch (e) {
                 logger.error(
@@ -95,20 +186,6 @@ export const bootstrap = async () => {
             }
         }
     });
-
-    for (const event in decoratorData.eventHandlers) {
-        client.on(event, async (...args) => {
-            try {
-                await Promise.all(
-                    decoratorData.eventHandlers[
-                        event as keyof typeof decoratorData.eventHandlers
-                    ].map((handler: CallableFunction) => handler(...args))
-                );
-            } catch (e) {
-                logger.error("Error in event handler '%s': %O", event, e);
-            }
-        });
-    }
 
     client.login(config.botToken);
 };

@@ -1,34 +1,82 @@
-import { ApplicationCommandOptionChoice } from "discord.js";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ApplicationCommandOptionChoice } from "discord.js";
+import { Constructor, ensureBaseScope } from "./BaseScope";
 
-import { completionHandlers } from "./data";
-
-export interface AutocompleteOptions {
-    id: string;
-}
-
-export type AutocompleteHandler = (
+type AutocompleteHandler = (
     value: string
 ) => Promise<ApplicationCommandOptionChoice[]>;
 
-export interface CompletionRequest {
-    value: string;
+export const Completion =
+    (id: string) =>
+    (
+        target: any,
+        propertyKey: string,
+        _descriptor: TypedPropertyDescriptor<AutocompleteHandler>
+    ) => {
+        const completions =
+            Reflect.getMetadata("handler:completion", target.constructor) ??
+            new Set<string>();
+        completions.add(propertyKey);
+        Reflect.defineMetadata(
+            "handler:completion",
+            completions,
+            target.constructor
+        );
+        Reflect.defineMetadata(
+            "data:completion:options",
+            id,
+            target,
+            propertyKey
+        );
+    };
+
+export interface ICompletionProvider {
+    _handles: Set<string>;
+    _handle(
+        id: string,
+        value: string
+    ): Promise<ApplicationCommandOptionChoice[]>;
 }
 
-export const Completion =
-    (options: AutocompleteOptions) =>
-    (
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        target: any,
-        _propertyKey: string,
-        descriptor: TypedPropertyDescriptor<AutocompleteHandler>
-    ) => {
-        const shared = target._shared ?? new target.constructor();
-        if (!target._shared) {
-            target._shared = shared;
-        }
-        let handler = descriptor.value;
-        if (handler) {
-            handler = handler.bind(shared);
-            completionHandlers.set(options.id, handler);
-        }
+export const CompletionProvider =
+    () =>
+    <T extends Constructor>(target: T) => {
+        ensureBaseScope(target);
+        Reflect.getMetadata("scope:type", target).add("completion");
+
+        const completions: Set<string> = Reflect.getMetadata(
+            "handler:completion",
+            target
+        );
+        const complMap: Map<string, string> = new Map(
+            [...completions].map((completion) => [
+                Reflect.getMetadata(
+                    "data:completion:options",
+                    target.prototype,
+                    completion
+                ),
+                completion,
+            ])
+        );
+
+        return class extends target implements ICompletionProvider {
+            _handles = new Set(complMap.keys());
+
+            async _handle(
+                id: string,
+                value: string
+            ): Promise<ApplicationCommandOptionChoice[]> {
+                const key = complMap.get(id);
+                if (!key) {
+                    throw new Error(`Unknown completion with id \`${id}\``);
+                }
+
+                return await Reflect.get(this, key).call(this, value);
+            }
+        };
     };
+
+export const isCompletionProvider = (
+    obj: any
+): obj is Constructor<ICompletionProvider> =>
+    Reflect.getMetadata("scope:type", obj)?.has("completion");

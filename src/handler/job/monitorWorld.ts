@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 
-import { ScheduledJob } from "../../decorators";
+import { ScheduledJob, Cron } from "../../decorators";
 import * as wrapper from "../../wrapper/wrapper";
 import { makeLogger } from "../../logger";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
@@ -22,8 +22,9 @@ import { LandAndFacilities } from "src/entity/LandAndFacilities";
 
 const logger = makeLogger(module);
 
+@ScheduledJob()
 export class MonitorWorld {
-    @ScheduledJob({ cron: "*/30 * * * * *" })
+    @Cron("*/30 * * * * *")
     async checkWorld(client: Client) {
         logger.info("checking world...");
         try {

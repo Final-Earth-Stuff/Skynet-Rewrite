@@ -1,6 +1,3 @@
-import glob from "glob";
-import path from "path";
-
 import { REST } from "@discordjs/rest";
 import {
     Routes,
@@ -11,11 +8,7 @@ import {
 import { AppDataSource } from "..";
 import { config } from "../config";
 import { makeLogger } from "../logger";
-import {
-    globalCommandsData,
-    guildCommandsData,
-    updateHooks,
-} from "../decorators/data";
+import { loadHandlers } from "../decorators";
 
 import { Guild } from "../entity/Guild";
 import { CommandRepository } from "../repository/CommandRepository";
@@ -27,10 +20,7 @@ const rest = new REST({ version: "10" }).setToken(config.botToken);
 export async function updateCommands(globalsToGuilds: boolean) {
     try {
         logger.info("Loading handlers...");
-        glob.sync("dist/handler/**/*.js").forEach((match) => {
-            const file = path.relative(module.path, match);
-            require("./" + file);
-        });
+        const handlers = await loadHandlers();
 
         logger.info("Updating application commands...");
         const app = (await rest.get(
@@ -38,14 +28,14 @@ export async function updateCommands(globalsToGuilds: boolean) {
         )) as APIApplication;
         if (!globalsToGuilds) {
             await rest.put(Routes.applicationCommands(app.id), {
-                body: globalCommandsData,
+                body: handlers.globalData,
             });
         }
 
-        const guildCommands = [...guildCommandsData];
+        const guildCommands = [...handlers.guildData];
         if (globalsToGuilds) {
             logger.info("Will write global commands to guilds instead...");
-            guildCommands.push(...globalCommandsData);
+            guildCommands.push(...handlers.globalData);
         }
 
         const guilds = await AppDataSource.getRepository(Guild).find({
@@ -58,12 +48,6 @@ export async function updateCommands(globalsToGuilds: boolean) {
                     Routes.applicationGuildCommands(app.id, guild.guild_id),
                     { body: guildCommands }
                 )) as APIApplicationCommand[];
-
-                await Promise.all(
-                    [...updateHooks].map((hook) =>
-                        hook(guild.guild_id, app.id, rest)
-                    )
-                );
 
                 await CommandRepository.replaceGuildCommands(
                     commands,
