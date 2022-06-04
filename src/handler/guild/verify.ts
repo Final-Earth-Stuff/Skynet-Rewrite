@@ -17,12 +17,10 @@ import { Team, Color } from "../../service/util/constants";
 @Guard(verifyGuard)
 export class Verify {
     @CommandData({ type: "guild" })
-    verifyData() {
-        return new SlashCommandBuilder()
-            .setName("verify")
-            .setDescription("Verify User")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("verify")
+        .setDescription("Verify User")
+        .toJSON();
 
     @Command()
     async totals(interaction: CommandInteraction) {

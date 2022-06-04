@@ -5,11 +5,11 @@ import { isCommandHandler } from "./CommandHandler";
 import { isEventHandler } from "./EventHandler";
 import { isButtonHandler } from "./Button";
 import { isCompletionProvider } from "./Completion";
+import { isScheduledJob, JobBody } from "./ScheduledJob";
 
 export * from "./Button";
 export * from "./EventHandler";
 export * from "./CommandHandler";
-export * from "./AfterCommandUpdate";
 export * from "./ScheduledJob";
 export * from "./Completion";
 
@@ -23,6 +23,14 @@ export async function loadHandlers() {
     const commandScopes = exports
         .filter(isCommandHandler)
         .map((constr) => new constr());
+
+    const globalData = commandScopes
+        .filter((scope) => scope._data.type === "global")
+        .map((scope) => scope._data.data);
+
+    const guildData = commandScopes
+        .filter((scope) => scope._data.type === "guild")
+        .map((scope) => scope._data.data);
 
     const completionMap = new Map(
         commandScopes
@@ -46,6 +54,21 @@ export async function loadHandlers() {
         .filter(isCompletionProvider)
         .map((constr) => new constr());
 
+    const scheduledJobs = exports
+        .filter(isScheduledJob)
+        .map((constr) => new constr());
+
+    const mergedJobs = scheduledJobs
+        .map((job) => job._cronJobs)
+        .reduce((acc, cronJobs) => {
+            cronJobs.forEach((jobs, cron) => {
+                const list = acc.get(cron) ?? [];
+                list.push(...jobs);
+                acc.set(cron, list);
+            });
+            return acc;
+        }, new Map<string, JobBody[]>());
+
     return {
         commands: new Map(
             commandScopes.map((scope) => [scope._commandName, scope])
@@ -62,5 +85,8 @@ export async function loadHandlers() {
                 [...handler._handles].map((id) => [id, handler])
             )
         ),
+        cronJobs: mergedJobs,
+        globalData,
+        guildData,
     };
 }

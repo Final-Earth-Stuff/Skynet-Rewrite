@@ -7,11 +7,13 @@ import { makeLogger } from "./logger";
 import { BotError } from "./error";
 import { Data } from "./map";
 
-import * as decoratorData from "./decorators/data";
 import { loadHandlers } from "./decorators";
 import { Color } from "./service/util/constants";
 
 const logger = makeLogger(module);
+
+export let handlers: Awaited<ReturnType<typeof loadHandlers>> | undefined =
+    undefined;
 
 export const bootstrap = async () => {
     logger.info("Starting bot...");
@@ -19,7 +21,7 @@ export const bootstrap = async () => {
     await Data.shared.initialise();
 
     logger.info("Loading handlers...");
-    const handlers = await loadHandlers();
+    handlers = await loadHandlers();
 
     const client = new Client({
         intents: [
@@ -31,8 +33,21 @@ export const bootstrap = async () => {
 
     client.on("ready", async (client) => {
         logger.info("Scheduling jobs...");
-        decoratorData.jobs.forEach((cronJobs, cron) =>
-            schedule(cron, () => cronJobs.forEach((job) => job(client)))
+        handlers?.cronJobs.forEach((cronJobs, cron) =>
+            schedule(cron, () =>
+                cronJobs.forEach((job) => {
+                    Promise.resolve({
+                        then: (resolve: CallableFunction) => {
+                            resolve(job(client));
+                        },
+                    }).catch((e) =>
+                        logger.error(
+                            "Error while executing scheduled job: %O",
+                            e
+                        )
+                    );
+                })
+            )
         );
 
         logger.info("Bot is ready");
@@ -45,7 +60,7 @@ export const bootstrap = async () => {
     client.on("interactionCreate", async (interaction) => {
         if (interaction.isCommand()) {
             try {
-                const handler = handlers.commands.get(interaction.commandName);
+                const handler = handlers?.commands.get(interaction.commandName);
                 if (!handler) {
                     throw new Error(
                         `Unknown command: '${interaction.commandName}`
@@ -90,7 +105,7 @@ export const bootstrap = async () => {
             }
         } else if (interaction.isButton()) {
             try {
-                const handler = handlers.buttons.get(interaction.customId);
+                const handler = handlers?.buttons.get(interaction.customId);
                 if (!handler) {
                     throw new Error(`Unknown button: '${interaction.customId}`);
                 }
@@ -136,7 +151,7 @@ export const bootstrap = async () => {
                 focused.name
             );
 
-            const handlerID = handlers.completionMap
+            const handlerID = handlers?.completionMap
                 .get(interaction.commandName)
                 ?.get(focused.name);
 
@@ -145,7 +160,7 @@ export const bootstrap = async () => {
                 return;
             }
 
-            const handler = handlers.completions.get(handlerID);
+            const handler = handlers?.completions.get(handlerID);
 
             if (!handler) {
                 logger.error(

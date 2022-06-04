@@ -44,39 +44,35 @@ export class Nuke {
             destination: "country",
         },
     })
-    nukeData() {
-        return new SlashCommandBuilder()
-            .setName("nuke")
-            .setDescription("Shows nuke travel time")
-            .addIntegerOption((option) =>
-                option
-                    .setName("origin")
-                    .setDescription("The country in which the nuke is launched")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addIntegerOption((option) =>
-                option
-                    .setName("destination")
-                    .setDescription("The country the nuke is launched at")
-                    .setRequired(true)
-                    .setAutocomplete(true)
-            )
-            .addStringOption((option) =>
-                option
-                    .setName("tech")
-                    .setDescription(
-                        "The technology used for launching the nuke"
-                    )
-                    .setRequired(false)
-                    .addChoices([
-                        ["Nuke I: SRBMs", "SRBM"],
-                        ["Nuke II: IRBMs", "IRBM"],
-                        ["Nuke III: ICBMs", "ICBM"],
-                    ])
-            )
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("nuke")
+        .setDescription("Shows nuke travel time")
+        .addIntegerOption((option) =>
+            option
+                .setName("origin")
+                .setDescription("The country in which the nuke is launched")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+            option
+                .setName("destination")
+                .setDescription("The country the nuke is launched at")
+                .setRequired(true)
+                .setAutocomplete(true)
+        )
+        .addStringOption((option) =>
+            option
+                .setName("tech")
+                .setDescription("The technology used for launching the nuke")
+                .setRequired(false)
+                .addChoices([
+                    ["Nuke I: SRBMs", "SRBM"],
+                    ["Nuke II: IRBMs", "IRBM"],
+                    ["Nuke III: ICBMs", "ICBM"],
+                ])
+        )
+        .toJSON();
 
     @Command()
     async nuke(interaction: CommandInteraction): Promise<void> {

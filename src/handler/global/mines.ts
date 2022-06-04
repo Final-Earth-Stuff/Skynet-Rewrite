@@ -12,12 +12,10 @@ import { FacilityIncome } from "../../service/util/constants";
 @Guard(commandChannelGuard)
 export class Mines {
     @CommandData({ type: "global" })
-    minesData() {
-        return new SlashCommandBuilder()
-            .setName("mines")
-            .setDescription("Shows shows a breakdown of mine income by team")
-            .toJSON();
-    }
+    readonly data = new SlashCommandBuilder()
+        .setName("mines")
+        .setDescription("Shows shows a breakdown of mine income by team")
+        .toJSON();
 
     @Command()
     async mines(interaction: CommandInteraction): Promise<void> {

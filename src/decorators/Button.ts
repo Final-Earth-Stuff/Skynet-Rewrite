@@ -14,7 +14,6 @@ export type ButtonHandlerBody = (
 export const Button =
     (options: ButtonOptions) =>
     (
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         target: any,
         propertyKey: string,
         _descriptor: TypedPropertyDescriptor<ButtonHandlerBody>

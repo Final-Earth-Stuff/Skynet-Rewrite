@@ -1,6 +1,6 @@
-import { Client } from "discord.js";
-
-import { jobs } from "./data";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Client } from "discord.js";
+import { Constructor, ensureBaseScope } from "./BaseScope";
 
 export type JobBody = (guild: Client) => Promise<void>;
 
@@ -8,22 +8,47 @@ export interface ScheduledJobOptions {
     cron: string;
 }
 
-export const ScheduledJob =
-    (options: ScheduledJobOptions) =>
+export const Cron =
+    (cron: string) =>
     (
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         target: any,
-        _propertyKey: string,
-        descriptor: TypedPropertyDescriptor<JobBody>
+        propertyKey: string,
+        _descriptor: TypedPropertyDescriptor<JobBody>
     ) => {
-        if (!descriptor.value) return;
-
-        const shared = target._shared ?? new target.constructor();
-        if (!target._shared) {
-            target._shared = shared;
-        }
-
-        const cronJobs = jobs.get(options.cron) ?? [];
-        cronJobs.push(descriptor.value.bind(shared));
-        jobs.set(options.cron, cronJobs);
+        const handlers: Map<string, string[]> =
+            Reflect.getMetadata("handler:cron", target.constructor) ??
+            new Map();
+        const cronHandlers = handlers.get(cron) ?? [];
+        handlers.set(cron, [...cronHandlers, propertyKey]);
+        Reflect.defineMetadata("handler:cron", handlers, target.constructor);
     };
+
+export interface IScheduledJob {
+    _cronJobs: Map<string, JobBody[]>;
+}
+
+export const ScheduledJob =
+    () =>
+    <T extends Constructor>(target: T) => {
+        ensureBaseScope(target);
+        Reflect.getMetadata("scope:type", target).add("scheduled_job");
+
+        const cronMap: Map<string, string[]> = Reflect.getMetadata(
+            "handler:cron",
+            target
+        );
+
+        return class extends target implements IScheduledJob {
+            get _cronJobs() {
+                return new Map(
+                    [...cronMap.entries()].map(([cron, keys]) => [
+                        cron,
+                        keys.map((key) => Reflect.get(this, key).bind(this)),
+                    ])
+                );
+            }
+        };
+    };
+
+export const isScheduledJob = (obj: any): obj is Constructor<IScheduledJob> =>
+    Reflect.getMetadata("scope:type", obj)?.has("scheduled_job");

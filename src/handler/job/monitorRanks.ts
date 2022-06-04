@@ -1,5 +1,10 @@
 import { Client, Guild, GuildMember, PartialGuildMember } from "discord.js";
-import { EventHandler, DiscordEvent, ScheduledJob } from "../../decorators";
+import {
+    EventHandler,
+    DiscordEvent,
+    ScheduledJob,
+    Cron,
+} from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
 import { config } from "../../config";
 
@@ -18,8 +23,9 @@ import { isSome } from "../../util/guard";
 const logger = makeLogger(module);
 
 @EventHandler()
+@ScheduledJob()
 export class MonitorRanks {
-    @ScheduledJob({ cron: "*/10 * * * *" })
+    @Cron("*/10 * * * *")
     async checkRanks(client: Client) {
         logger.info(`checking user ranks...`);
         const users = await UserRankRepository.getCurrentUsers();

@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import { ScheduledJob } from "../../decorators";
+import { ScheduledJob, Cron } from "../../decorators";
 import { makeLogger } from "../../logger";
 import { ReminderRepository } from "../../repository/ReminderRepository";
 import { processReminder } from "../../service/reminders";
@@ -7,8 +7,9 @@ import { isSome } from "../../util/guard";
 
 const logger = makeLogger(module);
 
+@ScheduledJob()
 export class MonitorReminders {
-    @ScheduledJob({ cron: "*/30 * * * * *" })
+    @Cron("*/30 * * * * *")
     async checkReminders(client: Client) {
         try {
             const reminders = await ReminderRepository.getReminders(new Date());

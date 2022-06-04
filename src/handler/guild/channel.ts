@@ -15,7 +15,6 @@ export class Channel {
     readonly data = new SlashCommandBuilder()
         .setName("channel")
         .setDescription("Configure channels")
-        .setDefaultPermission(false)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("add")
