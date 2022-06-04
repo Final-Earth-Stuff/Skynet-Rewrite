@@ -118,40 +118,43 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
             .addCommonTableExpression(lastFacilities, "lf")
             .addCommonTableExpression(lastUnits, "lu")
             .addSelect(
-                "sum(case lf.control when 0 then lf.facs end)",
+                "coalesce(sum(case lf.control when 0 then lf.facs end), 0)",
                 "total_axis_facs"
             )
             .addSelect(
-                "sum(case lf.control when 100 then lf.facs end)",
+                "coalesce(sum(case lf.control when 100 then lf.facs end), 0)",
                 "total_allies_facs"
             )
             .addSelect(
-                "sum(case lf.control when 0 then lf.mines end)",
+                "coalesce(sum(case lf.control when 0 then lf.mines end), 0)",
                 "total_axis_mines"
             )
             .addSelect(
-                "sum(case lf.control when 100 then lf.mines end)",
+                "coalesce(sum(case lf.control when 100 then lf.mines end), 0)",
                 "total_allies_mines"
             )
             .addSelect(
-                "sum(case lf.control when 0 then lf.rigs end)",
+                "coalesce(sum(case lf.control when 0 then lf.rigs end), 0)",
                 "total_axis_rigs"
             )
             .addSelect(
-                "sum(case lf.control when 100 then lf.rigs end)",
+                "coalesce(sum(case lf.control when 100 then lf.rigs end), 0)",
                 "total_allies_rigs"
             )
-            .addSelect("sum(case lf.control when 0 then 1 end)", "axis_capped")
             .addSelect(
-                "sum(case lf.control when 100 then 1 end)",
+                "coalesce(sum(case lf.control when 0 then 1 end), 0)",
+                "axis_capped"
+            )
+            .addSelect(
+                "coalesce(sum(case lf.control when 100 then 1 end), 0)",
                 "allies_capped"
             )
             .addSelect(
-                "sum(case when lf.control between 1 and 49 then 1 end)",
+                "coalesce(sum(case when lf.control between 1 and 49 then 1 end), 0)",
                 "axis_uncapped"
             )
             .addSelect(
-                "sum(case when lf.control between 51 and 99 then 1 end)",
+                "coalesce(sum(case when lf.control between 51 and 99 then 1 end), 0)",
                 "allies_uncapped"
             )
             .addSelect("sum(lu.axis)", "total_axis")
@@ -169,8 +172,8 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
 
     async getFactories(): Promise<IncomeQuery[]> {
         const query = `select 
-    to_json(sum(facs) filter (where control=100)) as allies_total,
-    to_json(sum(facs) filter (where control=0)) as axis_total,
+    to_json(coalesce(sum(facs) filter (where control=100), 0)) as allies_total,
+    to_json(coalesce(sum(facs) filter (where control=0), 0)) as axis_total,
     json_agg(json_build_object('name', name, 'num', facs) order by facs desc) filter (where control=100) as allies,
     json_agg(json_build_object('name', name, 'num', facs) order by facs desc) filter (where control=0) as axis
 from 
@@ -181,8 +184,8 @@ from
 
     async getMines(): Promise<IncomeQuery[]> {
         const query = `select 
-    to_json(sum(mines) filter (where control=100)) as allies_total,
-    to_json(sum(mines) filter (where control=0)) as axis_total,
+    to_json(coalesce(sum(mines) filter (where control=100), 0)) as allies_total,
+    to_json(coalesce(sum(mines) filter (where control=0), 0)) as axis_total,
     json_agg(json_build_object('name', name, 'num', mines) order by mines desc) filter (where control=100) as allies,
     json_agg(json_build_object('name', name, 'num', mines) order by mines desc) filter (where control=0) as axis
 from 
@@ -193,8 +196,8 @@ from
 
     async getRigs(): Promise<IncomeQuery[]> {
         const query = `select 
-    to_json(sum(rigs) filter (where control=100)) as allies_total,
-    to_json(sum(rigs) filter (where control=0)) as axis_total,
+    to_json(coalesce(sum(rigs) filter (where control=100), 0)) as allies_total,
+    to_json(coalesce(sum(rigs) filter (where control=0), 0)) as axis_total,
     json_agg(json_build_object('name', name, 'num', rigs) order by rigs desc) filter (where control=100) as allies,
     json_agg(json_build_object('name', name, 'num', rigs) order by rigs desc) filter (where control=0) as axis
 from 
