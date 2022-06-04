@@ -2,13 +2,11 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { Color } from "../../service/util/constants";
 
 @CommandHandler({ name: "spawns" })
-@Guard(commandChannelGuard)
 export class Spawns {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()

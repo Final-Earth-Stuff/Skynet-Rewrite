@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
@@ -12,7 +11,6 @@ import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
 import { Color } from "../../service/util/constants";
 
 @CommandHandler({ name: "region" })
-@Guard(commandChannelGuard)
 export class Region {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()

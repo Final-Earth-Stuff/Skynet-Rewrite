@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 import { Data } from "../../map";
 import { findInRange } from "../../map/kdtree";
@@ -18,7 +17,6 @@ import {
 } from "../../service/util/team";
 
 @CommandHandler({ name: "prox" })
-@Guard(commandChannelGuard)
 export class Prox {
     @CommandData({ type: "global", completion: { center: "country" } })
     readonly data = new SlashCommandBuilder()

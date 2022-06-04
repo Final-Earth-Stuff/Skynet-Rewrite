@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { Color } from "../../service/util/constants";
 import { FormationData } from "../../wrapper/models/formation";
@@ -21,7 +20,6 @@ import { makeLogger } from "../../logger";
 const logger = makeLogger(module);
 
 @CommandHandler({ name: "personalstats" })
-@Guard(commandChannelGuard)
 export class PersonalStats {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()

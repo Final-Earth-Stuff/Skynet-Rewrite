@@ -1,11 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 import { Data } from "../../map";
 import { greatCircleDist } from "../../map/geometry";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
 import { Color } from "../../service/util/constants";
 
 function rangeLimit(tech: string): number {
@@ -35,7 +34,6 @@ function travelSpeed(tech: string): number {
 }
 
 @CommandHandler({ name: "nuke" })
-@Guard(commandChannelGuard)
 export class Nuke {
     @CommandData({
         type: "global",

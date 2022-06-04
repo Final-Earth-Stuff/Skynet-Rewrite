@@ -20,7 +20,7 @@ import { handlers } from "../../bot";
 @EventHandler()
 export class Role {
     @CommandData({ type: "guild" })
-    readonly daat = new SlashCommandBuilder()
+    readonly data = new SlashCommandBuilder()
         .setName("role")
         .setDescription("Configure roles")
         .addSubcommand((subcommand) =>
@@ -137,12 +137,6 @@ export class Role {
                     ? `<@&${guild.spectator_role}>`
                     : "Not configured",
                 true
-            )
-            .addField(
-                "Admin",
-                guild.admin_roles.length > 0
-                    ? guild.admin_roles.map((r) => `<@&${r}>`).join(" ")
-                    : "Not configured"
             )
             .setColor(Color.BLUE);
 
