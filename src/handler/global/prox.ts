@@ -44,10 +44,10 @@ export class Prox {
                 .setName("team")
                 .setDescription("Only show results for one team")
                 .setRequired(false)
-                .setChoices([
-                    ["Allies", Team.ALLIES],
-                    ["Axis", Team.AXIS],
-                ])
+                .setChoices(
+                    { name: "Allies", value: Team.ALLIES },
+                    { name: "Axis", value: Team.AXIS }
+                )
         )
         .addIntegerOption((option) =>
             option

@@ -134,7 +134,7 @@ export const CommandHandler =
                 );
             }
             resolveHandler = (interaction: CommandInteraction) => {
-                const group = interaction.options.getSubcommandGroup();
+                const group = interaction.options.getSubcommandGroup(false);
                 if (group) {
                     const subcommandGroup = subcommands[group];
                     if (!subcommandGroup) {

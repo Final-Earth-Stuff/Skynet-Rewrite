@@ -25,26 +25,26 @@ export class Region {
                 .setName("region")
                 .setDescription("Region which should be summarized")
                 .setRequired(true)
-                .addChoices([
-                    ["Europe", RegionEnum.EUROPE],
-                    ["Middle East", RegionEnum.MIDDLE_EAST],
-                    ["Asia", RegionEnum.ASIA],
-                    ["North America", RegionEnum.NORTH_AMERICA],
-                    ["South America", RegionEnum.SOUTH_AMERICA],
-                    ["Australasia", RegionEnum.AUSTRALASIA],
-                    ["Caribbean", RegionEnum.CARIBBEAN],
-                    ["Africa", RegionEnum.AFRICA],
-                ])
+                .addChoices(
+                    { name: "Europe", value: RegionEnum.EUROPE },
+                    { name: "Middle East", value: RegionEnum.MIDDLE_EAST },
+                    { name: "Asia", value: RegionEnum.ASIA },
+                    { name: "North America", value: RegionEnum.NORTH_AMERICA },
+                    { name: "South America", value: RegionEnum.SOUTH_AMERICA },
+                    { name: "Australasia", value: RegionEnum.AUSTRALASIA },
+                    { name: "Caribbean", value: RegionEnum.CARIBBEAN },
+                    { name: "Africa", value: RegionEnum.AFRICA }
+                )
         )
         .addStringOption((option) =>
             option
                 .setName("team")
                 .setDescription("Only show one team")
                 .setRequired(false)
-                .addChoices([
-                    ["axis", "Axis"],
-                    ["allies", "Allies"],
-                ])
+                .addChoices(
+                    { name: "axis", value: "Axis" },
+                    { name: "allies", value: "Allies" }
+                )
         )
         .toJSON();
 

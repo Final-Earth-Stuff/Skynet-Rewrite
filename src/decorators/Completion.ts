@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ApplicationCommandOptionChoice } from "discord.js";
+import type { ApplicationCommandOptionChoiceData } from "discord.js";
 import { Constructor, ensureBaseScope } from "./BaseScope";
 
 type AutocompleteHandler = (
     value: string
-) => Promise<ApplicationCommandOptionChoice[]>;
+) => Promise<ApplicationCommandOptionChoiceData[]>;
 
 export const Completion =
     (id: string) =>
@@ -35,7 +35,7 @@ export interface ICompletionProvider {
     _handle(
         id: string,
         value: string
-    ): Promise<ApplicationCommandOptionChoice[]>;
+    ): Promise<ApplicationCommandOptionChoiceData[]>;
 }
 
 export const CompletionProvider =
@@ -65,7 +65,7 @@ export const CompletionProvider =
             async _handle(
                 id: string,
                 value: string
-            ): Promise<ApplicationCommandOptionChoice[]> {
+            ): Promise<ApplicationCommandOptionChoiceData[]> {
                 const key = complMap.get(id);
                 if (!key) {
                     throw new Error(`Unknown completion with id \`${id}\``);
