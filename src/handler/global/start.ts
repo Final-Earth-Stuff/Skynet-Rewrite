@@ -1,15 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { getUser } from "../../wrapper/wrapper";
 import { ApiError, BotError } from "../../error";
-import { dmGuard } from "../../guard/dmGuard";
 import { Color } from "../../service/util/constants";
 
 @CommandHandler({ name: "start" })
-@Guard(dmGuard)
 export class Start {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()
@@ -17,6 +15,7 @@ export class Start {
         .setDescription(
             "Add api key to bot to start using notification functions"
         )
+        .setDefaultMemberPermissions(0)
         .addStringOption((option) =>
             option
                 .setName("apikey")
@@ -27,7 +26,7 @@ export class Start {
 
     @Command()
     async start(interaction: CommandInteraction) {
-        await interaction.deferReply();
+        await interaction.deferReply({ephemeral: true});
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             throw new BotError(

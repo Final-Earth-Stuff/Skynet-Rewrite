@@ -3,13 +3,11 @@ import { CommandInteraction } from "discord.js";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 
 import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { dmGuard } from "../../guard/dmGuard";
 import { Reminder } from "../../entity/Reminder";
 import { AppDataSource } from "../..";
 import { UserSettings } from "../../entity/UserSettings";
 
 @CommandHandler({ name: "remind" })
-@Guard(dmGuard)
 export class Remind {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()
