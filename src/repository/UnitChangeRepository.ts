@@ -13,11 +13,16 @@ export interface RegionQueryRow {
 }
 
 export interface UnitQuery {
-    id: number;
+    countries: {
+        id: number;
+        allies: number;
+        axis: number;
+        name: string;
+        control: number;
+    }[];
     allies: number;
     axis: number;
-    name: string;
-    control: number;
+    center_control: number;
 }
 
 export const UnitChangeRepository = AppDataSource.getRepository(
@@ -89,6 +94,7 @@ export const UnitChangeRepository = AppDataSource.getRepository(
 
     async getUnitsForCountries(
         ids: number[],
+        center: number,
         team: Team
     ): Promise<UnitQuery[]> {
         const unitQuery = AppDataSource.createQueryBuilder()
@@ -108,24 +114,31 @@ export const UnitChangeRepository = AppDataSource.getRepository(
             .orderBy("laf.timestamp", "DESC")
             .limit(1);
 
-        let tail: string;
+        let filter: string;
         switch (team) {
             case Team.ALLIES:
-                tail = " and allies <> 0";
+                filter = " filter (where allies <> 0)";
                 break;
             case Team.AXIS:
-                tail = " and axis <> 0";
+                filter = " filter (where axis <> 0)";
                 break;
             default:
-                tail = "";
+                filter = "";
         }
 
         // I CAPITULATE
         return await AppDataSource.query(
-            `select id, name, allies, axis, control from country, lateral ${unitQuery.getQuery()} units, lateral ${controlQuery.getQuery()} laf where id in (${ids
-                .map((_, i) => `$${i + 1}`)
-                .join(", ")})${tail}`,
-            ids
+            `select 
+                coalesce(json_agg(
+                    json_build_object('id', id, 'name', name, 'allies', allies, 'axis', axis, 'control', control)
+                )${filter}, '[]'::json) as countries,
+                to_json(coalesce(sum(allies), 0)) as allies,
+                to_json(coalesce(sum(axis), 0)) as axis,
+                to_json((select control from land_and_facilities where country=$1 order by "timestamp" desc limit 1)) as center_control
+            from country, lateral ${unitQuery.getQuery()} units, lateral ${controlQuery.getQuery()} laf where id in (${ids
+                .map((_, i) => `$${i + 2}`)
+                .join(", ")})`,
+            [center, ...ids]
         );
     },
 });
