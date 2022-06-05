@@ -1,5 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed, GuildMember } from "discord.js";
+import {
+    CommandInteraction,
+    MessageEmbed,
+    GuildMember,
+    Permissions,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
@@ -16,6 +21,7 @@ export class VerifyAll {
     readonly data = new SlashCommandBuilder()
         .setName("verify-all")
         .setDescription("Attempt to verify all users in the server")
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
         .toJSON();
 
     @Command()

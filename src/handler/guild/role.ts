@@ -1,5 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, Guild, MessageEmbed } from "discord.js";
+import {
+    CommandInteraction,
+    Guild,
+    MessageEmbed,
+    Permissions,
+} from "discord.js";
 
 import {
     CommandHandler,
@@ -23,6 +28,7 @@ export class Role {
     readonly daat = new SlashCommandBuilder()
         .setName("role")
         .setDescription("Configure roles")
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("add")
@@ -32,11 +38,11 @@ export class Role {
                         .setName("type")
                         .setDescription("Which type of role to configure")
                         .setRequired(true)
-                        .addChoices([
-                            ["Allies", "allies"],
-                            ["Axis", "axis"],
-                            ["Spectator", "spectator"],
-                        ])
+                        .addChoices(
+                            { name: "Allies", value: "allies" },
+                            { name: "Axis", value: "axis" },
+                            { name: "Spectator", value: "spectator" }
+                        )
                 )
                 .addRoleOption((option) =>
                     option
@@ -54,11 +60,11 @@ export class Role {
                         .setName("type")
                         .setDescription("Which type of role to configure")
                         .setRequired(true)
-                        .addChoices([
-                            ["Allies", "allies"],
-                            ["Axis", "axis"],
-                            ["Spectator", "spectator"],
-                        ])
+                        .addChoices(
+                            { name: "Allies", value: "allies" },
+                            { name: "Axis", value: "axis" },
+                            { name: "Spectator", value: "spectator" }
+                        )
                 )
                 .addRoleOption((option) =>
                     option
@@ -138,12 +144,6 @@ export class Role {
                     : "Not configured",
                 true
             )
-            .addField(
-                "Admin",
-                guild.admin_roles.length > 0
-                    ? guild.admin_roles.map((r) => `<@&${r}>`).join(" ")
-                    : "Not configured"
-            )
             .setColor(Color.BLUE);
 
         await interaction.reply({ embeds: [embed] });
@@ -153,7 +153,6 @@ export class Role {
     async setPermission(guild: Guild) {
         const guildEntity = new GuildEntity();
         guildEntity.guild_id = guild.id;
-        guildEntity.admin_roles = [];
         guildEntity.command_channels = [];
 
         const guildRepository = AppDataSource.getRepository(GuildEntity);
