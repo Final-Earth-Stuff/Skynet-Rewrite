@@ -42,10 +42,10 @@ export class Prox {
                 .setName("team")
                 .setDescription("Only show results for one team")
                 .setRequired(false)
-                .setChoices([
-                    ["Allies", Team.ALLIES],
-                    ["Axis", Team.AXIS],
-                ])
+                .setChoices(
+                    { name: "Allies", value: Team.ALLIES },
+                    { name: "Axis", value: Team.AXIS }
+                )
         )
         .addIntegerOption((option) =>
             option
@@ -97,9 +97,11 @@ export class Prox {
 
         const rows = await UnitChangeRepository.getUnitsForCountries(
             countries.map(({ id }) => id),
+            centerCountry.id,
             team
         );
-        const results = rows.map((r) => {
+        const result = rows[0];
+        const results = result.countries.map((r) => {
             const dist = unwrap(countryMap.get(r.id));
             return {
                 ...r,
@@ -109,7 +111,6 @@ export class Prox {
         });
         const list = results
             .sort((a, b) => a.dist - b.dist)
-            .slice(1)
             .map(
                 (r) =>
                     `${getIcon(teamFromControl(r.control))} ${
@@ -120,13 +121,6 @@ export class Prox {
                     )}%) — ${r.allies} vs. ${r.axis} [${r.travelTime} min]`
             )
             .join("\n");
-
-        const [totalAllies, totalAxis] = results
-            .slice(1)
-            .reduce(
-                ([sumAl, sumAx], r) => [sumAl + r.allies, sumAx + r.axis],
-                [0, 0]
-            );
 
         let suffix: string;
         switch (team) {
@@ -146,29 +140,29 @@ export class Prox {
             .setDescription(
                 `Allies vs. Axis within ${radius} minutes [${Math.round(
                     radiusKm
-                )}km] of ${getIcon(teamFromControl(results[0].control))} ${
+                )}km] of ${getIcon(teamFromControl(result.center_control))} ${
                     centerCountry.name
                 } (${convertAxisControl(
-                    results[0].control,
-                    teamFromControl(results[0].control)
+                    result.center_control,
+                    teamFromControl(result.center_control)
                 )}%) with ${travelPoints}% travel bonus`
             )
-            .addField("Units", `${totalAllies} vs. ${totalAxis}`)
+            .addField("Units", `${result.allies} vs. ${result.axis}`)
             .setColor(Color.BLUE);
 
         const embeds = [embed];
 
-        if (list.length <= 1024) {
-            embed.addField("Countries", list);
-        } else if (list.length <= 4048) {
+        if (list.length > 4048) {
+            throw new BotError("The selected range was too large");
+        } else if (list.length > 1024) {
             embeds.push(
                 new MessageEmbed()
                     .setTitle("Countries")
                     .setDescription(list)
                     .setColor(Color.BLUE)
             );
-        } else {
-            throw new BotError("The selected range was too large");
+        } else if (list.length > 0) {
+            embed.addField("Countries", list);
         }
 
         await interaction.reply({ embeds });

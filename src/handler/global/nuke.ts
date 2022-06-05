@@ -64,11 +64,11 @@ export class Nuke {
                 .setName("tech")
                 .setDescription("The technology used for launching the nuke")
                 .setRequired(false)
-                .addChoices([
-                    ["Nuke I: SRBMs", "SRBM"],
-                    ["Nuke II: IRBMs", "IRBM"],
-                    ["Nuke III: ICBMs", "ICBM"],
-                ])
+                .addChoices(
+                    { name: "Nuke I: SRBMs", value: "SRBM" },
+                    { name: "Nuke II: IRBMs", value: "IRBM" },
+                    { name: "Nuke III: ICBMs", value: "ICBM" }
+                )
         )
         .toJSON();
 

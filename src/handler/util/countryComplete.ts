@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionChoice } from "discord.js";
+import { ApplicationCommandOptionChoiceData } from "discord.js";
 
 import { go } from "fuzzysort";
 
@@ -11,7 +11,7 @@ export class CountryComplete {
     @Completion("country")
     async countryComplete(
         value: string
-    ): Promise<ApplicationCommandOptionChoice[]> {
+    ): Promise<ApplicationCommandOptionChoiceData[]> {
         const results = go(value, Data.shared.preparedCountries, {
             limit: 10,
             allowTypo: false,

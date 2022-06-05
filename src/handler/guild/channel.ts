@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord-api-types/v10";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageEmbed, Permissions } from "discord.js";
 
 import { CommandHandler, SubCommand, CommandData } from "../../decorators";
 import { BotError } from "../../error";
@@ -15,6 +15,7 @@ export class Channel {
     readonly data = new SlashCommandBuilder()
         .setName("channel")
         .setDescription("Configure channels")
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("add")
@@ -24,20 +25,25 @@ export class Channel {
                         .setName("type")
                         .setDescription("Which type of channel to configure")
                         .setRequired(true)
-                        .addChoices([
-                            ["Log", "log"],
-                            ["Verify", "verify"],
-                            ["Troop Movements", "troop_movement"],
-                            ["Facility Updates", "land_facility"],
-                        ])
+                        .addChoices(
+                            { name: "Log", value: "log" },
+                            { name: "Verify", value: "verify" },
+                            {
+                                name: "Troop Movements",
+                                value: "troop_movement",
+                            },
+                            {
+                                name: "Facility Updates",
+                                value: "land_facility",
+                            },
+                            { name: "Command", value: "command" }
+                        )
                 )
                 .addChannelOption((option) =>
                     option
                         .setName("channel")
                         .setDescription("Which channel to use")
-                        // broken typings :/
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        .addChannelType(ChannelType.GuildText as any)
+                        .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
         )
@@ -50,20 +56,25 @@ export class Channel {
                         .setName("type")
                         .setDescription("Which type of channel to unset")
                         .setRequired(true)
-                        .addChoices([
-                            ["Log", "log"],
-                            ["Verify", "verify"],
-                            ["Troop Movements", "troop_movement"],
-                            ["Facility Updates", "land_facility"],
-                        ])
+                        .addChoices(
+                            { name: "Log", value: "log" },
+                            { name: "Verify", value: "verify" },
+                            {
+                                name: "Troop Movements",
+                                value: "troop_movement",
+                            },
+                            {
+                                name: "Facility Updates",
+                                value: "land_facility",
+                            },
+                            { name: "Command", value: "command" }
+                        )
                 )
                 .addChannelOption((option) =>
                     option
                         .setName("channel")
                         .setDescription("Which channel to use")
-                        // broken typings :/
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        .addChannelType(ChannelType.GuildText as any)
+                        .addChannelTypes(ChannelType.GuildText)
                 )
         )
         .addSubcommand((subcommand) =>
