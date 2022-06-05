@@ -79,7 +79,7 @@ function findInRangeRecursive(
     const result = new Array<RangeMatch>();
 
     const euclDist = euclideanMetric(center, node.coordinates);
-    if (euclDist < range) {
+    if (euclDist <= range) {
         result.push({
             id: node.id,
             distKm: euclideanToGc(euclDist),
