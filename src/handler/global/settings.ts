@@ -14,9 +14,7 @@ import {
     CommandHandler,
     Button,
     ButtonHandler,
-    Guard,
 } from "../../decorators";
-import { dmGuard } from "../../guard/dmGuard";
 import {
     UserSettingsRepository,
     Toggles,
@@ -26,12 +24,12 @@ import { ButtonColor } from "../../service/util/constants";
 
 @CommandHandler({ name: "settings" })
 @ButtonHandler()
-@Guard(dmGuard)
 export class Settings {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()
         .setName("settings")
         .setDescription("View and toggle settings for notifications")
+        .setDefaultMemberPermissions(0)
         .toJSON();
 
     @Command()
