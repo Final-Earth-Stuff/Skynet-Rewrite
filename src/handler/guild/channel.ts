@@ -43,8 +43,6 @@ export class Channel {
                     option
                         .setName("channel")
                         .setDescription("Which channel to use")
-                        // broken typings :/
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
@@ -76,8 +74,6 @@ export class Channel {
                     option
                         .setName("channel")
                         .setDescription("Which channel to use")
-                        // broken typings :/
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                         .addChannelTypes(ChannelType.GuildText)
                 )
         )
