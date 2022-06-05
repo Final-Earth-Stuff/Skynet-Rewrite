@@ -26,7 +26,7 @@ export class Start {
 
     @Command()
     async start(interaction: CommandInteraction) {
-        await interaction.deferReply({ephemeral: true});
+        await interaction.deferReply({ ephemeral: true });
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             throw new BotError(
