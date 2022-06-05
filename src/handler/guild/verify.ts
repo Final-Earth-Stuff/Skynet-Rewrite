@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed, Permissions } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 
 import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
@@ -17,7 +17,6 @@ export class Verify {
     readonly data = new SlashCommandBuilder()
         .setName("verify")
         .setDescription("Verify User")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
         .toJSON();
 
     @Command()

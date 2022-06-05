@@ -21,6 +21,7 @@ export class VerifyAll {
     readonly data = new SlashCommandBuilder()
         .setName("verify-all")
         .setDescription("Attempt to verify all users in the server")
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
         .toJSON();
 
     @Command()
