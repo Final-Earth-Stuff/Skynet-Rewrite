@@ -25,7 +25,7 @@ import { handlers } from "../../bot";
 @EventHandler()
 export class Role {
     @CommandData({ type: "guild" })
-    readonly daat = new SlashCommandBuilder()
+    readonly data = new SlashCommandBuilder()
         .setName("role")
         .setDescription("Configure roles")
         .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)

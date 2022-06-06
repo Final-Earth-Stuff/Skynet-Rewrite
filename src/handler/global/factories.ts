@@ -1,15 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 import { buildIncome } from "../../service/mapCommands";
 import { FacilityIncome } from "../../service/util/constants";
 
 @CommandHandler({ name: "factories" })
-@Guard(commandChannelGuard)
 export class Factories {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()

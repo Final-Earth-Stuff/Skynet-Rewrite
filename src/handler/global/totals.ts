@@ -1,20 +1,13 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
 
-import {
-    CommandHandler,
-    Command,
-    CommandData,
-    Guard,
-} from "../../decorators/CommandHandler";
-import { commandChannelGuard } from "../../guard/commandChannelGuard";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
 import { buildTotals } from "../../service/mapCommands";
 
 @CommandHandler({ name: "totals" })
-@Guard(commandChannelGuard, { guildOnly: true })
 export class Totals {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()

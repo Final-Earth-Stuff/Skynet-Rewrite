@@ -91,53 +91,15 @@ export class Channel {
         const channel = interaction.options.getChannel("channel", true);
         const type = interaction.options.getString("type", true);
 
-        if (type === "command") {
-            await this.commandChannelAdd(interaction, channel.id);
-        } else {
-            await this.uniqueChannelAdd(interaction, channel.id, type);
-        }
-    }
-
-    async commandChannelAdd(
-        interaction: CommandInteraction,
-        channelID: string
-    ): Promise<void> {
-        const guildRepository = AppDataSource.getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId ?? "" },
-        });
-
-        if (guildEntity.command_channels.includes(channelID)) {
-            throw new BotError(
-                `Channel <#${channelID}> already is a command channel`
-            );
-        }
-        guildEntity.command_channels.push(channelID);
-
-        guildRepository.save(guildEntity);
-
-        const success = new MessageEmbed()
-            .setDescription(
-                `Successfully added command channel <#${channelID}>!`
-            )
-            .setColor(Color.GREEN);
-        await interaction.editReply({ embeds: [success] });
-    }
-
-    async uniqueChannelAdd(
-        interaction: CommandInteraction,
-        channelID: string,
-        type: string
-    ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId ?? "", {
-            [`${type}_channel`]: channelID,
+            [`${type}_channel`]: channel.id,
         });
 
         const success = new MessageEmbed()
             .setDescription(
-                `Successfully set ${type} channel to <#${channelID}>!`
+                `Successfully set ${type} channel to <#${channel.id}>!`
             )
             .setColor(Color.GREEN);
 
@@ -148,49 +110,8 @@ export class Channel {
     async channelRemove(interaction: CommandInteraction): Promise<void> {
         await interaction.deferReply();
 
-        const channel = interaction.options.getChannel("channel");
         const type = interaction.options.getString("type", true);
 
-        if (type === "command") {
-            if (!channel) throw new BotError("No channel provided");
-            await this.commandChannelRemove(interaction, channel.id);
-        } else {
-            await this.uniqueChannelRemove(interaction, type);
-        }
-    }
-
-    async commandChannelRemove(
-        interaction: CommandInteraction,
-        channelID: string
-    ): Promise<void> {
-        const guildRepository = AppDataSource.getRepository(GuildEntity);
-        const guildEntity = await guildRepository.findOneOrFail({
-            where: { guild_id: interaction.guildId ?? "" },
-        });
-
-        if (!guildEntity.command_channels.includes(channelID)) {
-            throw new BotError(
-                `Channel <#${channelID}> isn't a command channel`
-            );
-        }
-        guildEntity.command_channels = guildEntity.command_channels.filter(
-            (c) => c !== channelID
-        );
-
-        guildRepository.save(guildEntity);
-
-        const success = new MessageEmbed()
-            .setDescription(
-                `Successfully removed command channel <#${channelID}>!`
-            )
-            .setColor(Color.GREEN);
-        await interaction.editReply({ embeds: [success] });
-    }
-
-    async uniqueChannelRemove(
-        interaction: CommandInteraction,
-        type: string
-    ): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
 
         await guildRepository.update(interaction.guildId ?? "", {
@@ -240,12 +161,6 @@ export class Channel {
                     ? `<#${guild.log_channel}>`
                     : "Not configured",
                 true
-            )
-            .addField(
-                "Command",
-                guild.command_channels.length > 0
-                    ? guild.command_channels.map((r) => `<#${r}>`).join(" ")
-                    : "Not configured"
             )
             .setColor(Color.BLUE);
 
