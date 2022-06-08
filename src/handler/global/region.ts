@@ -10,6 +10,7 @@ import { Region as RegionEnum } from "../../entity/Country";
 import { Team } from "../../service/util/constants";
 import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
 import { Color } from "../../service/util/constants";
+import { BotError } from "../../error";
 
 @CommandHandler({ name: "region" })
 @Guard(commandChannelGuard)
@@ -66,13 +67,15 @@ export class Region {
         const unitString = buildRegionUnitList(units);
 
         const embeds = new Array<MessageEmbed>();
-        if (unitString.length > 1024) {
+        if (unitString.length > 4048) {
+            throw new BotError("Response too long.");
+        } else if (unitString.length > 1024) {
             const unitEmbed = new MessageEmbed()
                 .setTitle("Units")
                 .setDescription(unitString)
                 .setColor(Color.BLUE);
             embeds.push(embed, unitEmbed);
-        } else {
+        } else if (unitString.length > 0) {
             embed.addField("Units", unitString);
             embeds.push(embed);
         }
