@@ -31,10 +31,6 @@ export const bootstrap = async () => {
         ],
     });
 
-    client.ws.on("INTERACTION_CREATE", (args) =>
-        logger.debug("InteractionCreate: %O", args)
-    );
-
     client.on("ready", async (client) => {
         logger.info("Scheduling jobs...");
         handlers?.cronJobs.forEach((cronJobs, cron) =>
