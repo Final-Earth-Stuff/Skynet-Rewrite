@@ -36,21 +36,26 @@ export class Spawns {
         const allies = facs.filter((c) => c.control === 100);
         const axis = facs.filter((c) => c.control === 0);
 
-        const heading1 = `Changes over last ${hours} hours:\n🟢 ALLIES`;
-        const heading2 = `🔴 AXIS`;
-
         const alliesMessage = allies
-            .map((spawn) => `**${spawn.name}**: ${spawn.diff}`)
+            .map((spawn) => `${spawn.name}: ${spawn.diff}`)
+            .concat([
+                "**Total**: " +
+                    allies.reduce((sum, spawn) => sum + spawn.diff, 0),
+            ])
             .join("\n");
         const axisMessage = axis
-            .map((spawn) => `**${spawn.name}**: ${spawn.diff}`)
+            .map((spawn) => `${spawn.name}: ${spawn.diff}`)
+            .concat([
+                "**Total**: " +
+                    axis.reduce((sum, spawn) => sum + spawn.diff, 0),
+            ])
             .join("\n");
 
         const embed = new MessageEmbed()
             .setTitle(`Spawn Factory Report`)
-            .setDescription(
-                `${heading1}\n${alliesMessage}\n${heading2}\n${axisMessage}`
-            )
+            .setDescription(`Changes over last ${hours} hours:`)
+            .addField("Allies 🟢", alliesMessage, true)
+            .addField("Axis 🔴", axisMessage, true)
             .setColor(Color.BLUE);
         interaction.reply({ embeds: [embed] });
     }
