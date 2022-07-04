@@ -47,8 +47,8 @@ export async function setNickname(
 
     if (!userRank) {
         const rank = buildUserRank(member);
-        repository.save(rank);
-        processMember(member, userData, rank.id);
+        const newRank = await repository.save(rank);
+        processMember(member, userData, newRank.id);
     } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
         repository.save(userRank);
