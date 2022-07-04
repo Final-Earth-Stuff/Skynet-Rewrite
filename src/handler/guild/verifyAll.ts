@@ -25,7 +25,7 @@ export class VerifyAll {
         .toJSON();
 
     @Command()
-    async totals(interaction: CommandInteraction) {
+    async verifyAll(interaction: CommandInteraction) {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
