@@ -85,16 +85,14 @@ export class VerifyAll {
                 member,
                 Color.GREEN
             );
-            logChannel.send({ embeds: [embed] });
+            await logChannel.send({ embeds: [embed] });
         }
 
-        {
-            const embed = new MessageEmbed()
-                .setDescription("Finished!")
-                .setColor(Color.GREEN);
+        const embed = new MessageEmbed()
+            .setDescription("Finished!")
+            .setColor(Color.GREEN);
 
-            await interaction.followUp({ embeds: [embed] });
-        }
+        await interaction.followUp({ embeds: [embed] });
     }
 }
 
