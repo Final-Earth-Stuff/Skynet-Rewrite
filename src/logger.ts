@@ -16,7 +16,7 @@ const logger = createLogger({
                 })
             ),
         }),
-        new transports.File({ filename: "bot.log", level: "info" }),
+        new transports.File({ filename: "bot.log", level: "debug" }),
     ],
 });
 

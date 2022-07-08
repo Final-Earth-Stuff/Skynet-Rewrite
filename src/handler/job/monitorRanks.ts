@@ -13,7 +13,7 @@ const logger = makeLogger(module);
 export class MonitorRanks {
     @Cron("*/10 * * * *")
     async checkRanks(client: Client) {
-        logger.info(`checking user ranks...`);
+        logger.debug(`checking user ranks...`);
         const users = await UserRankRepository.getCurrentUsers();
         const guilds = await client.guilds.fetch();
         users.forEach((u) => {
