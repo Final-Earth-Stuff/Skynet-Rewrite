@@ -30,7 +30,7 @@ const logger = makeLogger(module);
 @EventHandler()
 @ScheduledJob()
 export class MonitorRanks {
-    @Cron("* * * * *")
+    @Cron("*/10 * * * *")
     async checkRanks(client: Client) {
         logger.debug(`checking user ranks...`);
         const users = await UserRankRepository.getCurrentUsers();
