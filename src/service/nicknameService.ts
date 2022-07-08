@@ -1,13 +1,6 @@
-import {
-    Collection,
-    GuildMember,
-    OAuth2Guild,
-    PartialGuildMember,
-} from "discord.js";
-import { getUser } from "../wrapper/wrapper";
-import { config } from "../config";
+import { GuildMember, PartialGuildMember } from "discord.js";
 
-import { rankMap } from "../service/util/constants";
+import { rankMap } from "./util/constants";
 import { UserRankRepository } from "../repository/UserRankRepository";
 import { UserRank } from "../entity/UserRank";
 import { UserData } from "../wrapper/models/user";
@@ -16,26 +9,6 @@ import { makeLogger } from "../logger";
 import { AppDataSource } from "..";
 
 const logger = makeLogger(module);
-
-export async function processUser(
-    u: UserRank,
-    guilds: Collection<string, OAuth2Guild>
-): Promise<void> {
-    try {
-        const user = await getUser(config.apiKey, u.discord_id);
-        if (guilds) {
-            for (const g of u.guild_ids) {
-                const guild = await guilds.get(g)?.fetch();
-                if (guild) {
-                    const member = await guild.members.fetch(u.discord_id);
-                    checkForChange(u, user, member);
-                }
-            }
-        }
-    } catch (e) {
-        logger.debug(e);
-    }
-}
 
 export async function setNickname(
     member: GuildMember,
