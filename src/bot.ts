@@ -73,7 +73,7 @@ export const bootstrap = async () => {
                 let ephemeral = false;
                 if (e instanceof BotError) {
                     message = e.message;
-                    logger.info(
+                    logger.warn(
                         "Caught '%s: %s' while processing command '%s'",
                         e.name,
                         e.message,

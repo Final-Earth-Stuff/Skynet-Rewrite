@@ -26,33 +26,28 @@ const logger = makeLogger(module);
 export class MonitorWorld {
     @Cron("*/30 * * * * *")
     async checkWorld(client: Client) {
-        logger.info("checking world...");
-        try {
-            const world: CountryData[] = await wrapper.getWorld(config.apiKey);
+        logger.debug("checking world...");
+        const world: CountryData[] = await wrapper.getWorld(config.apiKey);
 
-            const prevFacilties =
-                await LandAndFacilitiesRepository.getLastWorld();
-            const changedFacilities = await this.checkFacilities(
-                world,
-                prevFacilties
+        const prevFacilties = await LandAndFacilitiesRepository.getLastWorld();
+        const changedFacilities = await this.checkFacilities(
+            world,
+            prevFacilties
+        );
+        if (changedFacilities.length > 0) {
+            logChangesToChannel(
+                client,
+                changedFacilities,
+                prevFacilties,
+                world
             );
-            if (changedFacilities.length > 0) {
-                logChangesToChannel(
-                    client,
-                    changedFacilities,
-                    prevFacilties,
-                    world
-                );
-                LandAndFacilitiesRepository.updateWorld(changedFacilities);
-            }
+            LandAndFacilitiesRepository.updateWorld(changedFacilities);
+        }
 
-            const { changes, notifications } = await this.checkTroops(world);
-            if (changes.length > 0) {
-                prepareAndSendMessage(client, notifications, world);
-                UnitChangeRepository.updateUnits(changes);
-            }
-        } catch (e) {
-            logger.error(e);
+        const { changes, notifications } = await this.checkTroops(world);
+        if (changes.length > 0) {
+            prepareAndSendMessage(client, notifications, world);
+            UnitChangeRepository.updateUnits(changes);
         }
     }
 

@@ -19,12 +19,12 @@ const logger = makeLogger(module);
 export class MonitorUsers {
     @Cron("*/30 * * * * *")
     async checkUsers(client: Client) {
-        logger.info("checking all users...");
+        logger.debug("checking all users...");
         try {
             const values = await UserSettingsRepository.getAllUserSettings();
             values?.forEach(async (user) => {
                 if (user && user.api_key) {
-                    logger.info("checking " + user.user_id);
+                    logger.debug("checking " + user.user_id);
                     const notifsData = await wrapper.getNotifications(
                         user.api_key
                     );
