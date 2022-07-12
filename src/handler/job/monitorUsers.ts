@@ -20,9 +20,10 @@ export class MonitorUsers {
     @Cron("*/30 * * * * *")
     async checkUsers(client: Client) {
         logger.debug("checking all users...");
-        try {
-            const values = await UserSettingsRepository.getAllUserSettings();
-            values?.forEach(async (user) => {
+        const values = await UserSettingsRepository.getAllUserSettings();
+        if (!values) return;
+        await Promise.all(
+            values.map(async (user) => {
                 if (user && user.api_key) {
                     logger.debug("checking " + user.user_id);
                     const notifsData = await wrapper.getNotifications(
@@ -40,10 +41,8 @@ export class MonitorUsers {
                         }
                     }
                 }
-            });
-        } catch (e) {
-            logger.error(e);
-        }
+            })
+        );
     }
 
     async checkSettings(
