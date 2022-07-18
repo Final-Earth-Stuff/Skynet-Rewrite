@@ -87,7 +87,7 @@ async function apiRequest<C extends t.Mixed>(
                 feResponse(codec).decode,
                 E.mapLeft(formatErrors),
                 E.chain((res) =>
-                    res.error && res.data.code !== 4
+                    res.error
                         ? E.left(new ApiError(res.reason, res.data.code))
                         : E.right(res.data)
                 )
