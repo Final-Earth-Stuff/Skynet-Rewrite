@@ -1,4 +1,10 @@
-import { Collection, GuildMember, MessageEmbed, OAuth2Guild } from "discord.js";
+import {
+    Collection,
+    GuildMember,
+    EmbedBuilder,
+    OAuth2Guild,
+    ChannelType,
+} from "discord.js";
 import { Guild as GuildEntity } from "../entity/Guild";
 
 import { Team } from "../service/util/constants";
@@ -12,7 +18,7 @@ import { UserRank } from "../entity/UserRank";
 import { getUser } from "../wrapper/wrapper";
 import { config } from "../config";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export async function updateRoleAndNickname(
     user: UserData,
@@ -71,7 +77,7 @@ export async function sendMessage(
     if (!guild) {
         throw new BotError("Guild not found, something is very wrong.");
     }
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setAuthor({
             name: member.displayName,
             iconURL: member.user.displayAvatarURL(),
@@ -81,7 +87,7 @@ export async function sendMessage(
 
     const verifyChannel = await getVerifyChannel(member, guild);
 
-    if (verifyChannel && verifyChannel.isText()) {
+    if (verifyChannel && verifyChannel.type === ChannelType.GuildText) {
         verifyChannel.send({ embeds: [embed] });
     }
 }

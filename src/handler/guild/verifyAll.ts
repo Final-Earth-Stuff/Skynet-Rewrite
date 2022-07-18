@@ -1,9 +1,10 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import {
     CommandInteraction,
-    MessageEmbed,
+    EmbedBuilder,
     GuildMember,
-    Permissions,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
+    ChannelType,
 } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
@@ -21,7 +22,7 @@ export class VerifyAll {
     readonly data = new SlashCommandBuilder()
         .setName("verify-all")
         .setDescription("Attempt to verify all users in the server")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
         .toJSON();
 
     @Command()
@@ -35,7 +36,7 @@ export class VerifyAll {
             ? interaction.client.channels.cache.get(guild.log_channel)
             : undefined;
 
-        if (!logChannel || !logChannel.isText()) {
+        if (!logChannel || logChannel.type !== ChannelType.GuildText) {
             throw new BotError(
                 "The log channel is not a text channel or no log channel is configured"
             );
@@ -45,7 +46,7 @@ export class VerifyAll {
             throw new BotError("Roles are not configured for this guild");
 
         {
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setDescription("Will now verify all guild members...")
                 .setColor(Color.GREEN);
 
@@ -88,7 +89,7 @@ export class VerifyAll {
             await logChannel.send({ embeds: [embed] });
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setDescription("Finished!")
             .setColor(Color.GREEN);
 
@@ -97,7 +98,7 @@ export class VerifyAll {
 }
 
 function buildEmbed(message: string, member: GuildMember, color: Color) {
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setAuthor({
             name: member.user.username,
             iconURL: member.user.displayAvatarURL(),

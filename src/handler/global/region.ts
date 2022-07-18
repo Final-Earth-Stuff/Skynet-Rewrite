@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
@@ -48,7 +51,7 @@ export class Region {
         .toJSON();
 
     @Command()
-    async region(interaction: CommandInteraction): Promise<void> {
+    async region(interaction: ChatInputCommandInteraction): Promise<void> {
         const reg = interaction.options.getString("region", true) as RegionEnum;
         const team = interaction.options.getString("team") as Team | undefined;
 
@@ -64,17 +67,17 @@ export class Region {
         const units = await UnitChangeRepository.getRegion(reg, team);
         const unitString = buildRegionUnitList(units);
 
-        const embeds = new Array<MessageEmbed>();
+        const embeds = new Array<EmbedBuilder>();
         if (unitString.length > 4048) {
             throw new BotError("Response too long.");
         } else if (unitString.length > 1024) {
-            const unitEmbed = new MessageEmbed()
+            const unitEmbed = new EmbedBuilder()
                 .setTitle("Units")
                 .setDescription(unitString)
                 .setColor(Color.BLUE);
             embeds.push(embed, unitEmbed);
         } else if (unitString.length > 0) {
-            embed.addField("Units", unitString);
+            embed.addFields({ name: "Units", value: unitString });
             embeds.push(embed);
         }
 

@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionChoiceData } from "discord.js";
 
-import { go } from "fuzzysort";
+import fuzzysort from "fuzzysort";
+const { go } = fuzzysort;
 
 import { unwrap } from "../../util/assert";
 import { CompletionProvider, Completion } from "../../decorators";

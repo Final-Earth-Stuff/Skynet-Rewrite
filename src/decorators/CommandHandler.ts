@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { CommandInteraction, ApplicationCommandData } from "discord.js";
+import type {
+    ChatInputCommandInteraction,
+    ApplicationCommandData,
+} from "discord.js";
 
 import { Constructor, ensureBaseScope } from "./BaseScope";
 
 export type CommandHandlerBody = (
-    interaction: CommandInteraction
+    interaction: ChatInputCommandInteraction
 ) => Promise<void>;
 
 export const Command =
@@ -92,7 +95,9 @@ export const CommandData =
 export interface GuardOptions {
     guildOnly?: boolean;
 }
-export type GuardFunction = (interaction: CommandInteraction) => Promise<void>;
+export type GuardFunction = (
+    interaction: ChatInputCommandInteraction
+) => Promise<void>;
 
 export const Guard =
     (body: GuardFunction, options?: GuardOptions) =>
@@ -109,7 +114,7 @@ interface CommandHandlerOptions {
 export interface ICommandScope {
     readonly _commandName: string;
     readonly _data: CommandDataDescription;
-    _handleCommand(interaction: CommandInteraction): Promise<void>;
+    _handleCommand(interaction: ChatInputCommandInteraction): Promise<void>;
 }
 
 export const CommandHandler =
@@ -119,9 +124,11 @@ export const CommandHandler =
         Reflect.getMetadata("scope:type", target).add("command");
 
         const commandHandler = Reflect.getMetadata("handler:command", target);
-        let resolveHandler: (interaction: CommandInteraction) => string;
+        let resolveHandler: (
+            interaction: ChatInputCommandInteraction
+        ) => string;
         if (commandHandler) {
-            resolveHandler = (_interaction: CommandInteraction) =>
+            resolveHandler = (_interaction: ChatInputCommandInteraction) =>
                 commandHandler;
         } else {
             const subcommands = Reflect.getMetadata(
@@ -133,7 +140,7 @@ export const CommandHandler =
                     "`CommandScope` doesn't define `@Command` or `@SubCommand` handlers"
                 );
             }
-            resolveHandler = (interaction: CommandInteraction) => {
+            resolveHandler = (interaction: ChatInputCommandInteraction) => {
                 const group = interaction.options.getSubcommandGroup(false);
                 if (group) {
                     const subcommandGroup = subcommands[group];
@@ -185,7 +192,7 @@ export const CommandHandler =
             }
 
             async _handleCommand(
-                interaction: CommandInteraction
+                interaction: ChatInputCommandInteraction
             ): Promise<void> {
                 for (const guard of guards) {
                     if (guard.guildOnly && !interaction.guild) continue;

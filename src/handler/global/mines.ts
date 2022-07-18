@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
@@ -16,7 +15,7 @@ export class Mines {
         .toJSON();
 
     @Command()
-    async mines(interaction: CommandInteraction): Promise<void> {
+    async mines(interaction: ChatInputCommandInteraction): Promise<void> {
         const mines = await LandAndFacilitiesRepository.getMines();
 
         await interaction.reply({

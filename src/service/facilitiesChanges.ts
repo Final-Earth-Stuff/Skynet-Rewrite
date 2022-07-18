@@ -1,6 +1,6 @@
 import { CountryData } from "../wrapper/models/country";
 import { LandAndFacilities } from "../entity/LandAndFacilities";
-import { Client, MessageEmbed } from "discord.js";
+import { Client, EmbedBuilder, ChannelType } from "discord.js";
 import { AppDataSource } from "..";
 import { Guild } from "../entity/Guild";
 import { getIcon, convertAxisControl } from "./util/team";
@@ -73,7 +73,7 @@ export async function logChangesToChannel(
                 const channel = client.channels.cache.get(
                     guild.land_facility_channel
                 );
-                if (!channel || !channel.isText()) return;
+                if (!channel || channel.type !== ChannelType.GuildText) return;
 
                 const copy = [...embeds];
                 while (copy.length) {
@@ -94,26 +94,56 @@ function buildEmbed(
     const icon = getIcon(country.controlTeam);
     const control = convertAxisControl(country.control, country.controlTeam);
 
-    const embed = new MessageEmbed()
-        .addField("Ground Defenses", `${laf.gds} (${laf.gds - prev.gds})`, true)
-        .addField("Air Defenses", `${laf.ads} (${laf.ads - prev.ads})`, true)
-        .addField("Factories", `${laf.facs} (${laf.facs - prev.facs})`, true)
-        .addField("Mines", `${laf.mines} (${laf.mines - prev.mines})`, true)
-        .addField("Oil Rigs", `${laf.rigs} (${laf.rigs - prev.rigs})`, true)
+    const embed = new EmbedBuilder()
+        .addFields(
+            {
+                name: "Ground Defenses",
+                value: `${laf.gds} (${laf.gds - prev.gds})`,
+                inline: true,
+            },
+            {
+                name: "Air Defenses",
+                value: `${laf.ads} (${laf.ads - prev.ads})`,
+                inline: true,
+            },
+            {
+                name: "Factories",
+                value: `${laf.facs} (${laf.facs - prev.facs})`,
+                inline: true,
+            },
+            {
+                name: "Mines",
+                value: `${laf.mines} (${laf.mines - prev.mines})`,
+                inline: true,
+            },
+            {
+                name: "Oil Rigs",
+                value: `${laf.rigs} (${laf.rigs - prev.rigs})`,
+                inline: true,
+            }
+        )
         .setColor(colorForEvent(laf, prev));
 
     if (isNuclearStrike(laf, prev)) {
         embed
             .setTitle(`Nuclear strike detected in ${country.name}!`)
             .setDescription(`The following was lost in the strike:`)
-            .addField("Land", `${laf.land} (${laf.land - prev.land})`, true);
+            .addFields({
+                name: "Land",
+                value: `${laf.land} (${laf.land - prev.land})`,
+                inline: true,
+            });
     } else {
         embed
             .setTitle(
                 `${icon} ${country?.name} (${control}%) [${country?.region}]`
             )
             .setDescription(`Change in facility count detected:`)
-            .addField("\u200B", "\u200B", true);
+            .addFields({
+                name: "\u200B",
+                value: "\u200B",
+                inline: true,
+            });
     }
     return embed;
 }

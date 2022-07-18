@@ -2,7 +2,8 @@ import dotenv from "dotenv";
 
 import { makeLogger } from "./logger";
 
-const logger = makeLogger(module);
+import.meta;
+const logger = makeLogger(import.meta);
 
 dotenv.config();
 

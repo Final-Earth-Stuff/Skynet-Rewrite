@@ -8,7 +8,7 @@ import { Repository } from "typeorm";
 import { makeLogger } from "../logger";
 import { AppDataSource } from "..";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export async function setNickname(
     member: GuildMember,

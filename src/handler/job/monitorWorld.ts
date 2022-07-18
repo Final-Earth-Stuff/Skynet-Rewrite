@@ -20,7 +20,7 @@ import {
 } from "../../service/facilitiesChanges";
 import { LandAndFacilities } from "src/entity/LandAndFacilities";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorWorld {

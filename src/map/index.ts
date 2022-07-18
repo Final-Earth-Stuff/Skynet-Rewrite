@@ -1,6 +1,7 @@
 import { readFile, access, mkdir, writeFile } from "fs/promises";
 
-import { prepare } from "fuzzysort";
+import fuzzysort from "fuzzysort";
+const { prepare } = fuzzysort;
 
 import { CountryData } from "../wrapper/models/country";
 import { assertIsSome } from "../util/assert";

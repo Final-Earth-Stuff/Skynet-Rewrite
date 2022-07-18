@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
@@ -73,7 +76,7 @@ export class Nuke {
         .toJSON();
 
     @Command()
-    async nuke(interaction: CommandInteraction): Promise<void> {
+    async nuke(interaction: ChatInputCommandInteraction): Promise<void> {
         const origin = interaction.options.getInteger("origin", true);
         const destination = interaction.options.getInteger("destination", true);
 
@@ -89,12 +92,12 @@ export class Nuke {
         const distKm = greatCircleDist(oC.coordinates, dC.coordinates);
 
         if (distKm > rangeLimit(tech)) {
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setTitle(`${oC.name} ➔ ${dC.name}`)
                 .setDescription(
                     `Destination is not within range of the launch site (${tech})!`
                 )
-                .addField("Distance", `${distKm}km`)
+                .addFields({ name: "Distance", value: `${distKm}km` })
                 .setColor(Color.NUKE);
 
             await interaction.reply({ embeds: [embed] });
@@ -103,14 +106,20 @@ export class Nuke {
 
         const time = Math.round((distKm / travelSpeed(tech)) * 60 * 10) / 10;
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`${oC.name} ➔ ${dC.name}`)
             .setDescription(
                 `From **${oC.name}** to **${dC.name}** with the ${tech} technology`
             )
             .setColor(Color.BLUE)
-            .addField("Distance", `${distKm}km`, true)
-            .addField("Travel time", `${time.toFixed(1)} minutes`, true);
+            .addFields(
+                { name: "Distance", value: `${distKm}km`, inline: true },
+                {
+                    name: "Travel time",
+                    value: `${time.toFixed(1)} minutes`,
+                    inline: true,
+                }
+            );
 
         interaction.reply({ embeds: [embed] });
     }

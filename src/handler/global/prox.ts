@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
@@ -66,7 +69,7 @@ export class Prox {
         .toJSON();
 
     @Command()
-    async prox(interaction: CommandInteraction): Promise<void> {
+    async prox(interaction: ChatInputCommandInteraction): Promise<void> {
         const center = interaction.options.getInteger("center", true);
         const radius = interaction.options.getInteger("radius", true);
         const travelPoints = interaction.options.getInteger("points") ?? 0;
@@ -135,7 +138,7 @@ export class Prox {
                 suffix = "";
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`Scanning proximity of ${centerCountry.name}${suffix}`)
             .setDescription(
                 `Allies vs. Axis within ${radius} minutes [${Math.round(
@@ -147,7 +150,10 @@ export class Prox {
                     teamFromControl(result.center_control)
                 )}%) with ${travelPoints}% travel bonus`
             )
-            .addField("Units", `${result.allies} vs. ${result.axis}`)
+            .addFields({
+                name: "Units",
+                value: `${result.allies} vs. ${result.axis}`,
+            })
             .setColor(Color.BLUE);
 
         const embeds = [embed];
@@ -156,13 +162,13 @@ export class Prox {
             throw new BotError("The selected range was too large");
         } else if (list.length > 1024) {
             embeds.push(
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setTitle("Countries")
                     .setDescription(list)
                     .setColor(Color.BLUE)
             );
         } else if (list.length > 0) {
-            embed.addField("Countries", list);
+            embed.addFields({ name: "Countries", value: list });
         }
 
         await interaction.reply({ embeds });

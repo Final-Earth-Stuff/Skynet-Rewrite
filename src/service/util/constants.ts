@@ -12,12 +12,12 @@ export enum Team {
 }
 
 export enum Color {
-    RED = "DARK_RED",
-    GREEN = "DARK_GREEN",
-    BLUE = "DARK_BLUE",
-    NUKE = "ORANGE",
-    YELLOW = "YELLOW",
-    BRIGHT_RED = "RED",
+    RED = "DarkGreen",
+    GREEN = "DarkGreen",
+    BLUE = "DarkBlue",
+    NUKE = "Orange",
+    YELLOW = "Yellow",
+    BRIGHT_RED = "Red",
 }
 
 export enum FacilityIncome {
@@ -27,8 +27,8 @@ export enum FacilityIncome {
 }
 
 export enum ButtonColor {
-    ENABLED = "PRIMARY",
-    DISABLED = "SECONDARY",
+    ENABLED = "Primary",
+    DISABLED = "Secondary",
 }
 export const rankMap = new Map<number, string>([
     [1, "Pvt."],

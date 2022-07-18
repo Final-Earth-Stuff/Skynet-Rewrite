@@ -1,7 +1,10 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { Color } from "../../service/util/constants";
 
@@ -15,10 +18,10 @@ export class Delete {
         .toJSON();
 
     @Command()
-    async delete(interaction: CommandInteraction): Promise<void> {
+    async delete(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
         UserSettingsRepository.deleteByDiscordId(interaction.user.id);
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(`All your data has been deleted.`)
             .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });

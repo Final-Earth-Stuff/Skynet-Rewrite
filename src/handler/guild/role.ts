@@ -1,9 +1,9 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import {
-    CommandInteraction,
+    ChatInputCommandInteraction,
     Guild,
-    MessageEmbed,
-    Permissions,
+    EmbedBuilder,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
 } from "discord.js";
 
 import {
@@ -28,7 +28,7 @@ export class Role {
     readonly data = new SlashCommandBuilder()
         .setName("role")
         .setDescription("Configure roles")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("add")
@@ -78,7 +78,7 @@ export class Role {
         .toJSON();
 
     @SubCommand({ name: "add" })
-    async roleAdd(interaction: CommandInteraction): Promise<void> {
+    async roleAdd(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
 
         const role = interaction.options.getRole("role", true);
@@ -90,7 +90,7 @@ export class Role {
             [`${type}_role`]: role.id,
         });
 
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(`Successfully set ${type} role to <@&${role.id}>!`)
             .setColor(Color.GREEN);
 
@@ -98,7 +98,7 @@ export class Role {
     }
 
     @SubCommand({ name: "remove" })
-    async roleRemove(interaction: CommandInteraction): Promise<void> {
+    async roleRemove(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
 
         const type = interaction.options.getString("type", true);
@@ -109,7 +109,7 @@ export class Role {
             [`${type}_role`]: null,
         });
 
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(`Successfully unset ${type} role!`)
             .setColor(Color.GREEN);
 
@@ -117,32 +117,36 @@ export class Role {
     }
 
     @SubCommand({ name: "info" })
-    async roleInfo(interaction: CommandInteraction): Promise<void> {
+    async roleInfo(interaction: ChatInputCommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({
             where: { guild_id: interaction.guildId ?? "" },
         });
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle("Roles")
-            .addField(
-                "Allies",
-                guild.allies_role
-                    ? `<@&${guild.allies_role}>`
-                    : "Not configured",
-                true
-            )
-            .addField(
-                "Axis",
-                guild.axis_role ? `<@&${guild.axis_role}>` : "Not configured",
-                true
-            )
-            .addField(
-                "Spectator",
-                guild.spectator_role
-                    ? `<@&${guild.spectator_role}>`
-                    : "Not configured",
-                true
+            .addFields(
+                {
+                    name: "Allies",
+                    value: guild.allies_role
+                        ? `<@&${guild.allies_role}>`
+                        : "Not configured",
+                    inline: true,
+                },
+                {
+                    name: "Axis",
+                    value: guild.axis_role
+                        ? `<@&${guild.axis_role}>`
+                        : "Not configured",
+                    inline: true,
+                },
+                {
+                    name: "Spectator",
+                    value: guild.spectator_role
+                        ? `<@&${guild.spectator_role}>`
+                        : "Not configured",
+                    inline: true,
+                }
             )
             .setColor(Color.BLUE);
 

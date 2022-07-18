@@ -13,7 +13,7 @@ import { loadHandlers } from "../decorators";
 import { Guild } from "../entity/Guild";
 import { CommandRepository } from "../repository/CommandRepository";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 const rest = new REST({ version: "10" }).setToken(config.botToken);
 

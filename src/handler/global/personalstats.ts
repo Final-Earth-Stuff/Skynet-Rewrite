@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
@@ -17,7 +20,7 @@ import { UserSettingsRepository } from "../../repository/UserSettingsRepository"
 import { ApiError, BotError } from "../../error";
 import { makeLogger } from "../../logger";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @CommandHandler({ name: "personalstats" })
 export class PersonalStats {
@@ -28,7 +31,7 @@ export class PersonalStats {
         .toJSON();
 
     @Command()
-    async stats(interaction: CommandInteraction): Promise<void> {
+    async stats(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
         const user = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
@@ -62,7 +65,7 @@ export class PersonalStats {
 async function buildStatsEmbed(
     user: UserData,
     apiKey: string
-): Promise<MessageEmbed> {
+): Promise<EmbedBuilder> {
     let formation: FormationData | undefined;
     try {
         formation = await getFormation(apiKey);
@@ -80,7 +83,7 @@ async function buildStatsEmbed(
     );
     const destroyed = formatter.format(user.personalStats.facilities.destroyed);
     const built = formatter.format(user.personalStats.facilities.spend);
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setTitle(`${rank} ${user.name} [${user.id}]`)
         .setDescription(
             `${
@@ -91,30 +94,41 @@ async function buildStatsEmbed(
                 user.rating
             }`
         )
-        .addField(
-            "Record",
-            `${
-                user.personalStats.wins.allies + user.personalStats.wins.axis
-            } round wins \n ${user.personalStats.losses} round losses`,
-            true
+        .addFields(
+            {
+                name: "Record",
+                value: `${
+                    user.personalStats.wins.allies +
+                    user.personalStats.wins.axis
+                } round wins \n ${user.personalStats.losses} round losses`,
+                inline: true,
+            },
+            {
+                name: "Damage",
+                value: `$${damage} damage done \n $${losses} losses taken`,
+                inline: true,
+            },
+            {
+                name: "Points",
+                value: `${getPoints(user)} total points`,
+                inline: true,
+            },
+            {
+                name: "Networth",
+                value: `$${await calculateNetworth(user, apiKey)} total`,
+                inline: true,
+            },
+            {
+                name: "Facilities",
+                value: `$${destroyed} worth destroyed \n $${built} worth built`,
+                inline: true,
+            },
+            {
+                name: "\u200B",
+                value: "\u200B",
+                inline: true,
+            }
         )
-        .addField(
-            "Damage",
-            `$${damage} damage done \n $${losses} losses taken`,
-            true
-        )
-        .addField("Points", `${getPoints(user)} total points`, true)
-        .addField(
-            "Networth",
-            `$${await calculateNetworth(user, apiKey)} total`,
-            true
-        )
-        .addField(
-            "Facilities",
-            `$${destroyed} worth destroyed \n $${built} worth built`,
-            true
-        )
-        .addField("\u200B", "\u200B", true)
         .setColor(Color.BLUE);
 }
 

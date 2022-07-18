@@ -6,7 +6,7 @@ import { Data } from "../map";
 import { Country, Region } from "../entity/Country";
 import { getWorld } from "../wrapper/wrapper";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export async function updateStaticData() {
     try {

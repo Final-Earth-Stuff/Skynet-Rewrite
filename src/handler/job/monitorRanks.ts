@@ -25,7 +25,7 @@ import {
 } from "../../service/verifyService";
 import { Color } from "../../service/util/constants";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @EventHandler()
 @ScheduledJob()

@@ -1,9 +1,12 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { ChannelType } from "discord-api-types/v10";
-import { CommandInteraction, MessageEmbed, Permissions } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    SlashCommandBuilder,
+    ChannelType,
+    PermissionFlagsBits,
+} from "discord.js";
 
 import { CommandHandler, SubCommand, CommandData } from "../../decorators";
-import { BotError } from "../../error";
 
 import { AppDataSource } from "../..";
 import { Guild as GuildEntity } from "../../entity/Guild";
@@ -15,7 +18,7 @@ export class Channel {
     readonly data = new SlashCommandBuilder()
         .setName("channel")
         .setDescription("Configure channels")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("add")
@@ -85,7 +88,7 @@ export class Channel {
         .toJSON();
 
     @SubCommand({ name: "add" })
-    async channelAdd(interaction: CommandInteraction): Promise<void> {
+    async channelAdd(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
 
         const channel = interaction.options.getChannel("channel", true);
@@ -97,7 +100,7 @@ export class Channel {
             [`${type}_channel`]: channel.id,
         });
 
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(
                 `Successfully set ${type} channel to <#${channel.id}>!`
             )
@@ -107,7 +110,9 @@ export class Channel {
     }
 
     @SubCommand({ name: "remove" })
-    async channelRemove(interaction: CommandInteraction): Promise<void> {
+    async channelRemove(
+        interaction: ChatInputCommandInteraction
+    ): Promise<void> {
         await interaction.deferReply();
 
         const type = interaction.options.getString("type", true);
@@ -118,7 +123,7 @@ export class Channel {
             [`${type}_channel`]: null,
         });
 
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(`Successfully unset ${type} channel!`)
             .setColor(Color.GREEN);
 
@@ -126,41 +131,43 @@ export class Channel {
     }
 
     @SubCommand({ name: "info" })
-    async channelInfo(interaction: CommandInteraction): Promise<void> {
+    async channelInfo(interaction: ChatInputCommandInteraction): Promise<void> {
         const guildRepository = AppDataSource.getRepository(GuildEntity);
         const guild = await guildRepository.findOneOrFail({
             where: { guild_id: interaction.guildId ?? "" },
         });
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle("Channels")
-            .addField(
-                "Verify",
-                guild.verify_channel
-                    ? `<#${guild.verify_channel}>`
-                    : "Not configured",
-                true
-            )
-            .addField(
-                "Troop Movements",
-                guild.troop_movement_channel
-                    ? `<#${guild.troop_movement_channel}>`
-                    : "Not configured",
-                true
-            )
-            .addField(
-                "Facility Updates",
-                guild.land_facility_channel
-                    ? `<#${guild.land_facility_channel}>`
-                    : "Not configured",
-                true
-            )
-            .addField(
-                "Log",
-                guild.log_channel
-                    ? `<#${guild.log_channel}>`
-                    : "Not configured",
-                true
+            .addFields(
+                {
+                    name: "Verify",
+                    value: guild.verify_channel
+                        ? `<#${guild.verify_channel}>`
+                        : "Not configured",
+                    inline: true,
+                },
+                {
+                    name: "Troop Movements",
+                    value: guild.troop_movement_channel
+                        ? `<#${guild.troop_movement_channel}>`
+                        : "Not configured",
+                    inline: true,
+                },
+                {
+                    name: "Facility Updates",
+                    value: guild.land_facility_channel
+                        ? `<#${guild.land_facility_channel}>`
+                        : "Not configured",
+                    inline: true,
+                },
+                {
+                    name: "Log",
+                    value: guild.log_channel
+                        ? `<#${guild.log_channel}>`
+                        : "Not configured",
+                    inline: true,
+                }
             )
             .setColor(Color.BLUE);
 
