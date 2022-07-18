@@ -1,11 +1,19 @@
-import { UserData } from "./models/user";
+import * as t from "io-ts";
+import * as TE from "fp-ts/TaskEither";
+import * as E from "fp-ts/Either";
+
+import { PathReporter } from "io-ts/PathReporter";
+import { flow } from "fp-ts/function";
+
+import fetch from "node-fetch";
+
+import { UserData, PrivateUserData } from "./models/user";
 import { NotificationData } from "./models/notification";
 import { CountryData } from "./models/country";
 import { FormationData } from "./models/formation";
 import { UnitsData } from "./models/units";
 import { AllUnitsData } from "./models/allunits";
-import { FEResponse, isErrorResponse } from "./models/common";
-import fetch, { Response } from "node-fetch";
+import { feResponse } from "./models/common";
 import { ApiError } from "../error";
 
 function url(resource: string, key: string, id?: string | number) {
@@ -19,53 +27,76 @@ function url(resource: string, key: string, id?: string | number) {
     return `https://www.finalearth.com/api/${resource}?${query}`;
 }
 
-export async function getUser(
-    key: string,
-    id?: string | number
-): Promise<UserData> {
-    const response = await fetch(url("user", key, id));
-    return handleErrors(response);
+export function getUser(key: string): Promise<UserData & PrivateUserData>;
+export function getUser(key: string, id: number | string): Promise<UserData>;
+export async function getUser(key: string, id?: string | number) {
+    return await apiRequest(
+        url("user", key, id),
+        id ? UserData : t.intersection([UserData, PrivateUserData])
+    );
 }
 
 export async function getNotifications(key: string): Promise<NotificationData> {
-    const response = await fetch(url("notifications", key));
-    return handleErrors(response);
+    return await apiRequest(url("notifications", key), NotificationData);
 }
 
 export async function getCountry(
     key: string,
     id?: number
 ): Promise<CountryData> {
-    const response = await fetch(url("country", key, id));
-    return handleErrors(response);
+    return await apiRequest(url("country", key, id), CountryData);
 }
 
 export async function getWorld(key: string): Promise<CountryData[]> {
-    const response = await fetch(url("world", key));
-    return handleErrors(response);
+    return await apiRequest(url("world", key), t.array(CountryData));
 }
 
 export async function getFormation(key: string): Promise<FormationData> {
-    const response = await fetch(url("formation", key));
-    return handleErrors(response);
+    return await apiRequest(url("formation", key), FormationData);
 }
 
 export async function getUnits(key: string): Promise<UnitsData[]> {
-    const response = await fetch(url("units", key));
-    return handleErrors(response);
+    return await apiRequest(url("units", key), t.array(UnitsData));
 }
 export async function getAllUnits(key: string): Promise<AllUnitsData[]> {
-    const response = await fetch(url("allunits", key));
-    return handleErrors(response);
+    return await apiRequest(url("allunits", key), t.array(AllUnitsData));
 }
 
-async function handleErrors<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-        throw new ApiError(response.statusText);
+const mapError = (e: unknown): Error =>
+    e instanceof Error ? e : new Error("This should never happen");
+
+const formatErrors = (errors: t.Errors) =>
+    new Error(
+        "Errors occured while validating API resonse:" +
+            PathReporter.report(E.left(errors)).join("\n")
+    );
+
+async function apiRequest<C extends t.Mixed>(
+    url: string,
+    codec: C
+): Promise<t.TypeOf<C>> {
+    const result = await flow(
+        TE.tryCatchK((url: string) => fetch(url), mapError),
+        TE.filterOrElse(
+            (resp) => resp.ok,
+            (resp) => new ApiError(resp.statusText)
+        ),
+        TE.chain((res) => TE.tryCatch(() => res.json(), mapError)),
+        TE.chainEitherK(
+            flow(
+                feResponse(codec).decode,
+                E.mapLeft(formatErrors),
+                E.chain((res) =>
+                    res.error
+                        ? E.left(new ApiError(res.reason, res.data.code))
+                        : E.right(res.data)
+                )
+            )
+        )
+    )(url)();
+    if (E.isLeft(result)) {
+        throw result.left;
+    } else {
+        return result.right;
     }
-    const json: FEResponse<T> = (await response.json()) as any;
-    if (isErrorResponse(json)) {
-        throw new ApiError(json.reason, json.data.code);
-    }
-    return json.data;
 }

@@ -7,8 +7,13 @@ import {
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { Color } from "../../service/util/constants";
-import { FormationData } from "../../wrapper/models/formation";
-import { ReimbursementInfo, Skills, UserData } from "../../wrapper/models/user";
+import type { FormationData } from "../../wrapper/models/formation";
+import type {
+    ReimbursementInfo,
+    Skills,
+    UserData,
+    PrivateUserData,
+} from "../../wrapper/models/user";
 import {
     getUser,
     getFormation,
@@ -51,6 +56,7 @@ export class PersonalStats {
                     "This is not a valid API key, please check your key and try again."
                 );
             }
+            logger.warn("API returned error: %O", e);
             throw new BotError(
                 "Something went wrong with calling the API, please check your key and try again."
             );
@@ -63,7 +69,7 @@ export class PersonalStats {
 }
 
 async function buildStatsEmbed(
-    user: UserData,
+    user: UserData & PrivateUserData,
     apiKey: string
 ): Promise<EmbedBuilder> {
     let formation: FormationData | undefined;
@@ -132,7 +138,7 @@ async function buildStatsEmbed(
         .setColor(Color.BLUE);
 }
 
-function getPoints(user: UserData): number {
+function getPoints(user: PrivateUserData): number {
     let points = user.points;
     for (const skill in user.skills) {
         if (skill === "queue") {
@@ -159,7 +165,7 @@ function getFormationPosition(formation: FormationData, id: string): string {
     }
 }
 
-async function calculateNetworth(user: UserData, apiKey: string) {
+async function calculateNetworth(user: PrivateUserData, apiKey: string) {
     try {
         const units = await getUnits(apiKey);
         const allUnits = await getAllUnits(apiKey);

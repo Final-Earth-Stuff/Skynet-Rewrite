@@ -1,30 +1,33 @@
+import * as t from "io-ts";
 import { Statistics, Timers } from "./common";
 
-export interface NotificationData {
-    timers: Timers;
-    training: Training;
-    unreadMails: number;
-    unreadEvents: number;
-}
+export const QueuedTrain = t.type({
+    ID: t.string,
+    stat: t.string,
+});
 
-export interface Training {
-    stats: Statistics;
-    queueSize: number;
-    modifiedStats: {
-        communication: number;
-        intelligence: number;
-        leadership: number;
-        strength: number;
-        info: string;
-    };
-    endTime: number;
-    hasUpdated: boolean;
-    currentlyTraining: number;
-    queued: QueuedTrain[];
-    serverTime: number;
-}
+export const Training = t.type({
+    stats: Statistics,
+    queueSize: t.number,
+    modifiedStats: t.type({
+        communication: t.string,
+        intelligence: t.string,
+        leadership: t.string,
+        strength: t.string,
+        info: t.string,
+    }),
+    endTime: t.number,
+    hasUpdated: t.boolean,
+    currentlyTraining: t.number,
+    queued: t.array(QueuedTrain),
+    serverTime: t.number,
+});
 
-export interface QueuedTrain {
-    ID: number;
-    stat: number;
-}
+export const NotificationData = t.type({
+    timers: Timers,
+    training: Training,
+    unreadMails: t.number,
+    unreadEvents: t.number,
+});
+
+export type NotificationData = t.TypeOf<typeof NotificationData>;
