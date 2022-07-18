@@ -6,7 +6,7 @@ import { Constructor, ensureBaseScope } from "./BaseScope";
 
 import { makeLogger } from "../logger";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 type DiscordEventKey = keyof ClientEvents;
 

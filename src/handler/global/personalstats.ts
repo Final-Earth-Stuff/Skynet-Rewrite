@@ -20,7 +20,7 @@ import { UserSettingsRepository } from "../../repository/UserSettingsRepository"
 import { ApiError, BotError } from "../../error";
 import { makeLogger } from "../../logger";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @CommandHandler({ name: "personalstats" })
 export class PersonalStats {

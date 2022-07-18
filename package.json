@@ -2,11 +2,12 @@
   "name": "finalearth",
   "version": "2.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "build": "NODE_ENV=development tsc",
-    "dev": "NODE_ENV=development node dist/index.js",
-    "prod": "NODE_ENV=production node dist/index.js",
-    "watch": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/index.js bot\"",
+    "dev": "NODE_ENV=development node --es-module-specifier-resolution=node dist/index.js",
+    "prod": "NODE_ENV=production node --es-module-specifier-resolution=node dist/index.js",
+    "watch": "NODE_ENV=development tsc-watch --onSuccess \"node --es-module-specifier-resolution=node ./dist/index.js bot\"",
     "lint": "eslint . --ext .ts",
     "format": "prettier --check \"**/*.ts\"",
     "migrate": "typeorm migration:run -d dist/datasource.js"

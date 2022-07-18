@@ -2,7 +2,7 @@ import { makeLogger } from "../logger";
 
 import { Some } from "./guard";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export function assertIsSome<T>(opt: T, msg?: string): asserts opt is Some<T> {
     if (opt === undefined || opt === null) {

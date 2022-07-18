@@ -4,7 +4,7 @@ import { makeLogger } from "../logger";
 import { ReminderRepository } from "../repository/ReminderRepository";
 import { Color } from "./util/constants";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export async function processReminder(reminder: Reminder, client: Client) {
     try {

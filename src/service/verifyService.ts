@@ -18,7 +18,7 @@ import { UserRank } from "../entity/UserRank";
 import { getUser } from "../wrapper/wrapper";
 import { config } from "../config";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export async function updateRoleAndNickname(
     user: UserData,

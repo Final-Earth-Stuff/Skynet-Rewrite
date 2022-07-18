@@ -20,5 +20,5 @@ const logger = createLogger({
     ],
 });
 
-export const makeLogger = (mod: NodeModule) =>
-    logger.child({ path: relative(module.path, mod.filename) });
+export const makeLogger = (meta: ImportMeta) =>
+    logger.child({ path: relative(import.meta.url, meta.url) });

@@ -5,7 +5,7 @@ import { ReminderRepository } from "../../repository/ReminderRepository";
 import { processReminder } from "../../service/reminders";
 import { isSome } from "../../util/guard";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorReminders {

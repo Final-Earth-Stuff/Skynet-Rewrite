@@ -13,7 +13,7 @@ import { makeLogger } from "../../logger";
 import { NotificationData } from "../../wrapper/models/notification";
 import { Team } from "../../service/util/constants";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorUsers {

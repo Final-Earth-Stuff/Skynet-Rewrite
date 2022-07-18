@@ -5,7 +5,8 @@ import {
     InteractionType,
 } from "discord.js";
 
-import { schedule } from "node-cron";
+import node_cron from "node-cron";
+const { schedule } = node_cron;
 
 import { config } from "./config";
 import { makeLogger } from "./logger";
@@ -15,7 +16,7 @@ import { Data } from "./map";
 import { loadHandlers } from "./decorators";
 import { Color } from "./service/util/constants";
 
-const logger = makeLogger(module);
+const logger = makeLogger(import.meta);
 
 export let handlers: Awaited<ReturnType<typeof loadHandlers>> | undefined =
     undefined;
@@ -227,5 +228,5 @@ export const bootstrap = async () => {
         }
     });
 
-    client.login(config.botToken);
+    await client.login(config.botToken);
 };
