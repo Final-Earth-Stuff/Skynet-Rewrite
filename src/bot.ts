@@ -10,7 +10,7 @@ const { schedule } = node_cron;
 
 import { config } from "./config";
 import { makeLogger } from "./logger";
-import { BotError } from "./error";
+import { ApiError, BotError } from "./error";
 import { Data } from "./map";
 
 import { loadHandlers } from "./decorators";
@@ -46,11 +46,15 @@ export const bootstrap = async () => {
                         then: (resolve: CallableFunction) => {
                             resolve(job(client));
                         },
-                    }).catch((e) =>
-                        logger.error(
-                            "Error while executing scheduled job: %O",
-                            e
-                        )
+                    }).catch((e) => {
+                        if (!(e instanceof ApiError && e.code === 4)) {
+                            logger.error(
+                                "Error while executing scheduled job: %O",
+                                e
+                            )
+                        }
+                    }
+                        
                     );
                 })
             )
