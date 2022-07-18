@@ -63,7 +63,7 @@ async function handleErrors<T>(response: Response): Promise<T> {
     if (!response.ok) {
         throw new ApiError(response.statusText);
     }
-    const json: FEResponse<T> = await response.json();
+    const json: FEResponse<T> = (await response.json()) as any;
     if (isErrorResponse(json)) {
         throw new ApiError(json.reason, json.data.code);
     }
