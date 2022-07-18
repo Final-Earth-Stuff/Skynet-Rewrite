@@ -12,6 +12,7 @@ import * as wrapper from "../../wrapper/wrapper";
 import { makeLogger } from "../../logger";
 import { NotificationData } from "../../wrapper/models/notification";
 import { Team } from "../../service/util/constants";
+import { ApiError } from "../../error";
 
 const logger = makeLogger(import.meta);
 
@@ -26,18 +27,26 @@ export class MonitorUsers {
             values.map(async (user) => {
                 if (user && user.api_key) {
                     logger.debug("checking " + user.user_id);
-                    const notifsData = await wrapper.getNotifications(
-                        user.api_key
-                    );
-                    if (!user.paused_flag) {
-                        const discord = await client.users
-                            .fetch(user.discord_id)
-                            .catch((error) => {
-                                logger.error(error);
-                            });
+                    try {
+                        const notifsData = await wrapper.getNotifications(
+                            user.api_key
+                        );
+                        if (!user.paused_flag) {
+                            const discord = await client.users
+                                .fetch(user.discord_id)
+                                .catch((error) => {
+                                    logger.error(error);
+                                });
 
-                        if (discord) {
-                            this.checkSettings(user, notifsData, discord);
+                            if (discord) {
+                                this.checkSettings(user, notifsData, discord);
+                            }
+                        }
+                    } catch (e) {
+                        if (e instanceof ApiError && e.code === 4) {
+                            // ignore user not in round errors
+                        } else {
+                            throw e;
                         }
                     }
                 }
