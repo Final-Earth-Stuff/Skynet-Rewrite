@@ -1,4 +1,9 @@
-import { Client, Intents, MessageEmbed } from "discord.js";
+import {
+    Client,
+    GatewayIntentBits,
+    EmbedBuilder,
+    InteractionType,
+} from "discord.js";
 
 import { schedule } from "node-cron";
 
@@ -25,9 +30,9 @@ export const bootstrap = async () => {
 
     const client = new Client({
         intents: [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_MEMBERS,
-            Intents.FLAGS.GUILD_PRESENCES,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildPresences,
         ],
     });
 
@@ -58,132 +63,167 @@ export const bootstrap = async () => {
     );
 
     client.on("interactionCreate", async (interaction) => {
-        if (interaction.isCommand()) {
-            try {
-                const handler = handlers?.commands.get(interaction.commandName);
-                if (!handler) {
-                    throw new Error(
-                        `Unknown command: '${interaction.commandName}`
-                    );
-                }
-                logger.debug("Received command '%s'", interaction.commandName);
-                await handler._handleCommand(interaction);
-            } catch (e) {
-                let message: string;
-                let ephemeral = false;
-                if (e instanceof BotError) {
-                    message = e.message;
-                    logger.warn(
-                        "Caught '%s: %s' while processing command '%s'",
-                        e.name,
-                        e.message,
+        switch (interaction.type) {
+            case InteractionType.ApplicationCommand:
+                if (interaction.isContextMenuCommand()) {
+                    logger.error(
+                        "Received context menu application command interaction for command '%s'",
                         interaction.commandName
                     );
-                    ephemeral = e.ephemeral;
-                } else {
-                    logger.error(
-                        "Encountered unexpected error while processing command '%s': %O",
-                        interaction.commandName,
-                        e
-                    );
-                    message = "Something went wrong";
+                    return;
                 }
-                const embed = new MessageEmbed()
-                    .setColor(Color.BRIGHT_RED)
-                    .setDescription(message);
+                try {
+                    const handler = handlers?.commands.get(
+                        interaction.commandName
+                    );
+                    if (!handler) {
+                        throw new Error(
+                            `Unknown command: '${interaction.commandName}`
+                        );
+                    }
+                    logger.debug(
+                        "Received command '%s'",
+                        interaction.commandName
+                    );
+                    await handler._handleCommand(interaction);
+                } catch (e) {
+                    let message: string;
+                    let ephemeral = false;
+                    if (e instanceof BotError) {
+                        message = e.message;
+                        logger.warn(
+                            "Caught '%s: %s' while processing command '%s'",
+                            e.name,
+                            e.message,
+                            interaction.commandName
+                        );
+                        ephemeral = e.ephemeral;
+                    } else {
+                        logger.error(
+                            "Encountered unexpected error while processing command '%s': %O",
+                            interaction.commandName,
+                            e
+                        );
+                        message = "Something went wrong";
+                    }
+                    const embed = new EmbedBuilder()
+                        .setColor(Color.BRIGHT_RED)
+                        .setDescription(message);
 
-                if (interaction.deferred) {
-                    await interaction.editReply({
-                        embeds: [embed],
-                    });
-                } else {
-                    await interaction.reply({
+                    if (interaction.deferred) {
+                        await interaction.editReply({
+                            embeds: [embed],
+                        });
+                    } else {
+                        await interaction.reply({
+                            embeds: [embed],
+                            ephemeral,
+                        });
+                    }
+                }
+                break;
+            case InteractionType.MessageComponent:
+                if (!interaction.isButton()) {
+                    logger.error(
+                        "Received message component interaction of wrong type: %s",
+                        interaction.type
+                    );
+                    return;
+                }
+                try {
+                    const handler = handlers?.buttons.get(interaction.customId);
+                    if (!handler) {
+                        throw new Error(
+                            `Unknown button: '${interaction.customId}`
+                        );
+                    }
+                    logger.debug(
+                        "Received button interaction for '%s'",
+                        interaction.customId
+                    );
+                    await handler._handle(interaction);
+                } catch (e) {
+                    let message: string;
+                    let ephemeral = false;
+                    if (e instanceof BotError) {
+                        message = e.message;
+                        logger.info(
+                            "Caught '%s: %s' while processing button '%s'",
+                            e.name,
+                            e.message,
+                            interaction.customId
+                        );
+                        ephemeral = e.ephemeral;
+                    } else {
+                        logger.error(
+                            "Encountered unexpected error while processing button '%s': %O",
+                            interaction.customId,
+                            e
+                        );
+                        message = "Something went wrong";
+                    }
+                    const embed = new EmbedBuilder()
+                        .setColor(Color.BRIGHT_RED)
+                        .setDescription(message);
+
+                    await interaction.followUp({
                         embeds: [embed],
                         ephemeral,
                     });
                 }
-            }
-        } else if (interaction.isButton()) {
-            try {
-                const handler = handlers?.buttons.get(interaction.customId);
-                if (!handler) {
-                    throw new Error(`Unknown button: '${interaction.customId}`);
-                }
-                logger.debug(
-                    "Received button interaction for '%s'",
-                    interaction.customId
-                );
-                await handler._handle(interaction);
-            } catch (e) {
-                let message: string;
-                let ephemeral = false;
-                if (e instanceof BotError) {
-                    message = e.message;
-                    logger.info(
-                        "Caught '%s: %s' while processing button '%s'",
-                        e.name,
-                        e.message,
-                        interaction.customId
+                break;
+            case InteractionType.ApplicationCommandAutocomplete:
+                {
+                    const focused = interaction.options.getFocused(true);
+                    logger.debug(
+                        "Received autocompletion interaction for command '%s', option '%s'",
+                        interaction.commandName,
+                        focused.name
                     );
-                    ephemeral = e.ephemeral;
-                } else {
-                    logger.error(
-                        "Encountered unexpected error while processing button '%s': %O",
-                        interaction.customId,
-                        e
-                    );
-                    message = "Something went wrong";
+
+                    const handlerID = handlers?.completionMap
+                        .get(interaction.commandName)
+                        ?.get(focused.name);
+
+                    if (!handlerID) {
+                        logger.error(
+                            "No handler registered for requested completion!"
+                        );
+                        return;
+                    }
+
+                    const handler = handlers?.completions.get(handlerID);
+
+                    if (!handler) {
+                        logger.error(
+                            "Unknown completion handler with id '%s'!",
+                            handlerID
+                        );
+                        return;
+                    }
+
+                    try {
+                        const completions = await handler._handle(
+                            handlerID,
+                            focused.value as string
+                        );
+                        await interaction.respond(completions);
+                    } catch (e) {
+                        logger.error(
+                            "Error in completion handler '%s' while processing value '%s': %O",
+                            handlerID,
+                            focused.value,
+                            e
+                        );
+                    }
                 }
-                const embed = new MessageEmbed()
-                    .setColor(Color.BRIGHT_RED)
-                    .setDescription(message);
-
-                await interaction.followUp({
-                    embeds: [embed],
-                    ephemeral,
-                });
-            }
-        } else if (interaction.isAutocomplete()) {
-            const focused = interaction.options.getFocused(true);
-            logger.debug(
-                "Received autocompletion interaction for command '%s', option '%s'",
-                interaction.commandName,
-                focused.name
-            );
-
-            const handlerID = handlers?.completionMap
-                .get(interaction.commandName)
-                ?.get(focused.name);
-
-            if (!handlerID) {
-                logger.error("No handler registered for requested completion!");
-                return;
-            }
-
-            const handler = handlers?.completions.get(handlerID);
-
-            if (!handler) {
+                break;
+            default:
                 logger.error(
-                    "Unknown completion handler with id '%s'!",
-                    handlerID
+                    "Received interaction of unknown type '%s'",
+                    interaction.type
                 );
                 return;
-            }
-
-            try {
-                const completions = await handler._handle(
-                    handlerID,
-                    focused.value as string
-                );
-                await interaction.respond(completions);
-            } catch (e) {
-                logger.error(
-                    "Error in completion handler '%s' while processing value '%s': %O",
-                    handlerID,
-                    focused.value,
-                    e
-                );
-            }
         }
     });
 

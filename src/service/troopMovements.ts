@@ -1,6 +1,6 @@
 import { UnitChange } from "../entity/UnitChange";
 import { CountryData } from "../wrapper/models/country";
-import { Client, MessageEmbed } from "discord.js";
+import { Client, EmbedBuilder, ChannelType } from "discord.js";
 import { AppDataSource } from "..";
 import { Guild } from "../entity/Guild";
 import { getIcon, convertAxisControl } from "./util/team";
@@ -116,7 +116,7 @@ export async function prepareAndSendMessage(
                 const channel = client.channels.cache.get(
                     guild.troop_movement_channel
                 );
-                if (!channel || !channel.isText()) return;
+                if (!channel || channel.type !== ChannelType.GuildText) return;
 
                 const copy = [...embeds];
                 while (copy.length) {
@@ -133,15 +133,21 @@ function buildEmbed(unit: Units, countryInfo: Map<number, CountryData>) {
     const icon = getIcon(country.controlTeam);
     const control = convertAxisControl(country.control, country.controlTeam);
 
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setTitle(`${icon} ${country?.name} (${control}%) [${country?.region}]`)
         .setDescription(getEmbedDesc(unit, countryInfo))
-        .addField(
-            "Allied Forces",
-            `${unit.allies} (${unit.delta_allies})`,
-            true
+        .addFields(
+            {
+                name: "Allied Forces",
+                value: `${unit.allies} (${unit.delta_allies})`,
+                inline: true,
+            },
+            {
+                name: "Axis Forces",
+                value: `${unit.axis} (${unit.delta_axis})`,
+                inline: true,
+            }
         )
-        .addField("Axis Forces", `${unit.axis} (${unit.delta_axis})`, true)
         .setColor(colorForEvent(unit));
 }
 

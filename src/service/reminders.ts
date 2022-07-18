@@ -1,4 +1,4 @@
-import { Client, DiscordAPIError, MessageEmbed } from "discord.js";
+import { Client, DiscordAPIError, EmbedBuilder } from "discord.js";
 import { Reminder } from "../entity/Reminder";
 import { makeLogger } from "../logger";
 import { ReminderRepository } from "../repository/ReminderRepository";
@@ -10,7 +10,7 @@ export async function processReminder(reminder: Reminder, client: Client) {
     try {
         const discord = await client.users.fetch(reminder.user.discord_id);
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle("This is a Reminder!")
             .setDescription(reminder.message ? reminder.message : "Ping!")
             .setColor(Color.YELLOW);

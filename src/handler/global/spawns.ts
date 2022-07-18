@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    SlashCommandBuilder,
+} from "discord.js";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
@@ -21,7 +24,7 @@ export class Spawns {
         .toJSON();
 
     @Command()
-    async spawns(interaction: CommandInteraction): Promise<void> {
+    async spawns(interaction: ChatInputCommandInteraction): Promise<void> {
         const hours = interaction.options.getInteger("hours") ?? 0;
         if (hours <= 0) {
             throw new BotError(
@@ -51,11 +54,21 @@ export class Spawns {
             ])
             .join("\n");
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`Spawn Factory Report`)
             .setDescription(`Changes over last ${hours} hours:`)
-            .addField("Allies 🟢", alliesMessage, true)
-            .addField("Axis 🔴", axisMessage, true)
+            .addFields(
+                {
+                    name: "Allies 🟢",
+                    value: alliesMessage,
+                    inline: true,
+                },
+                {
+                    name: "Axis 🔴",
+                    value: axisMessage,
+                    inline: true,
+                }
+            )
             .setColor(Color.BLUE);
         interaction.reply({ embeds: [embed] });
     }

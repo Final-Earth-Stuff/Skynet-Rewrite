@@ -1,8 +1,7 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { Reminder } from "../../entity/Reminder";
 import { AppDataSource } from "../..";
 import { UserSettings } from "../../entity/UserSettings";
@@ -28,7 +27,7 @@ export class Remind {
         .toJSON();
 
     @Command()
-    async remind(interaction: CommandInteraction): Promise<void> {
+    async remind(interaction: ChatInputCommandInteraction): Promise<void> {
         const minutes = interaction.options.getInteger("minutes", true);
         const message = interaction.options.getString("message", false);
 

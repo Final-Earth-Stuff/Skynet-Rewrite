@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    CommandInteraction,
+    EmbedBuilder,
+    SlashCommandBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
 import { getUser } from "../../wrapper/wrapper";
@@ -53,7 +56,7 @@ export class Verify {
             throw new BotError("Role could not be assigned!");
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setAuthor({
                 name: user.name,
                 iconURL: interaction.user.displayAvatarURL(),

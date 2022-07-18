@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
@@ -16,7 +15,7 @@ export class Rigs {
         .toJSON();
 
     @Command()
-    async rigs(interaction: CommandInteraction) {
+    async rigs(interaction: ChatInputCommandInteraction) {
         const rigs = await LandAndFacilitiesRepository.getRigs();
 
         await interaction.reply({

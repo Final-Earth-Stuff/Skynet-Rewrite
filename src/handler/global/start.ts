@@ -1,5 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    SlashCommandBuilder,
+} from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
@@ -25,7 +28,7 @@ export class Start {
         .toJSON();
 
     @Command()
-    async start(interaction: CommandInteraction) {
+    async start(interaction: ChatInputCommandInteraction) {
         await interaction.deferReply({ ephemeral: true });
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
@@ -61,7 +64,7 @@ export class Start {
             true,
             user.id
         );
-        const success = new MessageEmbed()
+        const success = new EmbedBuilder()
             .setDescription(`Successfully saved user data!`)
             .setColor(Color.GREEN);
         await interaction.editReply({ embeds: [success] });

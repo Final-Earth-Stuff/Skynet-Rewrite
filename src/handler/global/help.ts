@@ -1,7 +1,10 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    EmbedBuilder,
+} from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
+import { CommandHandler, Command, CommandData } from "../../decorators";
 import { Color } from "../../service/util/constants";
 
 @CommandHandler({ name: "help" })
@@ -13,8 +16,8 @@ export class Help {
         .toJSON();
 
     @Command()
-    async help(interaction: CommandInteraction): Promise<void> {
-        const success = new MessageEmbed()
+    async help(interaction: ChatInputCommandInteraction): Promise<void> {
+        const success = new EmbedBuilder()
             .setTitle("Skynet Help")
             .setDescription(
                 `Please check out the Skynet [Wiki](https://github.com/Final-Earth-Stuff/Skynet-Rewrite/wiki) for more information.\n

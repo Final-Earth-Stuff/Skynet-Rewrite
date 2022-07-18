@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
@@ -16,7 +15,7 @@ export class Totals {
         .toJSON();
 
     @Command()
-    async totals(interaction: CommandInteraction) {
+    async totals(interaction: ChatInputCommandInteraction) {
         const totals = await LandAndFacilitiesRepository.totals();
 
         await interaction.reply({

@@ -1,9 +1,10 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import {
     ButtonInteraction,
-    CommandInteraction,
-    MessageActionRow,
-    MessageButton,
+    ChatInputCommandInteraction,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    SlashCommandBuilder,
 } from "discord.js";
 import { UserSettings } from "src/entity/UserSettings";
 import { BotError } from "../../error";
@@ -20,8 +21,6 @@ import {
     Toggles,
 } from "../../repository/UserSettingsRepository";
 
-import { ButtonColor } from "../../service/util/constants";
-
 @CommandHandler({ name: "settings" })
 @ButtonHandler()
 export class Settings {
@@ -33,7 +32,7 @@ export class Settings {
         .toJSON();
 
     @Command()
-    async settings(interaction: CommandInteraction): Promise<void> {
+    async settings(interaction: ChatInputCommandInteraction): Promise<void> {
         const settings = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
         );
@@ -112,10 +111,10 @@ async function updateSetting(interaction: ButtonInteraction): Promise<void> {
     }
 }
 
-function createRows(user: UserSettings): MessageActionRow[] {
-    const row = new MessageActionRow()
+function createRows(user: UserSettings): ActionRowBuilder<ButtonBuilder>[] {
+    const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.ENEMY)
                 .setLabel("Enemy Movements")
                 .setEmoji("☠️")
@@ -123,7 +122,7 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         )
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.WAR)
                 .setLabel("War Timer")
                 .setEmoji("🔫")
@@ -131,7 +130,7 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         )
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.QUEUE)
                 .setLabel("Empty Queue")
                 .setEmoji("🧠")
@@ -139,7 +138,7 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         )
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.REIMB)
                 .setLabel("Reimb Ready")
                 .setEmoji("💰")
@@ -147,9 +146,9 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         );
 
-    const row2 = new MessageActionRow()
+    const row2 = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.EVENT)
                 .setLabel("New Event")
                 .setEmoji("❗")
@@ -157,7 +156,7 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         )
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.MAIL)
                 .setLabel("New Mail")
                 .setEmoji("📧")
@@ -165,7 +164,7 @@ function createRows(user: UserSettings): MessageActionRow[] {
                 .setDisabled(user.paused_flag)
         )
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(Toggles.PAUSED)
                 .setLabel("Pause Notifications")
                 .setEmoji("💤")
@@ -175,6 +174,6 @@ function createRows(user: UserSettings): MessageActionRow[] {
     return [row, row2];
 }
 
-function getButtonColor(flag: boolean): ButtonColor {
-    return flag ? ButtonColor.ENABLED : ButtonColor.DISABLED;
+function getButtonColor(flag: boolean): ButtonStyle {
+    return flag ? ButtonStyle.Primary : ButtonStyle.Secondary;
 }
