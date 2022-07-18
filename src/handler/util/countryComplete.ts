@@ -15,7 +15,6 @@ export class CountryComplete {
     ): Promise<ApplicationCommandOptionChoiceData[]> {
         const results = go(value, Data.shared.preparedCountries, {
             limit: 10,
-            allowTypo: false,
         }).map((r) => ({
             name: r.target,
             value: unwrap(Data.shared.idForCountry(r.target)),
