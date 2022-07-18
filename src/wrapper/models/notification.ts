@@ -18,7 +18,7 @@ export const Training = t.type({
     }),
     endTime: t.number,
     hasUpdated: t.boolean,
-    currentlyTraining: t.number,
+    currentlyTraining: t.union([t.string, t.number]),
     queued: t.array(QueuedTrain),
     serverTime: t.number,
 });
