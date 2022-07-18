@@ -1,34 +1,38 @@
-export interface CountryData {
-    id: string;
-    name: string;
-    region: string;
-    control: number;
-    controlTeam: number;
-    initialControl: number;
-    coastline: number;
-    land: number;
-    code: string;
-    isActiveSpawn: boolean;
-    isSpawn: boolean;
-    coordinates: Coordinates;
-    facilities: Facilities;
-    units: Units;
-}
+import * as t from "io-ts";
 
-export interface Coordinates {
-    latitude: number;
-    longitude: number;
-}
+export const Coordinates = t.type({
+    latitude: t.number,
+    longitude: t.number,
+});
 
-export interface Facilities {
-    rigs: number;
-    mines: number;
-    factories: number;
-    groundDefences: number;
-    airDefences: number;
-}
+export const Facilities = t.type({
+    rigs: t.number,
+    mines: t.number,
+    factories: t.number,
+    groundDefences: t.number,
+    airDefences: t.number,
+});
 
-export interface Units {
-    axis: number;
-    allies: number;
-}
+export const Units = t.type({
+    axis: t.number,
+    allies: t.number,
+});
+
+export const CountryData = t.type({
+    id: t.string,
+    name: t.string,
+    region: t.string,
+    control: t.number,
+    controlTeam: t.number,
+    initialControl: t.number,
+    coastline: t.number,
+    land: t.number,
+    code: t.string,
+    isActiveSpawn: t.boolean,
+    isSpawn: t.boolean,
+    coordinates: Coordinates,
+    facilities: Facilities,
+    units: Units,
+});
+
+export type CountryData = t.TypeOf<typeof CountryData>;

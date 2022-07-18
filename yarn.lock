@@ -1369,8 +1369,10 @@ __metadata:
     dotenv: ^10.0.0
     erlpack: ^0.1.4
     eslint: ^8.4.1
+    fp-ts: ^2.12.1
     fuzzysort: ^1.2.1
     glob: ^7.2.0
+    io-ts: ^2.2.16
     node-cron: ^3.0.0
     node-fetch: ^3.2.8
     node-gyp: ^9.0.0
@@ -1430,6 +1432,13 @@ __metadata:
   dependencies:
     fetch-blob: ^3.1.2
   checksum: 82a34df292afadd82b43d4a740ce387bc08541e0a534358425193017bf9fb3567875dc5f69564984b1da979979b70703aa73dee715a17b6c229752ae736dd9db
+  languageName: node
+  linkType: hard
+
+"fp-ts@npm:^2.12.1":
+  version: 2.12.1
+  resolution: "fp-ts@npm:2.12.1"
+  checksum: 1e20e6b468191640a5f83cd52ccbfb361d27a6afbc47230870e63094b569cd9ae8763d0b9dee50eaed568bce8dd72e32ad1d695161bda8ec73e0296a02359832
   languageName: node
   linkType: hard
 
@@ -1694,6 +1703,15 @@ __metadata:
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
+  languageName: node
+  linkType: hard
+
+"io-ts@npm:^2.2.16":
+  version: 2.2.16
+  resolution: "io-ts@npm:2.2.16"
+  peerDependencies:
+    fp-ts: ^2.5.0
+  checksum: 1b5855682e413cc92cfb5c51d0bdb24c99e407ab4e67821a53078f5d8dedbc387840c5b240cb19dd5d542bbdd2e2317ece17674a674f3de561ca0f00ae765bba
   languageName: node
   linkType: hard
 

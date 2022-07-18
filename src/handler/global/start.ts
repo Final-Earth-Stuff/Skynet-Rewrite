@@ -62,7 +62,7 @@ export class Start {
             interaction.user.id,
             apiKey,
             true,
-            user.id
+            parseInt(user.id)
         );
         const success = new EmbedBuilder()
             .setDescription(`Successfully saved user data!`)
