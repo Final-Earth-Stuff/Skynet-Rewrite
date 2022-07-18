@@ -51,11 +51,9 @@ export const bootstrap = async () => {
                             logger.error(
                                 "Error while executing scheduled job: %O",
                                 e
-                            )
+                            );
                         }
-                    }
-                        
-                    );
+                    });
                 })
             )
         );
