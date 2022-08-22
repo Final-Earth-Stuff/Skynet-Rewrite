@@ -95,31 +95,27 @@ export function getRolesIfChanged(
     isRoundOver: boolean,
     verified?: string
 ): string[] | undefined {
-    const has = isRoundOver ? [] : [roleMap[user.team]];
+    const has = isRoundOver ? [roleMap[Team.NONE]] : [roleMap[user.team]];
     if (verified) {
         has.push(verified);
     }
 
-    const hasNot = isRoundOver ? [roleMap[user.team]] : [];
-    switch (user.team) {
-        case Team.ALLIES:
-            hasNot.push(
-                roleMap[Team.AXIS],
-                roleMap[Team.AUTO],
-                roleMap[Team.NONE]
-            );
-            break;
-        case Team.AXIS:
-            hasNot.push(
-                roleMap[Team.ALLIES],
-                roleMap[Team.AUTO],
-                roleMap[Team.NONE]
-            );
-            break;
-        case Team.NONE:
-        case Team.AUTO:
-            hasNot.push(roleMap[Team.AXIS], roleMap[Team.ALLIES]);
-            break;
+    const hasNot = isRoundOver
+        ? [roleMap[Team.ALLIES], roleMap[Team.AXIS]]
+        : [];
+    if (!isRoundOver) {
+        switch (user.team) {
+            case Team.ALLIES:
+                hasNot.push(roleMap[Team.AXIS]);
+                break;
+            case Team.AXIS:
+                hasNot.push(roleMap[Team.ALLIES]);
+                break;
+            case Team.NONE:
+            case Team.AUTO:
+                hasNot.push(roleMap[Team.AXIS], roleMap[Team.ALLIES]);
+                break;
+        }
     }
 
     if (
