@@ -21,13 +21,13 @@ export async function setNickname(
     if (!userRank) {
         const rank = buildUserRank(member);
         const newRank = await repository.save(rank);
-        processMember(member, userData, newRank.id);
+        await processMember(member, userData, newRank.id);
     } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
-        repository.save(userRank);
-        processMember(member, userData, userRank.id);
+        await repository.save(userRank);
+        await processMember(member, userData, userRank.id);
     } else {
-        checkForChange(userRank, userData, member);
+        await checkForChange(userRank, userData, member);
     }
 }
 
@@ -43,7 +43,7 @@ async function processMember(
         await member.edit({
             nick: buildRankNickname(user),
         });
-        UserRankRepository.updateNameAndRank(id, user.rank, user.name);
+        await UserRankRepository.updateNameAndRank(id, user.rank, user.name);
         logger.debug(
             `Updated user with name ${user.name} and rank #${user.rank}`
         );
@@ -57,7 +57,7 @@ export function buildUserRank(member: GuildMember): UserRank {
     return user;
 }
 
-function checkForChange(
+async function checkForChange(
     userRank: UserRank,
     user: UserData,
     member: GuildMember
@@ -67,7 +67,7 @@ function checkForChange(
         user.rank != userRank.rank ||
         buildRankNickname(user) != member.nickname
     ) {
-        processMember(member, user, userRank.id);
+        await processMember(member, user, userRank.id);
     }
 }
 

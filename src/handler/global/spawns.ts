@@ -42,15 +42,19 @@ export class Spawns {
         const alliesMessage = allies
             .map((spawn) => `${spawn.name}: ${spawn.diff}`)
             .concat([
-                "**Total**: " +
-                    allies.reduce((sum, spawn) => sum + spawn.diff, 0),
+                `**Total**: ${allies.reduce(
+                    (sum, spawn) => sum + spawn.diff,
+                    0
+                )}`,
             ])
             .join("\n");
         const axisMessage = axis
             .map((spawn) => `${spawn.name}: ${spawn.diff}`)
             .concat([
-                "**Total**: " +
-                    axis.reduce((sum, spawn) => sum + spawn.diff, 0),
+                `**Total**: ${axis.reduce(
+                    (sum, spawn) => sum + spawn.diff,
+                    0
+                )}`,
             ])
             .join("\n");
 
@@ -70,6 +74,6 @@ export class Spawns {
                 }
             )
             .setColor(Color.BLUE);
-        interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
     }
 }

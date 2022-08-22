@@ -12,7 +12,9 @@ const logger = createLogger({
                 format.colorize(),
                 logFormat,
                 format.printf(({ level, message, timestamp, path }) => {
-                    return `${timestamp} - ${path} [${level}]: ${message}`;
+                    return `${timestamp as string} - ${
+                        path as string
+                    } [${level}]: ${message}`;
                 })
             ),
         }),

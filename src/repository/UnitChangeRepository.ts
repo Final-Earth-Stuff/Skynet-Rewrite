@@ -127,7 +127,7 @@ export const UnitChangeRepository = AppDataSource.getRepository(
         }
 
         // I CAPITULATE
-        return await AppDataSource.query(
+        return (await AppDataSource.query(
             `select 
                 coalesce(json_agg(
                     json_build_object('id', id, 'name', name, 'allies', allies, 'axis', axis, 'control', control)
@@ -139,6 +139,6 @@ export const UnitChangeRepository = AppDataSource.getRepository(
                 .map((_, i) => `$${i + 2}`)
                 .join(", ")})`,
             [center, ...ids]
-        );
+        )) as UnitQuery[];
     },
 });

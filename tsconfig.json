@@ -16,11 +16,6 @@
         "allowUnusedLabels": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "plugins": [
-            {
-                "name": "typescript-eslint-language-service"
-            }
-        ],
         "outDir": "dist"
     },
     "exclude": [

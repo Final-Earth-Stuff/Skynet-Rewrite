@@ -20,7 +20,7 @@ export class Delete {
     @Command()
     async delete(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
-        UserSettingsRepository.deleteByDiscordId(interaction.user.id);
+        await UserSettingsRepository.deleteByDiscordId(interaction.user.id);
         const success = new EmbedBuilder()
             .setDescription(`All your data has been deleted.`)
             .setColor(Color.GREEN);

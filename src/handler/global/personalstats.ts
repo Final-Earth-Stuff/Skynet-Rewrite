@@ -165,32 +165,31 @@ function getFormationPosition(formation: FormationData, id: string): string {
     }
 }
 
-async function calculateNetworth(user: PrivateUserData, apiKey: string) {
-    try {
-        const units = await getUnits(apiKey);
-        const allUnits = await getAllUnits(apiKey);
+async function calculateNetworth(
+    user: PrivateUserData,
+    apiKey: string
+): Promise<string> {
+    const units = await getUnits(apiKey);
+    const allUnits = await getAllUnits(apiKey);
 
-        let total = units
-            .map((unit) => {
-                const unitInfo = allUnits.find((u) => u.id === unit.id);
-                if (!unitInfo) {
-                    throw new Error("Unit not found");
-                }
-                return unitInfo.cost * unit.quantity;
-            })
-            .reduce((a, b) => a + b, 0);
+    let total = units
+        .map((unit) => {
+            const unitInfo = allUnits.find((u) => u.id === unit.id);
+            if (!unitInfo) {
+                throw new Error("Unit not found");
+            }
+            return unitInfo.cost * unit.quantity;
+        })
+        .reduce((a, b) => a + b, 0);
 
-        total += user.funds;
-        total += user.reimbursement.amount;
-        total += checkForSoldUnits(user.reimbursement.fullInformation);
-        const formatter = Intl.NumberFormat("en", {
-            notation: "compact",
-            maximumFractionDigits: 2,
-        });
-        return formatter.format(total);
-    } catch (e) {
-        logger.error(e);
-    }
+    total += user.funds;
+    total += user.reimbursement.amount;
+    total += checkForSoldUnits(user.reimbursement.fullInformation);
+    const formatter = Intl.NumberFormat("en", {
+        notation: "compact",
+        maximumFractionDigits: 2,
+    });
+    return formatter.format(total);
 }
 
 function checkForSoldUnits(info: ReimbursementInfo[]): number {

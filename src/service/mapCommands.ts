@@ -118,9 +118,9 @@ export function buildIncome(
 
 export function formatMoney(amount: number): string {
     if (amount < 1_000_000_000) {
-        return "$" + Math.round(amount / 100_000) / 10 + "M";
+        return `$${Math.round(amount / 100_000) / 10}M`;
     } else {
-        return "$" + Math.round(amount / 100_000_000) / 10 + "B";
+        return `$${Math.round(amount / 100_000_000) / 10}B`;
     }
 }
 

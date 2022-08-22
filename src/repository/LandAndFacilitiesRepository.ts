@@ -179,7 +179,7 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
 from 
     country,
     lateral (select facs, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
-        return await AppDataSource.query(query);
+        return (await AppDataSource.query(query)) as IncomeQuery[];
     },
 
     async getMines(): Promise<IncomeQuery[]> {
@@ -191,7 +191,7 @@ from
 from 
     country,
     lateral (select mines, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
-        return await AppDataSource.query(query);
+        return (await AppDataSource.query(query)) as IncomeQuery[];
     },
 
     async getRigs(): Promise<IncomeQuery[]> {
@@ -203,6 +203,6 @@ from
 from 
     country,
     lateral (select rigs, control from land_and_facilities where country.id=country order by timestamp desc limit 1) as laf`;
-        return await AppDataSource.query(query);
+        return (await AppDataSource.query(query)) as IncomeQuery[];
     },
 });

@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionChoiceData } from "discord.js";
 
 import fuzzysort from "fuzzysort";
+/* eslint-disable-next-line @typescript-eslint/unbound-method */
 const { go } = fuzzysort;
 
 import { unwrap } from "../../util/assert";
@@ -9,6 +10,7 @@ import { Data } from "../../map";
 
 @CompletionProvider()
 export class CountryComplete {
+    /* eslint-disable-next-line @typescript-eslint/require-await */
     @Completion("country")
     async countryComplete(
         value: string
