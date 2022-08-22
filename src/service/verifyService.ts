@@ -8,7 +8,7 @@ import {
 import { Guild as GuildEntity } from "../entity/Guild";
 
 import { Team } from "../service/util/constants";
-import { setNickname } from "./nicknameService";
+import { getNicknameIfChanged } from "./nicknameService";
 import { UserData } from "../wrapper/models/user";
 import { BotError } from "../error";
 import { AppDataSource } from "..";
@@ -17,6 +17,7 @@ import { Color } from "../service/util/constants";
 import { UserRank } from "../entity/UserRank";
 import { getUser } from "../wrapper/wrapper";
 import { config } from "../config";
+import { UserRankRepository } from "../repository/UserRankRepository";
 
 const logger = makeLogger(import.meta);
 
@@ -29,39 +30,74 @@ export async function updateRoleAndNickname(
     if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
         throw new BotError("Roles are not configured for this guild");
 
-    let role: string;
+    const map = {
+        [Team.ALLIES]: guild.allies_role,
+        [Team.AXIS]: guild.axis_role,
+        [Team.AUTO]: guild.spectator_role,
+        [Team.NONE]: guild.spectator_role,
+    };
+
+    const roles = getRolesIfChanged(user, member, map, guild.verified_role);
+    const nick = await getNicknameIfChanged(member, user, isRoundOver);
+
+    if (roles || nick) {
+        await member.edit({ roles, nick });
+    }
+
+    if (nick) {
+        // TODO: this should probably be merged with the role update for rank roles?
+        await UserRankRepository.updateNameAndRank(
+            member.id,
+            user.rank,
+            user.name
+        );
+    }
+}
+
+export function getRolesIfChanged(
+    user: UserData,
+    member: GuildMember,
+    roleMap: Record<Team, string>,
+    verified?: string
+): string[] | undefined {
+    const has = [roleMap[user.team]];
+    if (verified) {
+        has.push(verified);
+    }
+
+    const hasNot: string[] = [];
     switch (user.team) {
         case Team.ALLIES:
-            role = guild.allies_role;
+            hasNot.push(
+                roleMap[Team.AXIS],
+                roleMap[Team.AUTO],
+                roleMap[Team.NONE]
+            );
             break;
         case Team.AXIS:
-            role = guild.axis_role;
+            hasNot.push(
+                roleMap[Team.ALLIES],
+                roleMap[Team.AUTO],
+                roleMap[Team.NONE]
+            );
             break;
         case Team.NONE:
         case Team.AUTO:
-            role = guild.spectator_role;
+            hasNot.push(roleMap[Team.AXIS], roleMap[Team.ALLIES]);
             break;
     }
 
-    if (isRoundOver) {
-        role = guild.spectator_role;
+    if (
+        member.roles.cache.hasAny(...hasNot) ||
+        !member.roles.cache.hasAll(...has)
+    ) {
+        const combined = new Set([...has, ...hasNot]);
+        const otherRoles = member.roles.cache
+            .filter((_v, k) => !combined.has(k))
+            .keys();
+
+        return [...new Set([...has, ...otherRoles])];
     }
-
-    await member.roles.set([
-        role,
-        ...(guild.verified_role ? [guild.verified_role] : []),
-        ...[...member.roles.cache.keys()].filter(
-            (r) =>
-                ![
-                    guild.allies_role,
-                    guild.axis_role,
-                    guild.spectator_role,
-                    guild.verified_role,
-                ].includes(r)
-        ),
-    ]);
-
-    await setNickname(member, user, isRoundOver);
 }
 
 export async function getGuild(guildId: string): Promise<GuildEntity> {
