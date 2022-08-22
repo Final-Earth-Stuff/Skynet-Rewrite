@@ -8,13 +8,14 @@ import {
 } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
-import { getUser } from "../../wrapper/wrapper";
+import { getUser, getWorld } from "../../wrapper/wrapper";
 import { UserData } from "../../wrapper/models/user";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 
 import { Color } from "../../service/util/constants";
 import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
+import { isRoundOver } from "../../service/util/team";
 
 @CommandHandler({ name: "verify-all" })
 export class VerifyAll {
@@ -53,6 +54,9 @@ export class VerifyAll {
             await interaction.reply({ embeds: [embed] });
         }
 
+        const world = await getWorld(config.apiKey);
+        const roundOver = isRoundOver(world);
+        
         const members = await interaction.guild.members.fetch();
         for (const member of members.values()) {
             let user: UserData;
@@ -71,7 +75,7 @@ export class VerifyAll {
             }
 
             try {
-                await updateRoleAndNickname(user, guild, member);
+                await updateRoleAndNickname(user, guild, member, roundOver);
             } catch (e) {
                 const embed = buildEmbed(
                     `User ${member.user.tag} could not be assigned a role! Check that the bot role is ranked above the role you want to assign.`,

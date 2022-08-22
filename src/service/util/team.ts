@@ -1,3 +1,4 @@
+import { CountryData } from "src/wrapper/models/country";
 import { Icon } from "./constants";
 
 export function getIcon(team: number) {
@@ -25,4 +26,10 @@ export function teamFromControl(control: number): number {
     } else {
         return 0;
     }
+}
+
+export function isRoundOver(world: CountryData[]): boolean {
+    const axisSpanws = world.filter(c => c.isActiveSpawn && c.isSpawn && c.initialControl === 0)
+    const alliesSpanws = world.filter(c => c.isActiveSpawn && c.isSpawn && c.initialControl === 100)
+    return alliesSpanws.length === 0 || axisSpanws.length === 0;
 }
