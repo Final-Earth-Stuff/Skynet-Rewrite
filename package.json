@@ -10,8 +10,7 @@
     "watch": "NODE_ENV=development tsc-watch --onSuccess \"node --es-module-specifier-resolution=node ./dist/index.js bot\"",
     "lint": "eslint src/ --ext .ts",
     "format": "prettier --check \"**/*.ts\"",
-    "migrate": "typeorm migration:run -d dist/datasource.js",
-    "typeorm": "node --experimental-modules --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
+    "typeorm": "node --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
   },
   "repository": {
     "type": "git",
