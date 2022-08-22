@@ -9,10 +9,14 @@ export const UserRankRepository = AppDataSource.getRepository(UserRank).extend({
             .getMany();
     },
     updateNameAndRank(id: string, rank: number, name: string) {
-        return this.manager.update(UserRank, id, {
-            user_name: name,
-            rank: rank,
-        });
+        return this.manager.update(
+            UserRank,
+            { discord_id: id },
+            {
+                user_name: name,
+                rank: rank,
+            }
+        );
     },
     findByDiscordId(id: string): Promise<UserRank | null> {
         return this.manager.findOne(UserRank, {

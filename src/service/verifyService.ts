@@ -41,16 +41,21 @@ export async function updateRoleAndNickname(
     const nick = await getNicknameIfChanged(member, user, isRoundOver);
 
     if (roles || nick) {
+        console.log(roles, nick);
         await member.edit({ roles, nick });
     }
 
     if (nick) {
         // TODO: this should probably be merged with the role update for rank roles?
-        await UserRankRepository.updateNameAndRank(
-            member.id,
-            user.rank,
-            user.name
-        );
+        try {
+            await UserRankRepository.updateNameAndRank(
+                member.id,
+                user.rank,
+                user.name
+            );
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 
