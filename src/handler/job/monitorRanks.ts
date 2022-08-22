@@ -49,7 +49,7 @@ export class MonitorRanks {
             const guild = await getGuild(member.guild.id);
             const world = await getWorld(config.apiKey);
             const roundOver = isRoundOver(world);
-            
+
             await updateRoleAndNickname(userData, guild, member, roundOver);
             await sendMessage(
                 member,

@@ -111,7 +111,12 @@ export async function processUser(
                 const guildEntity = await getGuild(guild.id);
                 const member = await guild.members.fetch(u.discord_id);
                 try {
-                    await updateRoleAndNickname(user, guildEntity, member, isRoundOver);
+                    await updateRoleAndNickname(
+                        user,
+                        guildEntity,
+                        member,
+                        isRoundOver
+                    );
                 } catch (e) {
                     logger.debug(e);
                 }

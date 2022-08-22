@@ -25,7 +25,7 @@ export async function setNickname(
         await processMember(member, userData, newRank.id, isRoundOver);
     } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
-        repository.save(userRank);
+        await repository.save(userRank);
         await processMember(member, userData, userRank.id, isRoundOver);
     } else {
         await checkForChange(userRank, userData, member, isRoundOver);
