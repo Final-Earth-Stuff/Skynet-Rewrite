@@ -5,50 +5,29 @@ import { UserRankRepository } from "../repository/UserRankRepository";
 import { UserRank } from "../entity/UserRank";
 import { UserData } from "../wrapper/models/user";
 import { Repository } from "typeorm";
-import { makeLogger } from "../logger";
 import { AppDataSource } from "..";
 
-const logger = makeLogger(import.meta);
-
-export async function setNickname(
+export async function getNicknameIfChanged(
     member: GuildMember,
     userData: UserData,
     isRoundOver: boolean
-): Promise<void> {
+): Promise<string | undefined> {
+    if (!member.manageable) return;
+
     const repository = AppDataSource.getRepository(UserRank);
     const userRank = await UserRankRepository.findByDiscordId(member.id);
     const guild = member.guild.id;
 
     if (!userRank) {
         const rank = buildUserRank(member);
-        const newRank = await repository.save(rank);
-        await processMember(member, userData, newRank.id, isRoundOver);
+        await repository.save(rank);
+        return buildRankNickname(userData, isRoundOver);
     } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
         await repository.save(userRank);
-        await processMember(member, userData, userRank.id, isRoundOver);
+        return buildRankNickname(userData, isRoundOver);
     } else {
-        await checkForChange(userRank, userData, member, isRoundOver);
-    }
-}
-
-/**
- * @todo Add rank role
- */
-async function processMember(
-    member: GuildMember,
-    user: UserData,
-    id: string,
-    isRoundOver: boolean
-): Promise<void> {
-    if (member.manageable) {
-        await member.edit({
-            nick: buildRankNickname(user, isRoundOver),
-        });
-        await UserRankRepository.updateNameAndRank(id, user.rank, user.name);
-        logger.debug(
-            `Updated user with name ${user.name} and rank #${user.rank}`
-        );
+        return checkForChange(userRank, userData, member, isRoundOver);
     }
 }
 
@@ -59,24 +38,29 @@ export function buildUserRank(member: GuildMember): UserRank {
     return user;
 }
 
-async function checkForChange(
+function checkForChange(
     userRank: UserRank,
     user: UserData,
     member: GuildMember,
     isRoundOver: boolean
-) {
+): string | undefined {
+    const newNick = buildRankNickname(user, isRoundOver);
     if (
         user.name != userRank.user_name ||
         user.rank != userRank.rank ||
-        buildRankNickname(user, isRoundOver) != member.nickname
+        newNick != member.nickname
     ) {
-        await processMember(member, user, userRank.id, isRoundOver);
+        return newNick;
     }
 }
 
-function buildRankNickname(user: UserData, isRoundOver: boolean) {
-    const rank = isRoundOver ? "" : rankMap.get(user.rank) ?? "";
-    return `${rank} ${user.name}`;
+function buildRankNickname(user: UserData, isRoundOver: boolean): string {
+    if (isRoundOver) {
+        return user.name;
+    } else {
+        const rank = rankMap.get(user.rank);
+        return rank ? `${rank} ${user.name}` : user.name;
+    }
 }
 
 export async function removeMembers(
