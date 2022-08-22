@@ -5,10 +5,10 @@ export class UserRank {
     @PrimaryGeneratedColumn()
     id!: string;
 
-    @Column({ type: "char", length: 19, array: true })
+    @Column({ type: "varchar", length: 19, array: true })
     guild_ids!: string[];
 
-    @Column({ type: "char", length: 19, nullable: true })
+    @Column({ type: "varchar", length: 19, nullable: true })
     discord_id!: string;
 
     @Column({ type: "int2", nullable: true })

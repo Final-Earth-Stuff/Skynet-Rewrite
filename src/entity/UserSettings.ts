@@ -4,7 +4,7 @@ import { Reminder } from "./Reminder";
 
 @Entity()
 export class UserSettings {
-    @PrimaryColumn({ type: "char", length: 19 })
+    @PrimaryColumn({ type: "varchar", length: 19 })
     discord_id!: string;
 
     @Column({ type: "char", length: 10, nullable: true })
