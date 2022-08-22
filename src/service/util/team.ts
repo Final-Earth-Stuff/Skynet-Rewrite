@@ -35,5 +35,5 @@ export function isRoundOver(world: CountryData[]): boolean {
     const alliesSpawns = world.some(
         (c) => c.isActiveSpawn && c.isSpawn && c.initialControl === 100
     );
-    return alliesSpawns || axisSpawns;
+    return !alliesSpawns || !axisSpawns;
 }
