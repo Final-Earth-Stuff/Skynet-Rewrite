@@ -23,7 +23,8 @@ const logger = makeLogger(import.meta);
 export async function updateRoleAndNickname(
     user: UserData,
     guild: GuildEntity,
-    member: GuildMember
+    member: GuildMember,
+    isRoundOver: boolean
 ): Promise<void> {
     if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
         throw new BotError("Roles are not configured for this guild");
@@ -42,6 +43,10 @@ export async function updateRoleAndNickname(
             break;
     }
 
+    if (isRoundOver) {
+        role = guild.spectator_role;
+    }
+
     await member.roles.set([
         role,
         ...(guild.verified_role ? [guild.verified_role] : []),
@@ -56,7 +61,7 @@ export async function updateRoleAndNickname(
         ),
     ]);
 
-    await setNickname(member, user);
+    await setNickname(member, user, isRoundOver);
 }
 
 export async function getGuild(guildId: string): Promise<GuildEntity> {
@@ -95,7 +100,8 @@ function getVerifyChannel(member: GuildMember, guild: GuildEntity) {
 
 export async function processUser(
     u: UserRank,
-    guilds: Collection<string, OAuth2Guild>
+    guilds: Collection<string, OAuth2Guild>,
+    isRoundOver: boolean
 ): Promise<void> {
     try {
         const user = await getUser(config.apiKey, u.discord_id);
@@ -105,7 +111,12 @@ export async function processUser(
                 const guildEntity = await getGuild(guild.id);
                 const member = await guild.members.fetch(u.discord_id);
                 try {
-                    await updateRoleAndNickname(user, guildEntity, member);
+                    await updateRoleAndNickname(
+                        user,
+                        guildEntity,
+                        member,
+                        isRoundOver
+                    );
                 } catch (e) {
                     logger.debug(e);
                 }

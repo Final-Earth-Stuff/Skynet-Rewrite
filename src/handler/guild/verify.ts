@@ -5,13 +5,14 @@ import {
 } from "discord.js";
 
 import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { getUser } from "../../wrapper/wrapper";
+import { getUser, getWorld } from "../../wrapper/wrapper";
 import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 import { verifyGuard } from "../../guard/verifyGuard";
 
 import { Color } from "../../service/util/constants";
 import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
+import { isRoundOver } from "../../service/util/team";
 
 @CommandHandler({ name: "verify" })
 @Guard(verifyGuard)
@@ -50,8 +51,11 @@ export class Verify {
             interaction.user.id
         );
 
+        const world = await getWorld(config.apiKey);
+        const roundOver = isRoundOver(world);
+
         try {
-            await updateRoleAndNickname(user, guild, member);
+            await updateRoleAndNickname(user, guild, member, roundOver);
         } catch (e) {
             throw new BotError("Role could not be assigned!");
         }

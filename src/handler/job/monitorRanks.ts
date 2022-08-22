@@ -14,7 +14,7 @@ import { makeLogger } from "../../logger";
 import { UserRank } from "../../entity/UserRank";
 import { removeMembers } from "../../service/nicknameService";
 import { isSome } from "../../util/guard";
-import { getUser } from "../../wrapper/wrapper";
+import { getUser, getWorld } from "../../wrapper/wrapper";
 import { config } from "../../config";
 import { ApiError } from "../../error";
 
@@ -24,6 +24,7 @@ import {
     updateRoleAndNickname,
 } from "../../service/verifyService";
 import { Color } from "../../service/util/constants";
+import { isRoundOver } from "../../service/util/team";
 
 const logger = makeLogger(import.meta);
 
@@ -33,9 +34,11 @@ export class MonitorRanks {
     @Cron("*/10 * * * *")
     async checkRanks(client: Client) {
         logger.debug(`checking user ranks...`);
+        const world = await getWorld(config.apiKey);
+        const roundOver = isRoundOver(world);
         const users = await UserRankRepository.getCurrentUsers();
         const guilds = await client.guilds.fetch();
-        await Promise.all(users.map((u) => processUser(u, guilds)));
+        await Promise.all(users.map((u) => processUser(u, guilds, roundOver)));
     }
 
     @DiscordEvent("guildMemberAdd")
@@ -44,7 +47,10 @@ export class MonitorRanks {
         try {
             const userData = await getUser(config.apiKey, member.id);
             const guild = await getGuild(member.guild.id);
-            await updateRoleAndNickname(userData, guild, member);
+            const world = await getWorld(config.apiKey);
+            const roundOver = isRoundOver(world);
+
+            await updateRoleAndNickname(userData, guild, member, roundOver);
             await sendMessage(
                 member,
                 `Successfully verified user ${member.user.tag}!`,
