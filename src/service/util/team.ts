@@ -29,7 +29,11 @@ export function teamFromControl(control: number): number {
 }
 
 export function isRoundOver(world: CountryData[]): boolean {
-    const axisSpanws = world.filter(c => c.isActiveSpawn && c.isSpawn && c.initialControl === 0)
-    const alliesSpanws = world.filter(c => c.isActiveSpawn && c.isSpawn && c.initialControl === 100)
+    const axisSpanws = world.filter(
+        (c) => c.isActiveSpawn && c.isSpawn && c.initialControl === 0
+    );
+    const alliesSpanws = world.filter(
+        (c) => c.isActiveSpawn && c.isSpawn && c.initialControl === 100
+    );
     return alliesSpanws.length === 0 || axisSpanws.length === 0;
 }

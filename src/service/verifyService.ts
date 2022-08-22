@@ -103,7 +103,7 @@ async function getVerifyChannel(member: GuildMember, guild: GuildEntity) {
 
 export async function processUser(
     u: UserRank,
-    guilds: Collection<string, OAuth2Guild>, 
+    guilds: Collection<string, OAuth2Guild>,
     isRoundOver: boolean
 ): Promise<void> {
     try {
@@ -115,7 +115,12 @@ export async function processUser(
                     const guildEntity = await getGuild(guild.id ?? "");
                     const member = await guild.members.fetch(u.discord_id);
                     try {
-                        await updateRoleAndNickname(user, guildEntity, member, isRoundOver);
+                        await updateRoleAndNickname(
+                            user,
+                            guildEntity,
+                            member,
+                            isRoundOver
+                        );
                     } catch (e) {
                         logger.debug(e);
                     }

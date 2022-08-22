@@ -56,7 +56,7 @@ export class VerifyAll {
 
         const world = await getWorld(config.apiKey);
         const roundOver = isRoundOver(world);
-        
+
         const members = await interaction.guild.members.fetch();
         for (const member of members.values()) {
             let user: UserData;

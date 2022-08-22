@@ -12,7 +12,7 @@ const logger = makeLogger(import.meta);
 
 export async function setNickname(
     member: GuildMember,
-    userData: UserData, 
+    userData: UserData,
     isRoundOver: boolean
 ): Promise<void> {
     const repository = AppDataSource.getRepository(UserRank);
@@ -38,7 +38,7 @@ export async function setNickname(
 async function processMember(
     member: GuildMember,
     user: UserData,
-    id: string, 
+    id: string,
     isRoundOver: boolean
 ): Promise<void> {
     if (member.manageable) {
@@ -62,7 +62,7 @@ export function buildUserRank(member: GuildMember): UserRank {
 function checkForChange(
     userRank: UserRank,
     user: UserData,
-    member: GuildMember, 
+    member: GuildMember,
     isRoundOver: boolean
 ) {
     if (
@@ -75,7 +75,7 @@ function checkForChange(
 }
 
 function buildRankNickname(user: UserData, isRoundOver: boolean) {
-    const rank = isRoundOver ? "": rankMap.get(user.rank) ?? "";
+    const rank = isRoundOver ? "" : rankMap.get(user.rank) ?? "";
     return `${rank} ${user.name}`;
 }
 
