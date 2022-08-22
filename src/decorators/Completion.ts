@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ApplicationCommandOptionChoiceData } from "discord.js";
 import { Constructor, ensureBaseScope } from "./BaseScope";
@@ -48,7 +53,7 @@ export const CompletionProvider =
             "handler:completion",
             target
         );
-        const complMap: Map<string, string> = new Map(
+        const complMap = new Map(
             [...completions].map((completion) => [
                 Reflect.getMetadata(
                     "data:completion:options",

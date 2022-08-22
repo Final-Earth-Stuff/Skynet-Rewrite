@@ -31,7 +31,7 @@ export const CommandRepository = AppDataSource.getRepository(Command).extend({
                 guild_id: guildId,
             });
 
-            manager.insert(
+            await manager.insert(
                 Command,
                 [...commands].map((command) => ({
                     command_id: command.id,

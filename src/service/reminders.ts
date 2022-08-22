@@ -20,8 +20,8 @@ export async function processReminder(reminder: Reminder, client: Client) {
         return parseInt(reminder.id);
     } catch (e) {
         if (e instanceof DiscordAPIError && e.code === 50007) {
-            logger.error(`${e}: Removing reminder from database.`);
-            ReminderRepository.delete(reminder.id);
+            logger.error(`%O: Removing reminder from database.`, e);
+            await ReminderRepository.delete(reminder.id);
         } else {
             logger.error(e);
         }

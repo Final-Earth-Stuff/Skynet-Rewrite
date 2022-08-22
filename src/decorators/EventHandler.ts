@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { EventEmitter } from "node:events";
 import type { ClientEvents } from "discord.js";
@@ -91,9 +95,10 @@ export const EventHandler =
                     );
                     const body = Reflect.get(this, handler);
 
-                    emitter.on(event, (...args) =>
+                    emitter.on(event, (...args) => {
                         Promise.resolve({
                             then: (resolve: any) =>
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                                 resolve(body.apply(this, args)),
                         }).catch((error) =>
                             logger.error(
@@ -102,8 +107,8 @@ export const EventHandler =
                                 target.name,
                                 error
                             )
-                        )
-                    );
+                        );
+                    });
                 }
             }
 
@@ -120,9 +125,10 @@ export const EventHandler =
                     );
                     const body = Reflect.get(this, handler);
 
-                    emitter.on(event, (...args) =>
+                    emitter.on(event, (...args) => {
                         Promise.resolve({
                             then: (resolve: any) =>
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                                 resolve(body.apply(this, args)),
                         }).catch((error) =>
                             logger.error(
@@ -131,8 +137,8 @@ export const EventHandler =
                                 target.name,
                                 error
                             )
-                        )
-                    );
+                        );
+                    });
                 }
             }
         };
@@ -141,4 +147,5 @@ export const EventHandler =
 export const isEventHandler = (
     obj: any
 ): obj is Constructor<IEventHandlerScope> =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     Reflect.getMetadata("scope:type", obj)?.has("event");

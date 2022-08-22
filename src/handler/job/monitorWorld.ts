@@ -30,31 +30,25 @@ export class MonitorWorld {
         const world: CountryData[] = await wrapper.getWorld(config.apiKey);
 
         const prevFacilties = await LandAndFacilitiesRepository.getLastWorld();
-        const changedFacilities = await this.checkFacilities(
-            world,
-            prevFacilties
-        );
+        const changedFacilities = this.checkFacilities(world, prevFacilties);
         if (changedFacilities.length > 0) {
-            logChangesToChannel(
+            await logChangesToChannel(
                 client,
                 changedFacilities,
                 prevFacilties,
                 world
             );
-            LandAndFacilitiesRepository.updateWorld(changedFacilities);
+            await LandAndFacilitiesRepository.updateWorld(changedFacilities);
         }
 
         const { changes, notifications } = await this.checkTroops(world);
         if (changes.length > 0) {
-            prepareAndSendMessage(client, notifications, world);
-            UnitChangeRepository.updateUnits(changes);
+            await prepareAndSendMessage(client, notifications, world);
+            await UnitChangeRepository.updateUnits(changes);
         }
     }
 
-    async checkFacilities(
-        world: CountryData[],
-        prevFacilties: LandAndFacilities[]
-    ) {
+    checkFacilities(world: CountryData[], prevFacilties: LandAndFacilities[]) {
         const currFacilties = convertWorld(world);
         return currFacilties.filter(
             (item1) =>

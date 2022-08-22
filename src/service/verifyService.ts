@@ -77,9 +77,6 @@ export async function sendMessage(
     color: Color
 ) {
     const guild = await getGuild(member.guild.id);
-    if (!guild) {
-        throw new BotError("Guild not found, something is very wrong.");
-    }
     const embed = new EmbedBuilder()
         .setAuthor({
             name: member.displayName,
@@ -88,14 +85,14 @@ export async function sendMessage(
         .setDescription(message)
         .setColor(color);
 
-    const verifyChannel = await getVerifyChannel(member, guild);
+    const verifyChannel = getVerifyChannel(member, guild);
 
     if (verifyChannel && verifyChannel.type === ChannelType.GuildText) {
-        verifyChannel.send({ embeds: [embed] });
+        await verifyChannel.send({ embeds: [embed] });
     }
 }
 
-async function getVerifyChannel(member: GuildMember, guild: GuildEntity) {
+function getVerifyChannel(member: GuildMember, guild: GuildEntity) {
     return guild.verify_channel
         ? member.guild.channels.cache.get(guild.verify_channel)
         : undefined;
@@ -108,22 +105,15 @@ export async function processUser(
 ): Promise<void> {
     try {
         const user = await getUser(config.apiKey, u.discord_id);
-        if (guilds) {
-            for (const g of u.guild_ids) {
-                const guild = await guilds.get(g)?.fetch();
-                if (guild) {
-                    const guildEntity = await getGuild(guild.id ?? "");
-                    const member = await guild.members.fetch(u.discord_id);
-                    try {
-                        await updateRoleAndNickname(
-                            user,
-                            guildEntity,
-                            member,
-                            isRoundOver
-                        );
-                    } catch (e) {
-                        logger.debug(e);
-                    }
+        for (const g of u.guild_ids) {
+            const guild = await guilds.get(g)?.fetch();
+            if (guild) {
+                const guildEntity = await getGuild(guild.id);
+                const member = await guild.members.fetch(u.discord_id);
+                try {
+                    await updateRoleAndNickname(user, guildEntity, member, isRoundOver);
+                } catch (e) {
+                    logger.debug(e);
                 }
             }
         }

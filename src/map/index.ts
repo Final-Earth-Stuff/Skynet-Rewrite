@@ -1,6 +1,8 @@
 import { readFile, access, mkdir, writeFile } from "fs/promises";
 
 import fuzzysort from "fuzzysort";
+
+/* eslint-disable-next-line @typescript-eslint/unbound-method */
 const { prepare } = fuzzysort;
 
 import { CountryData } from "../wrapper/models/country";
@@ -21,7 +23,7 @@ export interface Country {
 
 async function loadResource<T>(name: string): Promise<T> {
     const blob = await readFile(`resources/${name}`, { encoding: "utf-8" });
-    return JSON.parse(blob);
+    return JSON.parse(blob) as T;
 }
 
 export class Data {

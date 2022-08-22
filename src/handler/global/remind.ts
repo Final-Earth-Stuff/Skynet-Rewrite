@@ -48,7 +48,7 @@ export class Remind {
         if (!user) {
             user = new UserSettings();
             user.discord_id = interaction.user.id;
-            UserSettingsRepository.save(user);
+            await UserSettingsRepository.save(user);
         }
         const reminder = new Reminder();
         if (message) {
@@ -58,7 +58,7 @@ export class Remind {
         reminder.user = user;
         const ReminderRepository = AppDataSource.getRepository(Reminder);
 
-        ReminderRepository.save(reminder);
+        await ReminderRepository.save(reminder);
 
         await interaction.reply({
             content: `You will be reminded in ${minutes} minutes.`,

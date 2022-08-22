@@ -38,9 +38,7 @@ export class MonitorRanks {
         const roundOver = isRoundOver(world);
         const users = await UserRankRepository.getCurrentUsers();
         const guilds = await client.guilds.fetch();
-        users.forEach((u) => {
-            processUser(u, guilds, roundOver);
-        });
+        await Promise.all(users.map((u) => processUser(u, guilds, roundOver)));
     }
 
     @DiscordEvent("guildMemberAdd")
@@ -51,15 +49,16 @@ export class MonitorRanks {
             const guild = await getGuild(member.guild.id);
             const world = await getWorld(config.apiKey);
             const roundOver = isRoundOver(world);
-            updateRoleAndNickname(userData, guild, member, roundOver);
-            sendMessage(
+            
+            await updateRoleAndNickname(userData, guild, member, roundOver);
+            await sendMessage(
                 member,
                 `Successfully verified user ${member.user.tag}!`,
                 Color.GREEN
             );
         } catch (e) {
             if (e instanceof ApiError && e.code === 2) {
-                sendMessage(
+                await sendMessage(
                     member,
                     `Your discord account is not verified with Final Earth.
                 Please visit [here](https://www.finalearth.com/discord) and follow the instructions.`,
@@ -76,7 +75,7 @@ export class MonitorRanks {
         logger.info(`${member.displayName} left ${member.guild.name}`);
         const repository = AppDataSource.getRepository(UserRank);
         const userRank = await removeMembers(member, repository);
-        if (userRank) repository.save(userRank);
+        if (userRank) await repository.save(userRank);
     }
 
     @DiscordEvent("guildDelete")
@@ -90,6 +89,6 @@ export class MonitorRanks {
             )
         ).filter(isSome);
 
-        if (users.length > 0) repository.save(users);
+        if (users.length > 0) await repository.save(users);
     }
 }

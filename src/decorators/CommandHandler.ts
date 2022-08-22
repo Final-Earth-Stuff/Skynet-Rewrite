@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
     ChatInputCommandInteraction,
@@ -69,7 +74,7 @@ export const SubCommand =
 
 interface CommandDataOptions {
     type: "global" | "guild";
-    completion?: { [id: string]: string };
+    completion?: Record<string, string>;
 }
 
 type CommandDataDescription = CommandDataOptions & {
@@ -161,7 +166,9 @@ export const CommandHandler =
                     const handler = subcommands[name];
                     if (!handler) {
                         throw new Error(
-                            `Unknown subcommand '${name}' in group '${group}'`
+                            `Unknown subcommand '${name}' in group '${
+                                group ?? "N/A"
+                            }'`
                         );
                     }
                     return handler;

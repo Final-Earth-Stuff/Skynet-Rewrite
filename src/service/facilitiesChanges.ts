@@ -136,7 +136,7 @@ function buildEmbed(
     } else {
         embed
             .setTitle(
-                `${icon} ${country?.name} (${control}%) [${country?.region}]`
+                `${icon} ${country.name} (${control}%) [${country.region}]`
             )
             .setDescription(`Change in facility count detected:`)
             .addFields({

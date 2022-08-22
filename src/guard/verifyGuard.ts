@@ -19,7 +19,7 @@ export const verifyGuard = async (interaction: CommandInteraction) => {
             const channel = await interaction.guild?.channels.fetch(
                 guild.verify_channel
             );
-            if (channel && channel.members.has(interaction.user.id)) {
+            if (channel?.members.has(interaction.user.id)) {
                 throw new BotError(
                     `This command can only be used in <#${guild.verify_channel}>`,
                     { ephemeral: true }

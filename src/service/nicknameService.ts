@@ -22,13 +22,13 @@ export async function setNickname(
     if (!userRank) {
         const rank = buildUserRank(member);
         const newRank = await repository.save(rank);
-        processMember(member, userData, newRank.id, isRoundOver);
+        await processMember(member, userData, newRank.id, isRoundOver);
     } else if (!userRank.guild_ids.some((id) => id === guild)) {
         userRank.guild_ids.push(guild);
         repository.save(userRank);
-        processMember(member, userData, userRank.id, isRoundOver);
+        await processMember(member, userData, userRank.id, isRoundOver);
     } else {
-        checkForChange(userRank, userData, member, isRoundOver);
+        await checkForChange(userRank, userData, member, isRoundOver);
     }
 }
 
@@ -45,7 +45,7 @@ async function processMember(
         await member.edit({
             nick: buildRankNickname(user, isRoundOver),
         });
-        UserRankRepository.updateNameAndRank(id, user.rank, user.name);
+        await UserRankRepository.updateNameAndRank(id, user.rank, user.name);
         logger.debug(
             `Updated user with name ${user.name} and rank #${user.rank}`
         );
@@ -59,7 +59,7 @@ export function buildUserRank(member: GuildMember): UserRank {
     return user;
 }
 
-function checkForChange(
+async function checkForChange(
     userRank: UserRank,
     user: UserData,
     member: GuildMember,
@@ -70,7 +70,7 @@ function checkForChange(
         user.rank != userRank.rank ||
         buildRankNickname(user, isRoundOver) != member.nickname
     ) {
-        processMember(member, user, userRank.id, isRoundOver);
+        await processMember(member, user, userRank.id, isRoundOver);
     }
 }
 

@@ -5,6 +5,7 @@ import { parser } from "./parser";
 import { AppDataSource } from "./datasource";
 export { AppDataSource } from "./datasource";
 
+/* eslint-disable-next-line @typescript-eslint/no-floating-promises */
 AppDataSource.initialize().then(async () => {
     const args = await parser.argv;
     switch (args._[0]) {
