@@ -134,7 +134,7 @@ function buildEmbed(unit: Units, countryInfo: Map<number, CountryData>) {
     const control = convertAxisControl(country.control, country.controlTeam);
 
     return new EmbedBuilder()
-        .setTitle(`${icon} ${country?.name} (${control}%) [${country?.region}]`)
+        .setTitle(`${icon} ${country.name} (${control}%) [${country.region}]`)
         .setDescription(getEmbedDesc(unit, countryInfo))
         .addFields(
             {
@@ -214,7 +214,7 @@ function buildUnitChange(country: CountryData, prev: UnitChange): Units {
         country: parseInt(country.id),
         axis: country.units.axis,
         allies: country.units.allies,
-        delta_axis: country.units.axis - (prev?.axis ?? 0),
-        delta_allies: country.units.allies - (prev?.allies ?? 0),
+        delta_axis: country.units.axis - prev.axis,
+        delta_allies: country.units.allies - prev.allies,
     };
 }

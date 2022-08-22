@@ -102,6 +102,6 @@ export class Dis {
                 }
             );
 
-        interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
     }
 }

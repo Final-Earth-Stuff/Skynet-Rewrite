@@ -37,7 +37,7 @@ export const bootstrap = async () => {
         ],
     });
 
-    client.on("ready", async (client) => {
+    client.on("ready", (client) => {
         logger.info("Scheduling jobs...");
         handlers?.cronJobs.forEach((cronJobs, cron) =>
             schedule(cron, () =>
@@ -206,7 +206,7 @@ export const bootstrap = async () => {
                     try {
                         const completions = await handler._handle(
                             handlerID,
-                            focused.value as string
+                            focused.value
                         );
                         await interaction.respond(completions);
                     } catch (e) {

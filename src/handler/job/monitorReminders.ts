@@ -22,7 +22,7 @@ export class MonitorReminders {
                 );
                 const remindersToDelete = result.filter(isSome);
 
-                ReminderRepository.delete(remindersToDelete);
+                await ReminderRepository.delete(remindersToDelete);
             }
         } catch (e) {
             logger.error(e);

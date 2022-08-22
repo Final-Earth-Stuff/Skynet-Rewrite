@@ -58,7 +58,7 @@ export class Start {
                 }
             );
         }
-        UserSettingsRepository.saveSettings(
+        await UserSettingsRepository.saveSettings(
             interaction.user.id,
             apiKey,
             true,

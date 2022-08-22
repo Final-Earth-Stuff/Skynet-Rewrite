@@ -12,7 +12,7 @@ export enum Team {
 }
 
 export enum Color {
-    RED = "DarkGreen",
+    RED = "DarkRed",
     GREEN = "DarkGreen",
     BLUE = "DarkBlue",
     NUKE = "Orange",

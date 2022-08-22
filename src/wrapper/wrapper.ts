@@ -84,6 +84,7 @@ async function apiRequest<C extends t.Mixed>(
         TE.chain((res) => TE.tryCatch(() => res.json(), mapError)),
         TE.chainEitherK(
             flow(
+                /* eslint-disable-next-line @typescript-eslint/unbound-method */
                 feResponse(codec).decode,
                 E.mapLeft(formatErrors),
                 E.chain((res) =>
@@ -98,6 +99,6 @@ async function apiRequest<C extends t.Mixed>(
     if (E.isLeft(result)) {
         throw result.left;
     } else {
-        return result.right;
+        return result.right as Promise<t.TypeOf<C>>;
     }
 }

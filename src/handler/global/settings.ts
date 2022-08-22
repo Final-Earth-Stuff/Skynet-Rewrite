@@ -102,7 +102,7 @@ async function updateSetting(interaction: ButtonInteraction): Promise<void> {
             toggle,
             settings[toggle]
         );
-        interaction.update({
+        await interaction.update({
             content: `"Settings updated!"`,
             components: createRows(settings),
         });
