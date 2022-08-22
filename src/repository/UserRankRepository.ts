@@ -8,6 +8,7 @@ export const UserRankRepository = AppDataSource.getRepository(UserRank).extend({
             .where("array_length(guild_ids, 1) >= 1")
             .getMany();
     },
+
     updateNameAndRank(id: string, rank: number, name: string) {
         return this.manager.update(
             UserRank,
@@ -18,9 +19,14 @@ export const UserRankRepository = AppDataSource.getRepository(UserRank).extend({
             }
         );
     },
+
     findByDiscordId(id: string): Promise<UserRank | null> {
         return this.manager.findOne(UserRank, {
             where: { discord_id: id },
         });
+    },
+
+    async deleteById(id: string): Promise<void> {
+        await this.manager.delete(UserRank, { discord_id: id });
     },
 });

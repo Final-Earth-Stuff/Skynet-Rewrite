@@ -14,7 +14,11 @@ import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 
 import { Color } from "../../service/util/constants";
-import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
+import {
+    updateRoleAndNickname,
+    getGuild,
+    resetMember,
+} from "../../service/verifyService";
 import { isRoundOver } from "../../service/util/team";
 
 @CommandHandler({ name: "verify-all" })
@@ -69,6 +73,7 @@ export class VerifyAll {
                         member,
                         Color.NUKE
                     );
+                    await resetMember(member, guild);
                     await logChannel.send({ embeds: [embed] });
                 }
                 continue;

@@ -10,7 +10,7 @@ import { Guild as GuildEntity } from "../entity/Guild";
 import { Team } from "../service/util/constants";
 import { getNicknameIfChanged } from "./nicknameService";
 import { UserData } from "../wrapper/models/user";
-import { BotError } from "../error";
+import { ApiError, BotError } from "../error";
 import { AppDataSource } from "..";
 import { makeLogger } from "../logger";
 import { Color } from "../service/util/constants";
@@ -61,6 +61,30 @@ export async function updateRoleAndNickname(
         } catch (e) {
             console.error(e);
         }
+    }
+}
+
+export async function resetMember(
+    member: GuildMember,
+    guild: GuildEntity
+): Promise<void> {
+    const newRoles = member.roles.cache.filter(
+        (_v, k) =>
+            k !== guild.allies_role &&
+            k !== guild.axis_role &&
+            k !== guild.spectator_role &&
+            k !== guild.verified_role
+    );
+
+    if (member.manageable) {
+        if (
+            newRoles.difference(member.roles.cache).size !== 0 ||
+            member.nickname !== null
+        ) {
+            await member.edit({ roles: newRoles, nick: null });
+        }
+    } else if (newRoles.difference(member.roles.cache).size !== 0) {
+        await member.edit({ roles: newRoles });
     }
 }
 
@@ -170,6 +194,18 @@ export async function processUser(
             }
         }
     } catch (e) {
+        if (e instanceof ApiError && e.code === 2) {
+            for (const i of u.guild_ids) {
+                const guild = await guilds.get(i)?.fetch();
+                if (!guild) continue;
+                const guildEntity = await getGuild(i);
+                const member = await guild.members.fetch(u.discord_id);
+
+                await resetMember(member, guildEntity);
+            }
+
+            await UserRankRepository.deleteById(u.discord_id);
+        }
         logger.debug(e);
     }
 }

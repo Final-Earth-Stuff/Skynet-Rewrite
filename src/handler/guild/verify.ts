@@ -11,8 +11,13 @@ import { BotError, ApiError } from "../../error";
 import { verifyGuard } from "../../guard/verifyGuard";
 
 import { Color } from "../../service/util/constants";
-import { updateRoleAndNickname, getGuild } from "../../service/verifyService";
+import {
+    updateRoleAndNickname,
+    getGuild,
+    resetMember,
+} from "../../service/verifyService";
 import { isRoundOver } from "../../service/util/team";
+import { UserData } from "../../wrapper/models/user";
 
 @CommandHandler({ name: "verify" })
 @Guard(verifyGuard)
@@ -29,27 +34,28 @@ export class Verify {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
-        const user = await getUser(config.apiKey, interaction.user.id).catch(
-            (e) => {
-                if (e instanceof ApiError && e.code == 2) {
-                    throw new BotError(
-                        `Your discord account is not verified with Final Earth.
-                    Please visit [here](https://www.finalearth.com/discord) and follow the instructions.`
-                    );
-                } else {
-                    throw e;
-                }
-            }
-        );
-
-        const guild = await getGuild(interaction.guildId ?? "");
-
-        if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
-            throw new BotError("Roles are not configured for this guild");
-
         const member = await interaction.guild.members.fetch(
             interaction.user.id
         );
+        const guild = await getGuild(interaction.guildId ?? "");
+
+        let user: UserData;
+        try {
+            user = await getUser(config.apiKey, interaction.user.id);
+        } catch (e) {
+            if (e instanceof ApiError && e.code == 2) {
+                await resetMember(member, guild);
+                throw new BotError(
+                    `Your discord account is not verified with Final Earth.
+                    Please visit [here](https://www.finalearth.com/discord) and follow the instructions.`
+                );
+            } else {
+                throw e;
+            }
+        }
+
+        if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
+            throw new BotError("Roles are not configured for this guild");
 
         const world = await getWorld(config.apiKey);
         const roundOver = isRoundOver(world);
