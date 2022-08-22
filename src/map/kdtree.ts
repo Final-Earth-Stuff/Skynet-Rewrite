@@ -76,7 +76,7 @@ function findInRangeRecursive(
     center: Coordinates,
     range: number
 ): RangeMatch[] {
-    const result = new Array<RangeMatch>();
+    const result: RangeMatch[] = [];
 
     const euclDist = euclideanMetric(center, node.coordinates);
     if (euclDist <= range) {

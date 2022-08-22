@@ -41,7 +41,8 @@ export class Role {
                         .addChoices(
                             { name: "Allies", value: "allies" },
                             { name: "Axis", value: "axis" },
-                            { name: "Spectator", value: "spectator" }
+                            { name: "Spectator", value: "spectator" },
+                            { name: "Verified", value: "verified" }
                         )
                 )
                 .addRoleOption((option) =>
@@ -63,7 +64,8 @@ export class Role {
                         .addChoices(
                             { name: "Allies", value: "allies" },
                             { name: "Axis", value: "axis" },
-                            { name: "Spectator", value: "spectator" }
+                            { name: "Spectator", value: "spectator" },
+                            { name: "Verified", value: "verified" }
                         )
                 )
                 .addRoleOption((option) =>

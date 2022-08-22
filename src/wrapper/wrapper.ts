@@ -94,6 +94,7 @@ async function apiRequest<C extends t.Mixed>(
             )
         )
     )(url)();
+
     if (E.isLeft(result)) {
         throw result.left;
     } else {

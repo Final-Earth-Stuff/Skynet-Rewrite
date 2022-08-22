@@ -42,23 +42,21 @@ export async function updateRoleAndNickname(
             break;
     }
 
-    await member.roles
-        .set([
-            role,
-            ...[...member.roles.cache.keys()].filter(
-                (r) =>
-                    ![
-                        guild.allies_role,
-                        guild.axis_role,
-                        guild.spectator_role,
-                    ].includes(r)
-            ),
-        ])
-        .catch((e) => {
-            throw e;
-        });
+    await member.roles.set([
+        role,
+        ...(guild.verified_role ? [guild.verified_role] : []),
+        ...[...member.roles.cache.keys()].filter(
+            (r) =>
+                ![
+                    guild.allies_role,
+                    guild.axis_role,
+                    guild.spectator_role,
+                    guild.verified_role,
+                ].includes(r)
+        ),
+    ]);
 
-    setNickname(member, user);
+    await setNickname(member, user);
 }
 
 export async function getGuild(guildId: string): Promise<GuildEntity> {
