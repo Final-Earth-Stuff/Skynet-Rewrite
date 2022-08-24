@@ -89,6 +89,8 @@ async function buildStatsEmbed(
     );
     const destroyed = formatter.format(user.personalStats.facilities.destroyed);
     const built = formatter.format(user.personalStats.facilities.spend);
+
+    const days = Math.round(((Date.now()/1000) - user.joined) / 86400)
     return new EmbedBuilder()
         .setTitle(`${rank} ${user.name} [${user.id}]`)
         .setDescription(
@@ -130,10 +132,10 @@ async function buildStatsEmbed(
                 inline: true,
             },
             {
-                name: "\u200B",
-                value: "\u200B",
+                name: "Age",
+                value: `${days} days`,
                 inline: true,
-            }
+            },
         )
         .setColor(Color.BLUE);
 }
@@ -146,6 +148,9 @@ function getPoints(user: PrivateUserData): number {
         }
         const n = user.skills[skill as keyof Skills];
         points += (n * (n + 1)) / 2;
+    }
+    if (user.unlockedUnits?.length !== 0) {
+        points += (user.unlockedUnits.length) * 10;
     }
     return points;
 }
