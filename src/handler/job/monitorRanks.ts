@@ -38,7 +38,9 @@ export class MonitorRanks {
         const roundOver = isRoundOver(world);
         const users = await UserRankRepository.getCurrentUsers();
         const guilds = await client.guilds.fetch();
-        await Promise.all(users.map((u) => processUser(u, guilds, roundOver)));
+        for (const user of users) {
+            await processUser(user, guilds, roundOver);
+        }
     }
 
     @DiscordEvent("guildMemberAdd")

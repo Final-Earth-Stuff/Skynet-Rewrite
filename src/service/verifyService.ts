@@ -4,6 +4,7 @@ import {
     EmbedBuilder,
     OAuth2Guild,
     ChannelType,
+    DiscordAPIError,
 } from "discord.js";
 import { Guild as GuildEntity } from "../entity/Guild";
 
@@ -196,8 +197,8 @@ export async function processUser(
             const guild = await guilds.get(g)?.fetch();
             if (guild) {
                 const guildEntity = await getGuild(guild.id);
-                const member = await guild.members.fetch(u.discord_id);
                 try {
+                    const member = await guild.members.fetch(u.discord_id);
                     await updateRoleAndNickname(
                         user,
                         guildEntity,
@@ -205,7 +206,20 @@ export async function processUser(
                         isRoundOver
                     );
                 } catch (e) {
-                    logger.debug(e);
+                    if (e instanceof DiscordAPIError && e.code === 10007) {
+                        u.guild_ids = u.guild_ids.filter((i) => i !== guild.id);
+                        if (u.guild_ids.length === 0) {
+                            await AppDataSource.manager.delete(UserRank, u);
+                        } else {
+                            await AppDataSource.manager.update(
+                                UserRank,
+                                { where: { id: u.id } },
+                                { guild_ids: u.guild_ids }
+                            );
+                        }
+                    } else {
+                        logger.debug(e);
+                    }
                 }
             }
         }
@@ -221,7 +235,8 @@ export async function processUser(
             }
 
             await UserRankRepository.deleteById(u.discord_id);
+        } else {
+            logger.debug(e);
         }
-        logger.debug(e);
     }
 }
