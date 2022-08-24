@@ -108,14 +108,32 @@ export function getRolesIfChanged(
     if (!blockTeamRoles) {
         switch (user.team) {
             case Team.ALLIES:
-                hasNot.push(roleMap[Team.AXIS]);
+                hasNot.push(
+                    roleMap[Team.AXIS],
+                    roleMap[Team.AUTO],
+                    roleMap[Team.NONE]
+                );
                 break;
             case Team.AXIS:
-                hasNot.push(roleMap[Team.ALLIES]);
+                hasNot.push(
+                    roleMap[Team.ALLIES],
+                    roleMap[Team.AUTO],
+                    roleMap[Team.NONE]
+                );
                 break;
             case Team.NONE:
+                hasNot.push(
+                    roleMap[Team.AXIS],
+                    roleMap[Team.ALLIES],
+                    roleMap[Team.AUTO]
+                );
+                break;
             case Team.AUTO:
-                hasNot.push(roleMap[Team.AXIS], roleMap[Team.ALLIES]);
+                hasNot.push(
+                    roleMap[Team.AXIS],
+                    roleMap[Team.ALLIES],
+                    roleMap[Team.NONE]
+                );
                 break;
         }
     }
