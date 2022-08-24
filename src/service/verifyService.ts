@@ -37,11 +37,13 @@ export async function updateRoleAndNickname(
         [Team.NONE]: guild.spectator_role,
     };
 
+    const blockTeamRoles = isRoundOver || !guild.roles_enabled;
+
     const roles = getRolesIfChanged(
         user,
         member,
         map,
-        isRoundOver,
+        blockTeamRoles,
         guild.verified_role
     );
     const nick = await getNicknameIfChanged(member, user, isRoundOver);
@@ -92,18 +94,18 @@ export function getRolesIfChanged(
     user: UserData,
     member: GuildMember,
     roleMap: Record<Team, string>,
-    isRoundOver: boolean,
+    blockTeamRoles: boolean,
     verified?: string
 ): string[] | undefined {
-    const has = isRoundOver ? [roleMap[Team.NONE]] : [roleMap[user.team]];
+    const has = blockTeamRoles ? [roleMap[Team.NONE]] : [roleMap[user.team]];
     if (verified) {
         has.push(verified);
     }
 
-    const hasNot = isRoundOver
+    const hasNot = blockTeamRoles
         ? [roleMap[Team.ALLIES], roleMap[Team.AXIS]]
         : [];
-    if (!isRoundOver) {
+    if (!blockTeamRoles) {
         switch (user.team) {
             case Team.ALLIES:
                 hasNot.push(roleMap[Team.AXIS]);

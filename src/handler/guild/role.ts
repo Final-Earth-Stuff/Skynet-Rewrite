@@ -77,6 +77,11 @@ export class Role {
         .addSubcommand((subcommand) =>
             subcommand.setName("info").setDescription("List configured roles")
         )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("toggle-teams")
+                .setDescription("Toggle setting team roles")
+        )
         .toJSON();
 
     @SubCommand({ name: "add" })
@@ -150,6 +155,28 @@ export class Role {
                     inline: true,
                 }
             )
+            .setColor(Color.BLUE);
+
+        await interaction.reply({ embeds: [embed] });
+    }
+
+    @SubCommand({ name: "toggle-teams" })
+    async teamRoleToggle(
+        interaction: ChatInputCommandInteraction
+    ): Promise<void> {
+        const guildRepository = AppDataSource.getRepository(GuildEntity);
+        const guild = await guildRepository.findOneOrFail({
+            where: { guild_id: interaction.guildId ?? "" },
+        });
+
+        await guildRepository.update(guild.guild_id, {
+            roles_enabled: !guild.roles_enabled,
+        });
+
+        const state = guild.roles_enabled ? "disabled" : "enabled";
+
+        const embed = new EmbedBuilder()
+            .setDescription(`Team role setting is now ${state} for this guild!`)
             .setColor(Color.BLUE);
 
         await interaction.reply({ embeds: [embed] });

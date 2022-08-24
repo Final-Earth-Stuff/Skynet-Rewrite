@@ -31,4 +31,7 @@ export class Guild {
 
     @Column({ type: "varchar", length: 19, nullable: true })
     land_facility_channel?: string;
+
+    @Column({ default: true })
+    roles_enabled!: boolean;
 }
