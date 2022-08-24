@@ -149,7 +149,7 @@ function getPoints(user: PrivateUserData): number {
         const n = user.skills[skill as keyof Skills];
         points += (n * (n + 1)) / 2;
     }
-    if (user.unlockedUnits?.length !== 0) {
+    if (user.unlockedUnits.length !== 0) {
         points += user.unlockedUnits.length * 10;
     }
     return points;
