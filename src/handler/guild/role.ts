@@ -162,6 +162,13 @@ export class Role {
                         ? `<@&${guild.auto_role}>`
                         : "Not configured",
                     inline: true,
+                },
+                {
+                    name: "Verified",
+                    value: guild.verified_role
+                        ? `<@&${guild.verified_role}>`
+                        : "Not configured",
+                    inline: true,
                 }
             )
             .setColor(Color.BLUE);
