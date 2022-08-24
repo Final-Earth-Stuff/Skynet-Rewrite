@@ -153,6 +153,13 @@ export class Role {
                         ? `<@&${guild.spectator_role}>`
                         : "Not configured",
                     inline: true,
+                },
+                {
+                    name: "Auto",
+                    value: guild.auto_role
+                        ? `<@&${guild.auto_role}>`
+                        : "Not configured",
+                    inline: true,
                 }
             )
             .setColor(Color.BLUE);

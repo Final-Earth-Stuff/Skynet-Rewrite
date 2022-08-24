@@ -33,7 +33,7 @@ export async function updateRoleAndNickname(
     const map = {
         [Team.ALLIES]: guild.allies_role,
         [Team.AXIS]: guild.axis_role,
-        [Team.AUTO]: guild.spectator_role,
+        [Team.AUTO]: guild.auto_role ? guild.auto_role : guild.spectator_role,
         [Team.NONE]: guild.spectator_role,
     };
 
