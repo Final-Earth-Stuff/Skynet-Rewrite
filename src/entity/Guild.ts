@@ -18,6 +18,9 @@ export class Guild {
     spectator_role?: string;
 
     @Column({ type: "varchar", length: 19, nullable: true })
+    auto_role?: string;
+
+    @Column({ type: "varchar", length: 19, nullable: true })
     log_channel?: string;
 
     @Column({ type: "varchar", length: 19, nullable: true })
