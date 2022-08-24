@@ -42,7 +42,8 @@ export class Role {
                             { name: "Allies", value: "allies" },
                             { name: "Axis", value: "axis" },
                             { name: "Spectator", value: "spectator" },
-                            { name: "Verified", value: "verified" }
+                            { name: "Verified", value: "verified" },
+                            { name: "Auto", value: "auto"}
                         )
                 )
                 .addRoleOption((option) =>
@@ -65,7 +66,8 @@ export class Role {
                             { name: "Allies", value: "allies" },
                             { name: "Axis", value: "axis" },
                             { name: "Spectator", value: "spectator" },
-                            { name: "Verified", value: "verified" }
+                            { name: "Verified", value: "verified" }, 
+                            { name: "Auto", value: "auto"}
                         )
                 )
                 .addRoleOption((option) =>
