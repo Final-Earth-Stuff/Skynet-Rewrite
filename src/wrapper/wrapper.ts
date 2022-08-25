@@ -43,8 +43,11 @@ export async function getNotifications(key: string): Promise<NotificationData> {
 export async function getCountry(
     key: string,
     id?: number
-): Promise<CountryData> {
-    return await apiRequest(url("country", key, id), CountryData);
+): Promise<CountryData | null> {
+    return await apiRequest(
+        url("country", key, id),
+        t.union([CountryData, t.null])
+    );
 }
 
 export async function getWorld(key: string): Promise<CountryData[]> {

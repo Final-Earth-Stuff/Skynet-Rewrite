@@ -87,6 +87,8 @@ export class MonitorUsers {
     async checkEnemies(user: UserSettings, discord: User, team: string) {
         const apiKey = user.api_key ?? "";
         const data = await this.getCurrentCountry(team, apiKey);
+        if (!data) return;
+
         const prevNotif = user.prev_enemies_notification ?? new Date(0);
         const prevEnemies = user.prev_num_enemies ?? 0;
         if (
@@ -120,6 +122,8 @@ export class MonitorUsers {
 
     async getCurrentCountry(team: string, api_key: string) {
         const country = await wrapper.getCountry(api_key);
+        if (!country) return;
+
         let currentCount: number | undefined;
         if (team === Team.ALLIES) {
             currentCount = country.units.axis;
