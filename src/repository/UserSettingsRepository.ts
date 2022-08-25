@@ -14,14 +14,12 @@ export enum Toggles {
 }
 
 export interface Timers {
-    discord_id: string;
     prev_war_notification?: Date;
     prev_queue_notification?: Date;
     prev_reimb_notification?: Date;
 }
 
 export interface Counts {
-    discord_id: string;
     prev_num_mails?: number;
     prev_num_events?: number;
 }
@@ -35,12 +33,23 @@ export const UserSettingsRepository = AppDataSource.getRepository(
         });
     },
 
-    updateTimers(timers: Partial<Timers>) {
-        return this.manager.save(UserSettings, timers);
-    },
+    async updateTimersAndCounts(
+        discord_id: string,
+        timers: Timers,
+        counts: Counts
+    ): Promise<void> {
+        if (
+            Object.keys(timers).length === 0 &&
+            Object.keys(counts).length === 0
+        ) {
+            return;
+        }
 
-    updateCounts(counts: Partial<Counts>) {
-        return this.manager.save(UserSettings, counts);
+        await this.manager.save(UserSettings, {
+            discord_id,
+            ...timers,
+            ...counts,
+        });
     },
 
     getUserByDiscordId(discord_id: string) {

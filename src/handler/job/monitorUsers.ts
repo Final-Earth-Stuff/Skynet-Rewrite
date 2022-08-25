@@ -62,31 +62,32 @@ export class MonitorUsers {
         notifsData: NotificationData,
         discord: User
     ) {
-        const timers: Timers = await this.buildTimers(
-            user,
-            notifsData,
-            discord
-        );
-        const counts: Counts = await this.buildCounts(
-            user,
-            notifsData,
-            discord
-        );
-        if (user.enemy_flag && user.api_key) {
-            const userData = await wrapper.getUser(user.api_key);
-            let team = Team.NONE;
-            team = userData.team;
+        const timers: Timers = {};
+        const counts: Counts = {};
+        try {
+            await this.buildTimers(user, notifsData, timers, discord);
+            await this.buildCounts(user, notifsData, counts, discord);
+            if (user.enemy_flag && user.api_key) {
+                const userData = await wrapper.getUser(user.api_key);
+                let team = Team.NONE;
+                team = userData.team;
 
-            await this.checkEnemies(user, discord, team);
+                await this.checkEnemies(user, discord, team);
+            }
+        } finally {
+            await UserSettingsRepository.updateTimersAndCounts(
+                discord.id,
+                timers,
+                counts
+            );
         }
-
-        await UserSettingsRepository.updateTimers(timers);
-        await UserSettingsRepository.updateCounts(counts);
     }
 
     async checkEnemies(user: UserSettings, discord: User, team: string) {
         const apiKey = user.api_key ?? "";
         const data = await this.getCurrentCountry(team, apiKey);
+        if (!data) return;
+
         const prevNotif = user.prev_enemies_notification ?? new Date(0);
         const prevEnemies = user.prev_num_enemies ?? 0;
         if (
@@ -120,6 +121,8 @@ export class MonitorUsers {
 
     async getCurrentCountry(team: string, api_key: string) {
         const country = await wrapper.getCountry(api_key);
+        if (!country) return;
+
         let currentCount: number | undefined;
         if (team === Team.ALLIES) {
             currentCount = country.units.axis;
@@ -136,42 +139,35 @@ export class MonitorUsers {
     async buildCounts(
         user: UserSettings,
         notifsData: NotificationData,
+        counts: Counts,
         discord: User
     ) {
-        let mail, events;
         const prevMail = user.prev_num_mails ?? 0;
         const prevEvents = user.prev_num_events ?? 0;
         if (user.mail_flag) {
             if (notifsData.unreadMails > prevMail) {
                 await discord.send("📧 You have a new mail!");
-                mail = notifsData.unreadMails;
+                counts.prev_num_mails = notifsData.unreadMails;
             } else if (notifsData.unreadMails != prevMail) {
-                mail = notifsData.unreadMails;
+                counts.prev_num_mails = notifsData.unreadMails;
             }
         }
         if (user.event_flag) {
             if (notifsData.unreadEvents > prevEvents) {
                 await discord.send("❗ You have a new event!");
-                events = notifsData.unreadEvents;
+                counts.prev_num_events = notifsData.unreadEvents;
             } else if (notifsData.unreadEvents != prevEvents) {
-                events = notifsData.unreadEvents;
+                counts.prev_num_events = notifsData.unreadEvents;
             }
         }
-        const counts: Counts = {
-            discord_id: user.discord_id,
-            prev_num_events: events,
-            prev_num_mails: mail,
-        };
-        return counts;
     }
 
     async buildTimers(
         user: UserSettings,
         notifsData: NotificationData,
+        timers: Timers,
         discord: User
     ) {
-        let war, queue, reimb;
-
         if (user.war_flag) {
             if (
                 this.checkTimer(
@@ -180,7 +176,9 @@ export class MonitorUsers {
                 )
             ) {
                 await discord.send("🔫 Your War timer is up!");
-                war = new Date(notifsData.timers.war * 1000);
+                timers.prev_war_notification = new Date(
+                    notifsData.timers.war * 1000
+                );
             }
         }
         if (user.queue_flag) {
@@ -192,7 +190,9 @@ export class MonitorUsers {
                 )
             ) {
                 await discord.send("🧠 Your Training Queue is empty!");
-                queue = new Date(notifsData.timers.statistics * 1000);
+                timers.prev_queue_notification = new Date(
+                    notifsData.timers.statistics * 1000
+                );
             }
         }
         if (user.reimb_flag) {
@@ -203,16 +203,11 @@ export class MonitorUsers {
                 )
             ) {
                 await discord.send("💰 Your reimbursement is ready!");
-                reimb = new Date(notifsData.timers.reimbursement * 1000);
+                timers.prev_reimb_notification = new Date(
+                    notifsData.timers.reimbursement * 1000
+                );
             }
         }
-        const timers: Timers = {
-            discord_id: user.discord_id,
-            prev_war_notification: war,
-            prev_queue_notification: queue,
-            prev_reimb_notification: reimb,
-        };
-        return timers;
     }
 
     checkTimer(timer: number, lastTimerNotifiedFor: Date, queue?: number) {
