@@ -5,6 +5,8 @@ import fuzzysort from "fuzzysort";
 /* eslint-disable-next-line @typescript-eslint/unbound-method */
 const { prepare } = fuzzysort;
 
+import { MapQueryEngine } from "helpers";
+
 import { CountryData } from "../wrapper/models/country";
 import { assertIsSome } from "../util/assert";
 
@@ -41,6 +43,8 @@ export class Data {
 
     private countryIdMap?: Map<string, number>;
     private countryMap?: Map<number, Country>;
+
+    queryEngine?: MapQueryEngine;
 
     public get preparedCountries(): Prepared[] {
         assertIsSome(
@@ -79,6 +83,13 @@ export class Data {
         this._kdtree = await loadResource("kdtree.json");
         this.countryMap = new Map(await loadResource("countries.json"));
         this.countryIdMap = new Map(await loadResource("ids.json"));
+
+        this.queryEngine = MapQueryEngine.withCountries(
+            [...this.countryMap.values()].map((c) => ({
+                id: c.id,
+                coordinates: c.coordinates,
+            }))
+        );
     }
 
     public static async generate(world: CountryData[]) {
@@ -94,7 +105,7 @@ export class Data {
         const countries = world.map(({ name, id, coordinates }) => [
             parseInt(id),
             {
-                id,
+                id: parseInt(id),
                 name,
                 coordinates,
             },

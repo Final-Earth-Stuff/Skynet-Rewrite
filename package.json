@@ -22,6 +22,9 @@
     "url": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite/issues"
   },
   "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
+  "workspaces": [
+    "helpers"
+  ],
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
     "bufferutil": "^4.0.6",
@@ -32,6 +35,7 @@
     "fp-ts": "^2.12.2",
     "fuzzysort": "^2.0.1",
     "glob": "^8.0.3",
+    "helpers": "workspace:helpers",
     "io-ts": "^2.2.17",
     "node-cron": "^3.0.2",
     "node-fetch": "3.2.8",
@@ -57,5 +61,5 @@
     "tsc-watch": "^5.0.3",
     "typescript": "^4.7.4"
   },
-  "packageManager": "yarn@3.1.1"
+  "packageManager": "yarn@3.2.3"
 }

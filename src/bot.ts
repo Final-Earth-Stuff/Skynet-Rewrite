@@ -26,6 +26,15 @@ export const bootstrap = async () => {
 
     await Data.shared.initialise();
 
+    const route = await Data.shared.queryEngine!.routeQuery(86, 57, 2);
+    console.log(
+        route.map((r) => ({
+            start: Data.shared.country(r.startId)?.name,
+            end: Data.shared.country(r.endId)?.name,
+        }))
+    );
+    console.log(route.reduce((acc, cur) => acc + cur.dist, 0) * 6371);
+
     logger.info("Loading handlers...");
     handlers = await loadHandlers();
 
