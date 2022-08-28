@@ -26,17 +26,17 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
-              yarn build
+              yarn workspace helpers build
               strip -x *.node
           - host: windows-latest
-            build: yarn build
+            build: yarn workspace helpers build
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
               set -e &&
-              yarn build --target x86_64-unknown-linux-gnu &&
+              yarn workspace helpers build --target x86_64-unknown-linux-gnu &&
               strip *.node
     name: stable - ${{ matrix.settings.target }} - node@16
     runs-on: ${{ matrix.settings.host }}
@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-node@v3
         if: ${{ !matrix.settings.docker }}
         with:
-          node-version: 16
+          node-version: 18
           check-latest: true
           cache: yarn
       - name: Install
@@ -78,15 +78,15 @@ jobs:
         shell: bash
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: yarn config set supportedArchitectures.cpu "ia32"
+        run: yarn workspace helpers config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: yarn install
+        run: yarn workspaces focus helpers
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
-          node-version: 16
+          node-version: 18
           check-latest: true
           cache: yarn
           architecture: x86
@@ -118,8 +118,6 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - '14'
-          - '16'
           - '18'
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -136,7 +134,7 @@ jobs:
           path: .yarn/cache
           key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
-        run: yarn install
+        run: yarn workspaces focus helpers
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -146,7 +144,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: yarn test
+        run: yarn workspace helpers test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
@@ -173,7 +171,7 @@ jobs:
           path: .yarn/cache
           key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}
       - name: Install dependencies
-        run: yarn install
+        run: yarn workspaces focus helpers
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -183,50 +181,4 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
-    needs:
-      - test-macOS-windows-binding
-      - test-linux-x64-gnu-binding
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          check-latest: true
-          cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: .yarn/cache
-          key: npm-cache-ubuntu-latest-publish
-      - name: Install dependencies
-        run: yarn install
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-      - name: Move artifacts
-        run: yarn artifacts
-      - name: List packages
-        run: ls -R ./npm
-        shell: bash
-      - name: Publish
-        run: |
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public
-          else
-            echo "Not a release, skipping publish"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn workspace helpers test

@@ -22,10 +22,5 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "version": "napi version"
-  },
-  "optionalDependencies": {
-    "helpers-win32-x64-msvc": "0.0.0",
-    "helpers-darwin-x64": "0.0.0",
-    "helpers-linux-x64-gnu": "0.0.0"
   }
 }
