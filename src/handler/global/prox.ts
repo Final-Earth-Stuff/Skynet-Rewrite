@@ -7,7 +7,6 @@ import {
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { BotError } from "../../error";
 import { Data } from "../../map";
-import { findInRange } from "../../map/kdtree";
 import { travelTime, convertToKm } from "../../map/util";
 import { Team } from "../../service/util/constants";
 import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
@@ -88,9 +87,8 @@ export class Prox {
             throw new Error("Unknown country ID");
         }
 
-        const countries = findInRange(
-            Data.shared.kdtree,
-            centerCountry.coordinates,
+        const countries = await Data.shared.proximityQuery(
+            centerCountry.id,
             radiusKm
         );
 
