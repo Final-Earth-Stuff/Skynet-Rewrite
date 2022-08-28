@@ -29,7 +29,7 @@ export function haversine(theta: number): number {
     return (1 - Math.cos(theta)) / 2;
 }
 
-const RADIUS_EARTH = 6371;
+export const RADIUS_EARTH = 6371;
 
 export function greatCircleDist(
     c1: GeoCoordinates,

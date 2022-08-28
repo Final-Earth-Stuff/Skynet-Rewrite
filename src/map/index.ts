@@ -5,10 +5,12 @@ import fuzzysort from "fuzzysort";
 /* eslint-disable-next-line @typescript-eslint/unbound-method */
 const { prepare } = fuzzysort;
 
+import { MapQueryEngine } from "helpers";
+
 import { CountryData } from "../wrapper/models/country";
 import { assertIsSome } from "../util/assert";
 
-import { TreeNode, buildTree } from "./kdtree";
+import { RADIUS_EARTH } from "./geometry";
 
 type Prepared = ReturnType<typeof prepare>;
 
@@ -37,10 +39,11 @@ export class Data {
     }
 
     private _preparedCountries?: Prepared[];
-    private _kdtree?: TreeNode;
 
     private countryIdMap?: Map<string, number>;
     private countryMap?: Map<number, Country>;
+
+    private _queryEngine?: MapQueryEngine;
 
     public get preparedCountries(): Prepared[] {
         assertIsSome(
@@ -50,12 +53,12 @@ export class Data {
         return this._preparedCountries;
     }
 
-    public get kdtree(): TreeNode {
+    private get engine(): MapQueryEngine {
         assertIsSome(
-            this._kdtree,
-            "Tried to access data before initialisation."
+            this._queryEngine,
+            "Tried to run map query before initialisation"
         );
-        return this._kdtree;
+        return this._queryEngine;
     }
 
     public idForCountry(name: string): number | undefined {
@@ -74,11 +77,45 @@ export class Data {
         return this.countryMap.get(id);
     }
 
+    public async proximityQuery(
+        centre: number,
+        radiusKm: number
+    ): Promise<{ id: number; distKm: number }[]> {
+        const matches = await this.engine.proximityQuery(
+            centre,
+            radiusKm / RADIUS_EARTH
+        );
+
+        return matches.map((m) => ({
+            id: m.id,
+            distKm: m.dist * RADIUS_EARTH,
+        }));
+    }
+
+    public async routeQuery(
+        start: number,
+        end: number,
+        elasticity: number
+    ): Promise<{ distKm: number; startId: number; endId: number }[]> {
+        const route = await this.engine.routeQuery(start, end, elasticity);
+
+        return route.map(({ dist, ...rest }) => ({
+            ...rest,
+            distKm: dist * RADIUS_EARTH,
+        }));
+    }
+
     public async initialise() {
         this._preparedCountries = await loadResource("prepared.json");
-        this._kdtree = await loadResource("kdtree.json");
         this.countryMap = new Map(await loadResource("countries.json"));
         this.countryIdMap = new Map(await loadResource("ids.json"));
+
+        this._queryEngine = MapQueryEngine.withCountries(
+            [...this.countryMap.values()].map((c) => ({
+                id: c.id,
+                coordinates: c.coordinates,
+            }))
+        );
     }
 
     public static async generate(world: CountryData[]) {
@@ -94,7 +131,7 @@ export class Data {
         const countries = world.map(({ name, id, coordinates }) => [
             parseInt(id),
             {
-                id,
+                id: parseInt(id),
                 name,
                 coordinates,
             },
@@ -103,14 +140,5 @@ export class Data {
 
         const idMap = world.map(({ name, id }) => [name, parseInt(id)]);
         await writeFile("resources/ids.json", JSON.stringify(idMap));
-
-        const tree = buildTree(
-            world.map(({ name, id, coordinates }) => ({
-                id: parseInt(id),
-                name,
-                coordinates,
-            }))
-        );
-        await writeFile("resources/kdtree.json", JSON.stringify(tree));
     }
 }
