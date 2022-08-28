@@ -62,12 +62,6 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn normed(&self) -> Self {
-        let norm = self.norm();
-        Self([self.0[0] / norm, self.0[1] / norm, self.0[2] / norm])
-    }
-
-    #[inline]
     pub fn dot(&self, other: &Self) -> f64 {
         self.0[0] * other.0[0] + self.0[1] * other.0[1] + self.0[2] * other.0[2]
     }
@@ -87,14 +81,6 @@ impl std::ops::Sub<CartesianCoordinates> for CartesianCoordinates {
             self.0[1] - rhs.0[1],
             self.0[2] - rhs.0[2],
         ])
-    }
-}
-
-impl std::ops::Neg for Vec3 {
-    type Output = Vec3;
-
-    fn neg(self) -> Self::Output {
-        Self([-self.0[0], -self.0[1], -self.0[2]])
     }
 }
 

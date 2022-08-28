@@ -42,7 +42,7 @@ export class PersonalStats {
             interaction.user.id
         );
 
-        if (!user || !user.valid_key || !user.api_key) {
+        if (!user?.valid_key || !user.api_key) {
             throw new BotError(
                 "Please DM the bot the /start command to store  your API key in order to use this feature."
             );

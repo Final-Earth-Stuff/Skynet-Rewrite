@@ -13,9 +13,13 @@ Invite the bot to server for testing
 
 Find the bot token and populate in your .env file
 
+### Setup rust toolchain
+The steps for installing oon your platform can be found [here](https://rustup.rs)
+
+
 ### Setup Database
 
-Install PostGres database
+Install PostgreSQL database
 
 ```bash
 sudo apt install postgresql postgresql-contrib
@@ -60,17 +64,17 @@ yarn install
 Transpile the code
 
 ```bash
-yarn run build
+yarn build
 ```
 
 Before first usage, you have to generate static assets and update the bot's application commands
 
 ```bash
-yarn run prod update_resources && yarn run prod update_commands
+yarn prod update_resources && yarn prod update_commands
 ```
 
 To bot can then be run
 
 ```bash
-yarn run prod bot
+yarn prod bot
 ```

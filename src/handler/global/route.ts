@@ -85,7 +85,7 @@ export class Route {
             elasticity
         );
 
-        const directTime = getDistance(start, dest, points, paratroopers)!;
+        const directTime = getDistance(start, dest, points, paratroopers);
         const indirectDist = computedRoute.reduce(
             (acc, cur) => acc + cur.distKm,
             0
@@ -98,7 +98,9 @@ export class Route {
                 const eC = Data.shared.country(r.endId);
                 const time = travelTime(r.distKm, points, paratroopers);
 
-                return `${i + 1}. ${sC?.name} ⇾ ${eC?.name} (${time} mins)`;
+                return `${i + 1}. ${sC?.name ?? ""} ⇾ ${
+                    eC?.name ?? ""
+                } (${time} mins)`;
             })
             .join("\n");
 

@@ -4,12 +4,12 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "NODE_ENV=development tsc",
+    "build": "yarn workspace helpers build && tsc",
     "dev": "NODE_ENV=development node --es-module-specifier-resolution=node dist/index.js",
     "prod": "NODE_ENV=production node --es-module-specifier-resolution=node dist/index.js",
     "watch": "NODE_ENV=development tsc-watch --onSuccess \"node --es-module-specifier-resolution=node ./dist/index.js bot\"",
     "lint": "eslint src/ --ext .ts",
-    "format": "prettier --check \"**/*.ts\"",
+    "format": "prettier --check \"src/**/*.ts\"",
     "typeorm": "node --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
   },
   "repository": {
