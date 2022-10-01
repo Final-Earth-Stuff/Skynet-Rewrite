@@ -52,14 +52,14 @@ export class Stats {
         }
 
         await interaction.editReply({
-            embeds: [await buildStatsEmbed(userData)],
+            embeds: [buildStatsEmbed(userData)],
         });
     }
 }
 
-async function buildStatsEmbed(
+function buildStatsEmbed(
     user: UserData & PrivateUserData
-): Promise<EmbedBuilder> {
+): EmbedBuilder {
     const rank = rankMap.get(user.rank) ?? "";
 
     return new EmbedBuilder()
