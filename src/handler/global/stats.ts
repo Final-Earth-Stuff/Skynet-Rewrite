@@ -57,9 +57,7 @@ export class Stats {
     }
 }
 
-function buildStatsEmbed(
-    user: UserData & PrivateUserData
-): EmbedBuilder {
+function buildStatsEmbed(user: UserData & PrivateUserData): EmbedBuilder {
     const rank = rankMap.get(user.rank) ?? "";
 
     return new EmbedBuilder()
