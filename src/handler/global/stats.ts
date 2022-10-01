@@ -7,13 +7,8 @@ import {
 import { CommandHandler, Command, CommandData } from "../../decorators";
 
 import { Color } from "../../service/util/constants";
-import type {
-    UserData,
-    PrivateUserData,
-} from "../../wrapper/models/user";
-import {
-    getUser
-} from "../../wrapper/wrapper";
+import type { UserData, PrivateUserData } from "../../wrapper/models/user";
+import { getUser } from "../../wrapper/wrapper";
 import { rankMap } from "../../service/util/constants";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
 import { ApiError, BotError } from "../../error";
@@ -64,10 +59,9 @@ export class Stats {
 
 async function buildStatsEmbed(
     user: UserData & PrivateUserData
-    ): Promise<EmbedBuilder> {
-  
+): Promise<EmbedBuilder> {
     const rank = rankMap.get(user.rank) ?? "";
-    
+
     return new EmbedBuilder()
         .setTitle(`${rank} ${user.name} [${user.id}]`)
         .addFields(
@@ -94,6 +88,3 @@ async function buildStatsEmbed(
         )
         .setColor(Color.BLUE);
 }
-
-
-
