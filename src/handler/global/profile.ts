@@ -27,16 +27,16 @@ import { makeLogger } from "../../logger";
 
 const logger = makeLogger(import.meta);
 
-@CommandHandler({ name: "personalstats" })
-export class PersonalStats {
+@CommandHandler({ name: "profile" })
+export class Profile {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()
-        .setName("personalstats")
-        .setDescription("Display your personal stats")
+        .setName("profile")
+        .setDescription("Display your profile stats")
         .toJSON();
 
     @Command()
-    async stats(interaction: ChatInputCommandInteraction): Promise<void> {
+    async profile(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
         const user = await UserSettingsRepository.getUserByDiscordId(
             interaction.user.id
