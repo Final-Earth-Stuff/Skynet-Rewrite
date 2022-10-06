@@ -2,7 +2,6 @@ import * as t from "io-ts";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 
-import { PathReporter } from "io-ts/PathReporter";
 import { flow } from "fp-ts/function";
 
 import fetch from "node-fetch";
@@ -70,8 +69,20 @@ const mapError = (e: unknown): Error =>
 
 const formatErrors = (errors: t.Errors) =>
     new Error(
-        "Errors occured while validating API resonse:" +
-            PathReporter.report(E.left(errors)).join("\n")
+        "Errors occured while validating API resonse:\n  " +
+            errors
+                .map((error) => {
+                    const path = error.context
+                        .slice(1)
+                        .map(({ key }) => key)
+                        .join(".");
+                    const expected =
+                        error.context[error.context.length - 1].type.name;
+                    return `Expected \`${expected}\`, found invalid value ${JSON.stringify(
+                        error.value
+                    )} @ ${path}}`;
+                })
+                .join("\n  ")
     );
 
 async function apiRequest<C extends t.Mixed>(
