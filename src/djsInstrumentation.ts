@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import {
     InstrumentationBase,
     InstrumentationConfig,
@@ -16,6 +17,7 @@ export class DjsInstrumentation extends InstrumentationBase {
         super("opentelemetry-discordjs-instrumentation", "0.0.1", config);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected init(): InstrumentationModuleDefinition<any>[] {
         return [
             new InstrumentationNodeModuleDefinition<{ REST: typeof REST }>(
@@ -87,6 +89,7 @@ export class DjsInstrumentation extends InstrumentationBase {
 
     private _getPatchedRequest(method: string) {
         return (original: typeof REST.prototype.get) => {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
             const instrumentation = this;
             return async function patchedGet(
                 this: never,
