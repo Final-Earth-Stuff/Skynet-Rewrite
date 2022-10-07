@@ -24,7 +24,7 @@ const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorWorld {
-    @Cron("*/30 * * * * *")
+    @Cron({ cron: "*/30 * * * * *", label: "monitor_world" })
     async checkWorld(client: Client) {
         logger.debug("checking world...");
         const world: CountryData[] = await wrapper.getWorld(config.apiKey);

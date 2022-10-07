@@ -1,0 +1,32 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: otel-collector:4317
+
+exporters:
+  logging:
+    logLevel: info
+
+  jaeger:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
+
+
+service:
+  pipelines:
+    traces:
+      receivers: otlp
+      exporters: [logging, jaeger]
+      
+extensions:
+  health_check:
+  health_check/1:
+    endpoint: "localhost:13"
+    path: "/health/status"
+    check_collector_pipeline:
+      enabled: true
+      interval: "5m"
+      exporter_failure_threshold: 5
+    

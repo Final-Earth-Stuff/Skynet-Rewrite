@@ -1,3 +1,10 @@
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
+
+registerInstrumentations({
+    instrumentations: [new PgInstrumentation()],
+});
+
 import { DataSource } from "typeorm";
 
 import { config } from "./config";
@@ -10,6 +17,6 @@ export const AppDataSource = new DataSource({
     password: config.databasePassword,
     database: config.databaseName,
     synchronize: false,
-    entities: ["dist/entity/**/*.js"],
-    migrations: ["dist/migration/**/*.js"],
+    entities: ["dist/src/entity/**/*.js"],
+    migrations: ["dist/src/migration/**/*.js"],
 });

@@ -11,25 +11,36 @@ export type JobBody = (guild: Client) => Promise<void>;
 
 export interface ScheduledJobOptions {
     cron: string;
+    label: string;
 }
 
+interface JobRecord {
+    key: string;
+    label: string;
+}
+
+export type JobHandle = JobBody & { label: string };
+
 export const Cron =
-    (cron: string) =>
+    (options: ScheduledJobOptions) =>
     (
         target: any,
         propertyKey: string,
         _descriptor: TypedPropertyDescriptor<JobBody>
     ) => {
-        const handlers: Map<string, string[]> =
+        const handlers: Map<string, JobRecord[]> =
             Reflect.getMetadata("handler:cron", target.constructor) ??
             new Map();
-        const cronHandlers = handlers.get(cron) ?? [];
-        handlers.set(cron, [...cronHandlers, propertyKey]);
+        const cronHandlers = handlers.get(options.cron) ?? [];
+        handlers.set(options.cron, [
+            ...cronHandlers,
+            { key: propertyKey, label: options.label },
+        ]);
         Reflect.defineMetadata("handler:cron", handlers, target.constructor);
     };
 
 export interface IScheduledJob {
-    _cronJobs: Map<string, JobBody[]>;
+    _cronJobs: Map<string, JobHandle[]>;
 }
 
 export const ScheduledJob =
@@ -38,17 +49,24 @@ export const ScheduledJob =
         ensureBaseScope(target);
         Reflect.getMetadata("scope:type", target).add("scheduled_job");
 
-        const cronMap: Map<string, string[]> = Reflect.getMetadata(
+        const cronMap: Map<string, JobRecord[]> = Reflect.getMetadata(
             "handler:cron",
             target
         );
 
         return class extends target implements IScheduledJob {
-            get _cronJobs() {
+            get _cronJobs(): Map<string, JobHandle[]> {
                 return new Map(
-                    [...cronMap.entries()].map(([cron, keys]) => [
+                    [...cronMap.entries()].map(([cron, handles]) => [
                         cron,
-                        keys.map((key) => Reflect.get(this, key).bind(this)),
+                        handles.map((handle) => {
+                            const handler = Reflect.get(this, handle.key).bind(
+                                this
+                            );
+                            handler.label = handle.label;
+
+                            return handler;
+                        }),
                     ])
                 );
             }
