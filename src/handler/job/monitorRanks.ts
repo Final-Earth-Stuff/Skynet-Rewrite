@@ -31,7 +31,7 @@ const logger = makeLogger(import.meta);
 @EventHandler()
 @ScheduledJob()
 export class MonitorRanks {
-    @Cron("*/10 * * * *")
+    @Cron({ cron: "*/10 * * * *", label: "monitor_ranks" })
     async checkRanks(client: Client) {
         logger.debug(`checking user ranks...`);
         const world = await getWorld(config.apiKey);

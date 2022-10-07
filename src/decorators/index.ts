@@ -4,7 +4,7 @@ import { isCommandHandler } from "./CommandHandler";
 import { isEventHandler } from "./EventHandler";
 import { isButtonHandler } from "./Button";
 import { isCompletionProvider } from "./Completion";
-import { isScheduledJob, JobBody } from "./ScheduledJob";
+import { isScheduledJob, JobHandle } from "./ScheduledJob";
 
 export * from "./Button";
 export * from "./EventHandler";
@@ -14,7 +14,7 @@ export * from "./Completion";
 
 export async function loadHandlers() {
     const exports = [];
-    for (const match of glob.sync("handler/**/*.js", { cwd: "dist" })) {
+    for (const match of glob.sync("handler/**/*.js", { cwd: "dist/src" })) {
         exports.push(
             ...Object.values(
                 (await import(`../${match}`)) as Record<string, unknown>
@@ -69,7 +69,7 @@ export async function loadHandlers() {
                 acc.set(cron, list);
             });
             return acc;
-        }, new Map<string, JobBody[]>());
+        }, new Map<string, JobHandle[]>());
 
     return {
         commands: new Map(

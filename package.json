@@ -1,65 +1,75 @@
 {
-  "name": "finalearth",
-  "version": "2.0.0",
-  "description": "",
-  "type": "module",
-  "scripts": {
-    "build": "yarn workspace helpers build && tsc",
-    "dev": "NODE_ENV=development node --es-module-specifier-resolution=node dist/index.js",
-    "prod": "NODE_ENV=production node --es-module-specifier-resolution=node dist/index.js",
-    "watch": "NODE_ENV=development tsc-watch --onSuccess \"node --es-module-specifier-resolution=node ./dist/index.js bot\"",
-    "lint": "eslint src/ --ext .ts",
-    "format": "prettier --check \"src/**/*.ts\"",
-    "typeorm": "node --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/boo1544641/FinalEarth.git"
-  },
-  "author": "Pyrit [29406], Natty_Boh [29066]",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite/issues"
-  },
-  "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
-  "workspaces": [
-    "helpers"
-  ],
-  "dependencies": {
-    "@discordjs/rest": "^1.1.0",
-    "bufferutil": "^4.0.6",
-    "discord-api-types": "^0.37.4",
-    "discord.js": "^14.3.0",
-    "dotenv": "^16.0.1",
-    "erlpack": "^0.1.4",
-    "fp-ts": "^2.12.2",
-    "fuzzysort": "^2.0.1",
-    "glob": "^8.0.3",
-    "helpers": "workspace:helpers",
-    "io-ts": "^2.2.17",
-    "node-cron": "^3.0.2",
-    "node-fetch": "3.2.8",
-    "node-gyp": "^9.1.0",
-    "pg": "^8.7.3",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.7",
-    "utf-8-validate": "^5.0.9",
-    "winston": "3.8.1",
-    "yargs": "^17.5.1",
-    "zlib-sync": "^0.1.7"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/node": "18.7.10",
-    "@types/node-cron": "^3.0.2",
-    "@types/yargs": "^17.0.11",
-    "@typescript-eslint/eslint-plugin": "^5.34.0",
-    "@typescript-eslint/parser": "^5.34.0",
-    "eslint": "^8.22.0",
-    "prettier": "^2.7.1",
-    "ts-node": "^10.9.1",
-    "tsc-watch": "^5.0.3",
-    "typescript": "^4.7.4"
-  },
-  "packageManager": "yarn@3.2.3"
+    "name": "finalearth",
+    "version": "2.0.0",
+    "description": "",
+    "type": "module",
+    "scripts": {
+        "build": "yarn workspace helpers build && tsc",
+        "dev": "NODE_ENV=development node --es-module-specifier-resolution=node dist/src/index.js",
+        "prod": "NODE_ENV=production node --es-module-specifier-resolution=node dist/src/index.js",
+        "watch": "NODE_ENV=development sh -c 'tsc-watch --onSuccess \"node --es-module-specifier-resolution=node --experimental-json-modules ./dist/src/index.js bot $*\"'",
+        "lint": "eslint src/ --ext .ts",
+        "format": "prettier --check \"src/**/*.ts\"",
+        "typeorm": "node --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/boo1544641/FinalEarth.git"
+    },
+    "author": "Pyrit [29406], Natty_Boh [29066]",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite/issues"
+    },
+    "homepage": "https://github.com/Final-Earth-Stuff/Skynet-Rewrite",
+    "workspaces": [
+        "helpers"
+    ],
+    "dependencies": {
+        "@discordjs/rest": "^1.1.0",
+        "@opentelemetry/api": "^1.2.0",
+        "@opentelemetry/context-async-hooks": "^1.7.0",
+        "@opentelemetry/exporter-trace-otlp-grpc": "^0.33.0",
+        "@opentelemetry/instrumentation": "^0.33.0",
+        "@opentelemetry/instrumentation-http": "^0.33.0",
+        "@opentelemetry/instrumentation-pg": "^0.31.1",
+        "@opentelemetry/resources": "^1.7.0",
+        "@opentelemetry/sdk-node": "^0.33.0",
+        "@opentelemetry/sdk-trace-node": "^1.7.0",
+        "@opentelemetry/semantic-conventions": "^1.7.0",
+        "bufferutil": "^4.0.6",
+        "discord-api-types": "^0.37.4",
+        "discord.js": "^14.3.0",
+        "dotenv": "^16.0.1",
+        "erlpack": "^0.1.4",
+        "fp-ts": "^2.12.2",
+        "fuzzysort": "^2.0.1",
+        "glob": "^8.0.3",
+        "helpers": "workspace:helpers",
+        "io-ts": "^2.2.17",
+        "node-cron": "^3.0.2",
+        "node-fetch": "3.2.8",
+        "node-gyp": "^9.1.0",
+        "pg": "^8.7.3",
+        "reflect-metadata": "^0.1.13",
+        "typeorm": "^0.3.7",
+        "utf-8-validate": "^5.0.9",
+        "winston": "3.8.1",
+        "yargs": "^17.5.1",
+        "zlib-sync": "^0.1.7"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.2.0",
+        "@types/node": "18.7.10",
+        "@types/node-cron": "^3.0.2",
+        "@types/yargs": "^17.0.11",
+        "@typescript-eslint/eslint-plugin": "^5.34.0",
+        "@typescript-eslint/parser": "^5.34.0",
+        "eslint": "^8.22.0",
+        "prettier": "^2.7.1",
+        "ts-node": "^10.9.1",
+        "tsc-watch": "^5.0.3",
+        "typescript": "^4.7.4"
+    },
+    "packageManager": "yarn@3.2.3"
 }

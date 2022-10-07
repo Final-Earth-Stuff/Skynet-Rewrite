@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "rootDir": "src",
         "target": "esnext",
         "module": "esnext",
         "moduleResolution": "node",
@@ -11,17 +10,11 @@
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
+        "resolveJsonModule": true,
         "strict": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
         "outDir": "dist"
     },
-    "exclude": [
-        "./node_modules"
-    ],
-    "include": [
-        "src/**/*"
-    ]
+    "include": ["src/**/*", "package.json"]
 }

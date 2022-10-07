@@ -9,7 +9,7 @@ const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorReminders {
-    @Cron("*/30 * * * * *")
+    @Cron({ cron: "*/30 * * * * *", label: "monitor_reminders" })
     async checkReminders(client: Client) {
         try {
             const reminders = await ReminderRepository.getReminders(new Date());

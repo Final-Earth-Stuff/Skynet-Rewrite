@@ -18,7 +18,7 @@ const logger = makeLogger(import.meta);
 
 @ScheduledJob()
 export class MonitorUsers {
-    @Cron("*/30 * * * * *")
+    @Cron({ cron: "*/30 * * * * *", label: "monitor_users" })
     async checkUsers(client: Client) {
         logger.debug("checking all users...");
         const values = await UserSettingsRepository.getAllUserSettings();
