@@ -91,10 +91,6 @@ async function apiRequest<C extends t.Mixed>(
 ): Promise<t.TypeOf<C>> {
     const result = await flow(
         TE.tryCatchK((url: string) => fetch(url), mapError),
-        TE.filterOrElse(
-            (resp) => resp.ok,
-            (resp) => new ApiError(resp.statusText)
-        ),
         TE.chain((res) => TE.tryCatch(() => res.json(), mapError)),
         TE.chainEitherK(
             flow(
