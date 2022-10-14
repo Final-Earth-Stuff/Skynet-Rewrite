@@ -29,9 +29,7 @@ export class Profile {
         .addBooleanOption((option) =>
             option
                 .setName("redact-nw")
-                .setDescription(
-                    "Hide your networth"
-                )
+                .setDescription("Hide your networth")
                 .setRequired(false)
         )
         .toJSON();
@@ -48,7 +46,10 @@ export class Profile {
     }
 }
 
-async function buildStatsEmbed(wrapper: ApiWrapper, redactNw: boolean): Promise<EmbedBuilder> {
+async function buildStatsEmbed(
+    wrapper: ApiWrapper,
+    redactNw: boolean
+): Promise<EmbedBuilder> {
     const user = await wrapper.getUser();
     let formation: FormationData | undefined;
     try {
@@ -101,7 +102,9 @@ async function buildStatsEmbed(wrapper: ApiWrapper, redactNw: boolean): Promise<
             },
             {
                 name: "Networth",
-                value: redactNw ? `||REDACTED||`: `$${await calculateNetworth(user, wrapper)} total`,
+                value: redactNw
+                    ? `||REDACTED||`
+                    : `$${await calculateNetworth(user, wrapper)} total`,
                 inline: true,
             },
             {
