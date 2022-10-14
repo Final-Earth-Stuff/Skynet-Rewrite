@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, User } from "discord.js";
 
 import {
     TotalsQueryRow,
@@ -8,6 +8,8 @@ import { RegionQueryRow } from "../repository/UnitChangeRepository";
 
 import { getIcon, teamFromControl, convertAxisControl } from "./util/team";
 import { Color, FacilityIncome } from "./util/constants";
+import ApiWrapper from "../wrapper/wrapper";
+import { NoKeyError } from "../error";
 
 export function buildTotals(
     totals: TotalsQueryRow,
@@ -136,4 +138,18 @@ export function buildRegionUnitList(units: RegionQueryRow[]): string {
                 )}%) — ${row.allies} vs. ${row.axis}`
         )
         .join("\n");
+}
+
+export async function defaultTravelPoints(user: User): Promise<number> {
+    try {
+        const wrapper = await ApiWrapper.forDiscordId(user.id);
+        const userData = await wrapper.getUser();
+        return userData.skills.travelTime;
+    } catch (e) {
+        if (e instanceof NoKeyError) {
+            return 0;
+        } else {
+            throw e;
+        }
+    }
 }

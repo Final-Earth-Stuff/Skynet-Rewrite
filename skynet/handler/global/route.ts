@@ -9,6 +9,7 @@ import { BotError } from "../../error";
 import { Data } from "../../map";
 import { travelTime, getDistance } from "../../map/util";
 import { Color } from "../../service/util/constants";
+import { defaultTravelPoints } from "../../service/mapCommands";
 
 @CommandHandler({ name: "route" })
 export class Route {
@@ -62,10 +63,13 @@ export class Route {
 
     @Command()
     async route(interaction: ChatInputCommandInteraction): Promise<void> {
+        await interaction.deferReply();
         const start = interaction.options.getInteger("start", true);
         const dest = interaction.options.getInteger("destination", true);
         const elasticity = interaction.options.getNumber("elasticity") ?? 1.2;
-        const points = interaction.options.getInteger("points") ?? 0;
+        const points =
+            interaction.options.getInteger("points") ??
+            (await defaultTravelPoints(interaction.user));
         const paratroopers =
             interaction.options.getBoolean("paratroopers") ?? false;
 
@@ -106,6 +110,11 @@ export class Route {
 
         const embed = new EmbedBuilder()
             .setTitle(`Route: ${startCountry.name} ➔ ${destCountry.name}`)
+            .setDescription(
+                `From **${startCountry.name}** to **${destCountry.name}**${
+                    points !== 0 ? ` with ${points}% travel bonus` : ""
+                }`
+            )
             .setColor(Color.BLUE)
             .addFields(
                 {
@@ -120,6 +129,6 @@ export class Route {
                 }
             );
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
     }
 }

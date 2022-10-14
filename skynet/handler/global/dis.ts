@@ -3,6 +3,7 @@ import {
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
+import { defaultTravelPoints } from "../../service/mapCommands";
 
 import { Command, CommandData, CommandHandler } from "../../decorators";
 import { BotError } from "../../error";
@@ -57,7 +58,10 @@ export class Dis {
 
     @Command()
     async dist(interaction: ChatInputCommandInteraction): Promise<void> {
-        const travelPoints = interaction.options.getInteger("points") ?? 0;
+        await interaction.deferReply();
+        const travelPoints =
+            interaction.options.getInteger("points") ??
+            (await defaultTravelPoints(interaction.user));
         if (travelPoints < 0 || travelPoints > 25) {
             throw new BotError("Travel points need to be between 0 and 25");
         }
@@ -102,6 +106,6 @@ export class Dis {
                 }
             );
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
     }
 }
