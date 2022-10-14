@@ -14,7 +14,8 @@
         "strict": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "outDir": "dist"
+        "outDir": "dist",
+        "incremental": true
     },
-    "include": ["src/**/*", "package.json"]
+    "include": ["skynet/**/*", "package.json"]
 }

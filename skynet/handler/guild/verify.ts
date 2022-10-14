@@ -5,8 +5,7 @@ import {
 } from "discord.js";
 
 import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { getUser, getWorld } from "../../wrapper/wrapper";
-import { config } from "../../config";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { BotError, ApiError } from "../../error";
 import { verifyGuard } from "../../guard/verifyGuard";
 
@@ -41,7 +40,7 @@ export class Verify {
 
         let user: UserData;
         try {
-            user = await getUser(config.apiKey, interaction.user.id);
+            user = await ApiWrapper.bot.getUser(interaction.user.id);
         } catch (e) {
             if (e instanceof ApiError && e.code == 2) {
                 await resetMember(member, guild);
@@ -57,7 +56,7 @@ export class Verify {
         if (!guild.allies_role || !guild.axis_role || !guild.spectator_role)
             throw new BotError("Roles are not configured for this guild");
 
-        const world = await getWorld(config.apiKey);
+        const world = await ApiWrapper.bot.getWorld();
         const roundOver = isRoundOver(world);
 
         try {

@@ -8,9 +8,8 @@ import {
 } from "discord.js";
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
-import { getUser, getWorld } from "../../wrapper/wrapper";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { UserData } from "../../wrapper/models/user";
-import { config } from "../../config";
 import { BotError, ApiError } from "../../error";
 
 import { Color } from "../../service/util/constants";
@@ -58,14 +57,14 @@ export class VerifyAll {
             await interaction.reply({ embeds: [embed] });
         }
 
-        const world = await getWorld(config.apiKey);
+        const world = await ApiWrapper.bot.getWorld();
         const roundOver = isRoundOver(world);
 
         const members = await interaction.guild.members.fetch();
         for (const member of members.values()) {
             let user: UserData;
             try {
-                user = await getUser(config.apiKey, member.id);
+                user = await ApiWrapper.bot.getUser(member.id);
             } catch (e) {
                 if (e instanceof ApiError && e.code == 2) {
                     const embed = buildEmbed(

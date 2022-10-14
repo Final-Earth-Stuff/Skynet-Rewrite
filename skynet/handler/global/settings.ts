@@ -6,7 +6,7 @@ import {
     ButtonStyle,
     SlashCommandBuilder,
 } from "discord.js";
-import { UserSettings } from "src/entity/UserSettings";
+import { UserSettings } from "skynet/entity/UserSettings";
 import { BotError } from "../../error";
 
 import {

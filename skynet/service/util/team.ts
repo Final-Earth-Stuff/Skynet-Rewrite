@@ -1,4 +1,4 @@
-import { CountryData } from "src/wrapper/models/country";
+import { CountryData } from "skynet/wrapper/models/country";
 import { Icon } from "./constants";
 
 export function getIcon(team: number) {

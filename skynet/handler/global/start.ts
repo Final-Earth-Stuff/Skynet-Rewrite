@@ -6,7 +6,7 @@ import {
 
 import { CommandHandler, Command, CommandData } from "../../decorators";
 import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
-import { getUser } from "../../wrapper/wrapper";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { ApiError, BotError } from "../../error";
 import { Color } from "../../service/util/constants";
 
@@ -33,30 +33,20 @@ export class Start {
         const apiKey = interaction.options.getString("apikey", true);
         if (apiKey.length != 10) {
             throw new BotError(
-                "API keys must be 10 characters, please check your key and try again.",
-                {
-                    ephemeral: true,
-                }
+                "API keys must be 10 characters, please check your key and try again."
             );
         }
         let user;
         try {
-            user = await getUser(apiKey);
+            user = await ApiWrapper.forRaw(apiKey).getUser();
         } catch (e) {
             if (e instanceof ApiError && e.code === 1) {
                 throw new BotError(
-                    "This is not a valid API key, please check your key and try again.",
-                    {
-                        ephemeral: true,
-                    }
+                    "This is not a valid API key, please check your key and try again."
                 );
+            } else {
+                throw e;
             }
-            throw new BotError(
-                "Something went wrong with calling the API, please check your key and try again.",
-                {
-                    ephemeral: true,
-                }
-            );
         }
         await UserSettingsRepository.saveSettings(
             interaction.user.id,

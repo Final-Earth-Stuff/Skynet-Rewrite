@@ -8,7 +8,7 @@ import {
     Counts,
 } from "../../repository/UserSettingsRepository";
 import { UserSettings } from "../../entity/UserSettings";
-import * as wrapper from "../../wrapper/wrapper";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { makeLogger } from "../../logger";
 import { NotificationData } from "../../wrapper/models/notification";
 import { Team } from "../../service/util/constants";
@@ -27,9 +27,9 @@ export class MonitorUsers {
                 if (user.api_key) {
                     logger.debug("checking %s", user.user_id);
                     try {
-                        const notifsData = await wrapper.getNotifications(
-                            user.api_key
-                        );
+                        const notifsData = await ApiWrapper.forUser(
+                            user
+                        ).getNotifications();
                         if (!user.paused_flag) {
                             const discord = await client.users
                                 .fetch(user.discord_id)
@@ -68,7 +68,7 @@ export class MonitorUsers {
             await this.buildTimers(user, notifsData, timers, discord);
             await this.buildCounts(user, notifsData, counts, discord);
             if (user.enemy_flag && user.api_key) {
-                const userData = await wrapper.getUser(user.api_key);
+                const userData = await ApiWrapper.forUser(user).getUser();
                 let team = Team.NONE;
                 team = userData.team;
 
@@ -84,8 +84,7 @@ export class MonitorUsers {
     }
 
     async checkEnemies(user: UserSettings, discord: User, team: string) {
-        const apiKey = user.api_key ?? "";
-        const data = await this.getCurrentCountry(team, apiKey);
+        const data = await this.getCurrentCountry(team, user);
         if (!data) return;
 
         const prevNotif = user.prev_enemies_notification ?? new Date(0);
@@ -119,8 +118,8 @@ export class MonitorUsers {
         }
     }
 
-    async getCurrentCountry(team: string, api_key: string) {
-        const country = await wrapper.getCountry(api_key);
+    async getCurrentCountry(team: string, user: UserSettings) {
+        const country = await ApiWrapper.forUser(user).getCountry();
         if (!country) return;
 
         let currentCount: number | undefined;

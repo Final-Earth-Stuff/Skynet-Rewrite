@@ -17,6 +17,6 @@ export const AppDataSource = new DataSource({
     password: config.databasePassword,
     database: config.databaseName,
     synchronize: false,
-    entities: ["dist/src/entity/**/*.js"],
-    migrations: ["dist/src/migration/**/*.js"],
+    entities: ["dist/skynet/entity/**/*.js"],
+    migrations: ["dist/skynet/migration/**/*.js"],
 });

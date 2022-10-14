@@ -14,7 +14,7 @@ export * from "./Completion";
 
 export async function loadHandlers() {
     const exports = [];
-    for (const match of glob.sync("handler/**/*.js", { cwd: "dist/src" })) {
+    for (const match of glob.sync("handler/**/*.js", { cwd: "dist/skynet" })) {
         exports.push(
             ...Object.values(
                 (await import(`../${match}`)) as Record<string, unknown>
