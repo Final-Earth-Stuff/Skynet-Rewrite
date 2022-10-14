@@ -17,6 +17,7 @@ import {
     teamFromControl,
     convertAxisControl,
 } from "../../service/util/team";
+import { defaultTravelPoints } from "../../service/mapCommands";
 
 @CommandHandler({ name: "prox" })
 export class Prox {
@@ -69,9 +70,12 @@ export class Prox {
 
     @Command()
     async prox(interaction: ChatInputCommandInteraction): Promise<void> {
+        await interaction.deferReply();
         const center = interaction.options.getInteger("center", true);
         const radius = interaction.options.getInteger("radius", true);
-        const travelPoints = interaction.options.getInteger("points") ?? 0;
+        const travelPoints =
+            interaction.options.getInteger("points") ??
+            (await defaultTravelPoints(interaction.user));
         const team = interaction.options.getString("team") as Team;
         const paratroopers =
             interaction.options.getBoolean("paratroopers") ?? false;
@@ -169,6 +173,6 @@ export class Prox {
             embed.addFields({ name: "Countries", value: list });
         }
 
-        await interaction.reply({ embeds });
+        await interaction.editReply({ embeds });
     }
 }
