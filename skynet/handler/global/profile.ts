@@ -26,20 +26,30 @@ export class Profile {
     readonly data = new SlashCommandBuilder()
         .setName("profile")
         .setDescription("Display your profile stats")
+        .addBooleanOption((option) =>
+            option
+                .setName("redact-nw")
+                .setDescription("Hide your networth")
+                .setRequired(false)
+        )
         .toJSON();
 
     @Command()
     async profile(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
+        const redactNw = interaction.options.getBoolean("redact-nw") ?? false;
         const userWrapper = await ApiWrapper.forDiscordId(interaction.user.id);
 
         await interaction.editReply({
-            embeds: [await buildStatsEmbed(userWrapper)],
+            embeds: [await buildStatsEmbed(userWrapper, redactNw)],
         });
     }
 }
 
-async function buildStatsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
+async function buildStatsEmbed(
+    wrapper: ApiWrapper,
+    redactNw: boolean
+): Promise<EmbedBuilder> {
     const user = await wrapper.getUser();
     let formation: FormationData | undefined;
     try {
@@ -92,7 +102,9 @@ async function buildStatsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
             },
             {
                 name: "Networth",
-                value: `$${await calculateNetworth(user, wrapper)} total`,
+                value: redactNw
+                    ? `||REDACTED||`
+                    : `$${await calculateNetworth(user, wrapper)} total`,
                 inline: true,
             },
             {
