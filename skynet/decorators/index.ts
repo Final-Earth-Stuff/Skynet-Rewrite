@@ -6,11 +6,11 @@ import { isButtonHandler } from "./Button";
 import { isCompletionProvider } from "./Completion";
 import { isScheduledJob, JobHandle } from "./ScheduledJob";
 
-export * from "./Button.js";
-export * from "./EventHandler.js";
-export * from "./CommandHandler.js";
-export * from "./ScheduledJob.js";
-export * from "./Completion.js";
+export * from "./Button";
+export * from "./EventHandler";
+export * from "./CommandHandler";
+export * from "./ScheduledJob";
+export * from "./Completion";
 
 export async function loadHandlers() {
     const exports = [];

@@ -113,7 +113,7 @@ export class ApiWrapper {
         });
     }
 
-    async apiRequest<C extends t.Mixed>(
+    private async apiRequest<C extends t.Mixed>(
         resource: string,
         codec: C,
         id?: number | string
@@ -154,6 +154,7 @@ export class ApiWrapper {
             return result.right as Promise<t.TypeOf<C>>;
         }
     }
+
     getUser(): Promise<UserData & PrivateUserData>;
     getUser(id: number | string): Promise<UserData>;
     async getUser(id?: string | number) {
