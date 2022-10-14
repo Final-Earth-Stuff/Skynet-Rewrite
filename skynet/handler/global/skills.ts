@@ -60,6 +60,11 @@ async function buildSkillsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
                 inline: true,
             },
             {
+                name: "Ranking",
+                value: `${user.skills.ranking}/25`,
+                inline: true,
+            },
+            {
                 name: "Land ATK",
                 value: `${user.skills.landAttack}/25`,
                 inline: true,
@@ -81,12 +86,7 @@ async function buildSkillsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
             },
             {
                 name: "Air DEF",
-                value: `${user.skills.airAttack}/25`,
-                inline: true,
-            },
-            {
-                name: "Land DEF",
-                value: `${user.skills.landDefence}/25`,
+                value: `${user.skills.airDefence}/25`,
                 inline: true,
             },
             {
@@ -100,7 +100,7 @@ async function buildSkillsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
                 inline: true,
             },
             {
-                name: "Land DEF",
+                name: "Naval DEF",
                 value: `${user.skills.navalDefence}/25`,
                 inline: true,
             }
