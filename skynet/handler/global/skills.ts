@@ -11,15 +11,15 @@ import { ApiWrapper } from "../../wrapper/wrapper";
 import { rankMap } from "../../service/util/constants";
 
 @CommandHandler({ name: "skills" })
-export class Profile {
+export class Skills {
     @CommandData({ type: "global" })
     readonly data = new SlashCommandBuilder()
         .setName("skills")
-        .setDescription("Display your unlocked skills")
+        .setDescription("Display your purchased skills")
         .toJSON();
 
     @Command()
-    async profile(interaction: ChatInputCommandInteraction): Promise<void> {
+    async skills(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
         const userWrapper = await ApiWrapper.forDiscordId(interaction.user.id);
 
