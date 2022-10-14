@@ -14,15 +14,8 @@ import type {
     UserData,
     PrivateUserData,
 } from "../../wrapper/models/user";
-import {
-    getUser,
-    getFormation,
-    getUnits,
-    getAllUnits,
-} from "../../wrapper/wrapper";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { rankMap } from "../../service/util/constants";
-import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
-import { ApiError, BotError } from "../../error";
 import { makeLogger } from "../../logger";
 
 const logger = makeLogger(import.meta);
@@ -38,43 +31,19 @@ export class Profile {
     @Command()
     async profile(interaction: ChatInputCommandInteraction): Promise<void> {
         await interaction.deferReply();
-        const user = await UserSettingsRepository.getUserByDiscordId(
-            interaction.user.id
-        );
-
-        if (!user?.valid_key || !user.api_key) {
-            throw new BotError(
-                "Please DM the bot the /start command to store  your API key in order to use this feature."
-            );
-        }
-        let userData;
-        try {
-            userData = await getUser(user.api_key);
-        } catch (e) {
-            if (e instanceof ApiError && e.code === 1) {
-                throw new BotError(
-                    "This is not a valid API key, please check your key and try again."
-                );
-            }
-            logger.warn("API returned error: %O", e);
-            throw new BotError(
-                "Something went wrong with calling the API, please check your key and try again."
-            );
-        }
+        const userWrapper = await ApiWrapper.forDiscordId(interaction.user.id);
 
         await interaction.editReply({
-            embeds: [await buildStatsEmbed(userData, user.api_key)],
+            embeds: [await buildStatsEmbed(userWrapper)],
         });
     }
 }
 
-async function buildStatsEmbed(
-    user: UserData & PrivateUserData,
-    apiKey: string
-): Promise<EmbedBuilder> {
+async function buildStatsEmbed(wrapper: ApiWrapper): Promise<EmbedBuilder> {
+    const user = await wrapper.getUser();
     let formation: FormationData | undefined;
     try {
-        formation = await getFormation(apiKey);
+        formation = await wrapper.getFormation();
     } catch (e) {
         logger.error(e);
     }
@@ -123,7 +92,7 @@ async function buildStatsEmbed(
             },
             {
                 name: "Networth",
-                value: `$${await calculateNetworth(user, apiKey)} total`,
+                value: `$${await calculateNetworth(user, wrapper)} total`,
                 inline: true,
             },
             {
@@ -172,10 +141,10 @@ function getFormationPosition(formation: FormationData, id: string): string {
 
 async function calculateNetworth(
     user: PrivateUserData,
-    apiKey: string
+    wrapper: ApiWrapper
 ): Promise<string> {
-    const units = await getUnits(apiKey);
-    const allUnits = await getAllUnits(apiKey);
+    const units = await wrapper.getUnits();
+    const allUnits = await wrapper.getAllUnits();
 
     let total = units
         .map((unit) => {

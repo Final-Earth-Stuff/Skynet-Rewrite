@@ -24,3 +24,20 @@ export class ApiError extends Error {
         this.code = code;
     }
 }
+
+type ErrorUser = { type: "fe"; id: number } | { type: "discord"; id: string };
+
+export class NoKeyError extends Error {
+    user: ErrorUser;
+
+    constructor(type: "discord", id: string);
+    constructor(type: "fe", id: number);
+    constructor(type: "discord" | "fe", id: number | string) {
+        super(
+            type === "discord"
+                ? `No key for discord user with id ${id}`
+                : `No key for FE user with id ${id}`
+        );
+        this.user = { type, id } as ErrorUser;
+    }
+}

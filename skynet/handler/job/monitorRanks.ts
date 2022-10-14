@@ -14,8 +14,7 @@ import { makeLogger } from "../../logger";
 import { UserRank } from "../../entity/UserRank";
 import { removeMembers } from "../../service/nicknameService";
 import { isSome } from "../../util/guard";
-import { getUser, getWorld } from "../../wrapper/wrapper";
-import { config } from "../../config";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { ApiError } from "../../error";
 
 import {
@@ -34,7 +33,7 @@ export class MonitorRanks {
     @Cron({ cron: "*/10 * * * *", label: "monitor_ranks" })
     async checkRanks(client: Client) {
         logger.debug(`checking user ranks...`);
-        const world = await getWorld(config.apiKey);
+        const world = await ApiWrapper.bot.getWorld();
         const roundOver = isRoundOver(world);
         const users = await UserRankRepository.getCurrentUsers();
         const guilds = await client.guilds.fetch();
@@ -47,9 +46,9 @@ export class MonitorRanks {
     async initUserRank(member: GuildMember) {
         logger.info(`${member.displayName} joined ${member.guild.name}`);
         try {
-            const userData = await getUser(config.apiKey, member.id);
+            const userData = await ApiWrapper.bot.getUser(member.id);
             const guild = await getGuild(member.guild.id);
-            const world = await getWorld(config.apiKey);
+            const world = await ApiWrapper.bot.getWorld();
             const roundOver = isRoundOver(world);
 
             await updateRoleAndNickname(userData, guild, member, roundOver);

@@ -5,12 +5,12 @@
     "type": "module",
     "scripts": {
         "build": "yarn workspace helpers build && tsc",
-        "dev": "NODE_ENV=development node --es-module-specifier-resolution=node dist/src/index.js",
-        "prod": "NODE_ENV=production node --es-module-specifier-resolution=node dist/src/index.js",
-        "watch": "NODE_ENV=development sh -c 'tsc-watch --onSuccess \"node --es-module-specifier-resolution=node --experimental-json-modules ./dist/src/index.js bot $*\"'",
-        "lint": "eslint src/ --ext .ts",
-        "format": "prettier --check \"src/**/*.ts\"",
-        "typeorm": "node --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
+        "dev": "NODE_ENV=development node --no-warnings --es-module-specifier-resolution=node dist/skynet/index.js",
+        "prod": "NODE_ENV=production node --no-warnings --es-module-specifier-resolution=node dist/skynet/index.js",
+        "watch": "NODE_ENV=development sh -c 'tsc-watch --onSuccess \"node --es-module-specifier-resolution=node --experimental-json-modules --no-warnings ./dist/skynet/index.js bot $*\"'",
+        "lint": "eslint skynet/ --ext .ts",
+        "format": "prettier --check \"skynet/**/*.ts\"",
+        "typeorm": "node --no-warnings --es-module-specifier-resolution=node node_modules/typeorm/cli.js -d dist/datasource.js"
     },
     "repository": {
         "type": "git",

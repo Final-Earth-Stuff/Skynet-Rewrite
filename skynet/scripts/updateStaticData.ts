@@ -1,17 +1,16 @@
 import { AppDataSource } from "..";
-import { config } from "../config";
 import { makeLogger } from "../logger";
 
 import { Data } from "../map";
 import { Country, Region } from "../entity/Country";
-import { getWorld } from "../wrapper/wrapper";
+import { ApiWrapper } from "../wrapper/wrapper";
 
 const logger = makeLogger(import.meta);
 
 export async function updateStaticData() {
     try {
         logger.info("Writing static map data to database...");
-        const world = await getWorld(config.apiKey);
+        const world = await ApiWrapper.bot.getWorld();
         await AppDataSource.getRepository(Country).upsert(
             world.map((country) => ({
                 id: parseInt(country.id),

@@ -9,15 +9,20 @@ import {
 import node_cron from "node-cron";
 const { schedule } = node_cron;
 
+import { ROOT_CONTEXT, SpanKind, SpanStatusCode } from "@opentelemetry/api";
+
 import { config } from "./config";
 import { makeLogger } from "./logger";
-import { BotError } from "./error";
-import { Data } from "./map";
+import { ApiError, BotError, NoKeyError } from "./error";
+import { Data } from "./map/index";
 
-import { loadHandlers } from "./decorators";
+import { loadHandlers } from "./decorators/index";
 import { Color } from "./service/util/constants";
-import { ROOT_CONTEXT, SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { withNewSpan } from "./tracing";
+
+import { ApiWrapper } from "./wrapper/wrapper";
+
+ApiWrapper.forRaw("");
 
 const logger = makeLogger(import.meta);
 
@@ -137,6 +142,29 @@ export const bootstrap = async (jobs: boolean) => {
                                             span.addEvent("BotError response", {
                                                 message: e.message,
                                             });
+                                        } else if (e instanceof NoKeyError) {
+                                            embed.setDescription(
+                                                "This command requires your API key.\nPlease DM the bot and use the `/start` command in order to use this feature."
+                                            );
+                                        } else if (e instanceof ApiError) {
+                                            embed
+                                                .setDescription(
+                                                    `The API returned an error`
+                                                )
+                                                .setFields(
+                                                    {
+                                                        name: "reason",
+                                                        value: e.message,
+                                                        inline: true,
+                                                    },
+                                                    {
+                                                        name: "Code",
+                                                        value:
+                                                            e.code?.toString() ??
+                                                            "N/A",
+                                                        inline: true,
+                                                    }
+                                                );
                                         } else {
                                             logger.error(
                                                 "Encountered unexpected error while processing command '%s': %O",

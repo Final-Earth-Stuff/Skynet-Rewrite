@@ -1,10 +1,9 @@
 import { Client } from "discord.js";
 
 import { ScheduledJob, Cron } from "../../decorators";
-import * as wrapper from "../../wrapper/wrapper";
+import { ApiWrapper } from "../../wrapper/wrapper";
 import { makeLogger } from "../../logger";
 import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
-import { config } from "../../config";
 import { CountryData } from "../../wrapper/models/country";
 import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
 
@@ -18,7 +17,7 @@ import {
     compareCountry,
     logChangesToChannel,
 } from "../../service/facilitiesChanges";
-import { LandAndFacilities } from "src/entity/LandAndFacilities";
+import { LandAndFacilities } from "skynet/entity/LandAndFacilities";
 
 const logger = makeLogger(import.meta);
 
@@ -27,7 +26,7 @@ export class MonitorWorld {
     @Cron({ cron: "*/30 * * * * *", label: "monitor_world" })
     async checkWorld(client: Client) {
         logger.debug("checking world...");
-        const world: CountryData[] = await wrapper.getWorld(config.apiKey);
+        const world: CountryData[] = await ApiWrapper.bot.getWorld();
 
         const prevFacilties = await LandAndFacilitiesRepository.getLastWorld();
         const changedFacilities = this.checkFacilities(world, prevFacilties);

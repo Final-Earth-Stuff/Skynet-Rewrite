@@ -8,13 +8,13 @@ export class UserSettings {
     discord_id!: string;
 
     @Column({ type: "char", length: 10, nullable: true })
-    api_key?: string;
+    api_key?: string | null;
 
     @Column({ default: false })
     valid_key!: boolean;
 
     @Column({ nullable: true })
-    user_id?: number;
+    user_id!: number;
 
     @Column({ type: "enum", enum: Team, nullable: true })
     team?: Team;

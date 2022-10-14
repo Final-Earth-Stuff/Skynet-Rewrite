@@ -16,8 +16,7 @@ import { AppDataSource } from "..";
 import { makeLogger } from "../logger";
 import { Color } from "../service/util/constants";
 import { UserRank } from "../entity/UserRank";
-import { getUser } from "../wrapper/wrapper";
-import { config } from "../config";
+import { ApiWrapper } from "../wrapper/wrapper";
 import { UserRankRepository } from "../repository/UserRankRepository";
 
 const logger = makeLogger(import.meta);
@@ -192,7 +191,7 @@ export async function processUser(
     isRoundOver: boolean
 ): Promise<void> {
     try {
-        const user = await getUser(config.apiKey, u.discord_id);
+        const user = await ApiWrapper.bot.getUser(u.discord_id);
         for (const g of u.guild_ids) {
             const guild = await guilds.get(g)?.fetch();
             if (guild) {

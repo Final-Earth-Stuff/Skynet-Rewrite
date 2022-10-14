@@ -77,7 +77,7 @@ export const UserSettingsRepository = AppDataSource.getRepository(
         discordId: string,
         apiKey: string,
         validKey: boolean,
-        userId?: number,
+        userId: number,
         team?: Team
     ) {
         const notificationSettings = new UserSettings();

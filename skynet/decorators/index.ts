@@ -6,15 +6,15 @@ import { isButtonHandler } from "./Button";
 import { isCompletionProvider } from "./Completion";
 import { isScheduledJob, JobHandle } from "./ScheduledJob";
 
-export * from "./Button";
-export * from "./EventHandler";
-export * from "./CommandHandler";
-export * from "./ScheduledJob";
-export * from "./Completion";
+export * from "./Button.js";
+export * from "./EventHandler.js";
+export * from "./CommandHandler.js";
+export * from "./ScheduledJob.js";
+export * from "./Completion.js";
 
 export async function loadHandlers() {
     const exports = [];
-    for (const match of glob.sync("handler/**/*.js", { cwd: "dist/src" })) {
+    for (const match of glob.sync("handler/**/*.js", { cwd: "dist/skynet" })) {
         exports.push(
             ...Object.values(
                 (await import(`../${match}`)) as Record<string, unknown>
