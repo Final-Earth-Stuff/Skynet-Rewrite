@@ -39,11 +39,10 @@ export class Verify {
         if (!interaction.guild)
             throw new BotError("Command needs to be run in a guild");
 
-        const userId = interaction.options.getUser("user")?.id ?? interaction.user.id;
+        const userId =
+            interaction.options.getUser("user")?.id ?? interaction.user.id;
 
-        const member = await interaction.guild.members.fetch(
-            userId
-        );
+        const member = await interaction.guild.members.fetch(userId);
         const guild = await getGuild(interaction.guildId ?? "");
 
         let user: UserData;
@@ -78,9 +77,7 @@ export class Verify {
                 name: user.name,
                 iconURL: member.user.displayAvatarURL(),
             })
-            .setDescription(
-                `Successfully verified user ${member.user.tag}!`
-            )
+            .setDescription(`Successfully verified user ${member.user.tag}!`)
             .setColor(Color.GREEN);
 
         await interaction.editReply({ embeds: [embed] });
