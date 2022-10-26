@@ -1,10 +1,4 @@
-import {
-    Collection,
-    CommandInteraction,
-    GuildMember,
-    Snowflake,
-    ThreadMemberManager,
-} from "discord.js";
+import { Collection, CommandInteraction } from "discord.js";
 
 import { AppDataSource } from "..";
 import { BotError } from "../error";
@@ -26,8 +20,8 @@ export const verifyGuard = async (interaction: CommandInteraction) => {
                 guild.verify_channel
             );
             if (
-                isNotThreadMembers(channel?.members) &&
-                channel?.members.has(interaction.user.id)
+                channel?.members instanceof Collection &&
+                channel.members.has(interaction.user.id)
             ) {
                 throw new BotError(
                     `This command can only be used in <#${guild.verify_channel}>`,
@@ -40,14 +34,3 @@ export const verifyGuard = async (interaction: CommandInteraction) => {
         });
     }
 };
-
-function isNotThreadMembers(
-    channelMembers:
-        | Collection<string, GuildMember>
-        | ThreadMemberManager
-        | undefined
-): channelMembers is Collection<string, GuildMember> {
-    return (
-        (channelMembers as Collection<string, GuildMember>).has !== undefined
-    );
-}
