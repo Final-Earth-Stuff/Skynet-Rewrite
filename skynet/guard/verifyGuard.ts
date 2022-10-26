@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { Collection, CommandInteraction } from "discord.js";
 
 import { AppDataSource } from "..";
 import { BotError } from "../error";
@@ -19,7 +19,10 @@ export const verifyGuard = async (interaction: CommandInteraction) => {
             const channel = await interaction.guild?.channels.fetch(
                 guild.verify_channel
             );
-            if (channel?.members.has(interaction.user.id)) {
+            if (
+                channel?.members instanceof Collection &&
+                channel.members.has(interaction.user.id)
+            ) {
                 throw new BotError(
                     `This command can only be used in <#${guild.verify_channel}>`,
                     { ephemeral: true }
