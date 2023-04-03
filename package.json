@@ -39,7 +39,7 @@
         "@opentelemetry/semantic-conventions": "^1.7.0",
         "bufferutil": "^4.0.7",
         "discord-api-types": "^0.37.12",
-        "discord.js": "^14.6.0",
+        "discord.js": "^14.9.0",
         "dotenv": "^16.0.3",
         "erlpack": "^0.1.4",
         "fp-ts": "^2.13.1",
