@@ -1,6 +1,6 @@
 import * as t from "io-ts";
-import type { Either } from "fp-ts/Either";
-import type { Team as TeamType } from "../../service/util/constants";
+import type { Either } from "fp-ts/lib/Either.js";
+import type { Team as TeamType } from "../../service/util/constants.js";
 
 const _Team = t.union([
     t.literal("Allies"),

@@ -1,5 +1,5 @@
-import { AppDataSource } from "../";
-import { UserRank } from "../entity/UserRank";
+import { AppDataSource } from "../index.js";
+import { UserRank } from "../entity/UserRank.js";
 
 export const UserRankRepository = AppDataSource.getRepository(UserRank).extend({
     getCurrentUsers(): Promise<UserRank[]> {

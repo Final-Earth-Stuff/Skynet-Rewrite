@@ -1,13 +1,13 @@
-import { UnitChange } from "../entity/UnitChange";
-import { CountryData } from "../wrapper/models/country";
+import { UnitChange } from "../entity/UnitChange.js";
+import { CountryData } from "../wrapper/models/country.js";
 import { Client, EmbedBuilder, ChannelType } from "discord.js";
-import { AppDataSource } from "..";
-import { Guild } from "../entity/Guild";
-import { getIcon, convertAxisControl } from "./util/team";
-import { Color } from "./util/constants";
-import { getDistance } from "../map/util";
-import { isSome } from "../util/guard";
-import { unwrap } from "../util/assert";
+import { AppDataSource } from "../index.js";
+import { Guild } from "../entity/Guild.js";
+import { getIcon, convertAxisControl } from "./util/team.js";
+import { Color } from "./util/constants.js";
+import { getDistance } from "../map/util.js";
+import { isSome } from "../util/guard.js";
+import { unwrap } from "../util/assert.js";
 
 type Units = Omit<UnitChange, "id">;
 

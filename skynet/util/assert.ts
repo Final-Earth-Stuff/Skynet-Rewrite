@@ -1,6 +1,6 @@
-import { makeLogger } from "../logger";
+import { makeLogger } from "../logger.js";
 
-import { Some } from "./guard";
+import { Some } from "./guard.js";
 
 const logger = makeLogger(import.meta);
 

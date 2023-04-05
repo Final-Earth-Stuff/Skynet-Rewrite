@@ -4,20 +4,24 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { BotError } from "../../error";
-import { Data } from "../../map";
-import { travelTime, convertToKm } from "../../map/util";
-import { Team } from "../../service/util/constants";
-import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
-import { unwrap } from "../../util/assert";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { BotError } from "../../error.js";
+import { Data } from "../../map/index.js";
+import { travelTime, convertToKm } from "../../map/util.js";
+import { Team } from "../../service/util/constants.js";
+import { UnitChangeRepository } from "../../repository/UnitChangeRepository.js";
+import { unwrap } from "../../util/assert.js";
+import { Color } from "../../service/util/constants.js";
 import {
     getIcon,
     teamFromControl,
     convertAxisControl,
-} from "../../service/util/team";
-import { defaultTravelPoints } from "../../service/mapCommands";
+} from "../../service/util/team.js";
+import { defaultTravelPoints } from "../../service/mapCommands.js";
 
 @CommandHandler({ name: "prox" })
 export class Prox {

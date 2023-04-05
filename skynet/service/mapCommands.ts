@@ -3,13 +3,13 @@ import { EmbedBuilder, User } from "discord.js";
 import {
     TotalsQueryRow,
     IncomeQuery,
-} from "../repository/LandAndFacilitiesRepository";
-import { RegionQueryRow } from "../repository/UnitChangeRepository";
+} from "../repository/LandAndFacilitiesRepository.js";
+import { RegionQueryRow } from "../repository/UnitChangeRepository.js";
 
-import { getIcon, teamFromControl, convertAxisControl } from "./util/team";
-import { Color, FacilityIncome } from "./util/constants";
-import ApiWrapper from "../wrapper/wrapper";
-import { NoKeyError } from "../error";
+import { getIcon, teamFromControl, convertAxisControl } from "./util/team.js";
+import { Color, FacilityIncome } from "./util/constants.js";
+import ApiWrapper from "../wrapper/wrapper.js";
+import { NoKeyError } from "../error.js";
 
 export function buildTotals(
     totals: TotalsQueryRow,

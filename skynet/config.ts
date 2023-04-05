@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-import { makeLogger } from "./logger";
+import { makeLogger } from "./logger.js";
 
 import.meta;
 const logger = makeLogger(import.meta);

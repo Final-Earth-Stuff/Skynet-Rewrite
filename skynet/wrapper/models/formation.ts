@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-import { UserData } from "./user";
+import { UserData } from "./user.js";
 
 export const FormationData = t.type({
     coleader: t.string,

@@ -1,9 +1,9 @@
 import { Client } from "discord.js";
-import { ScheduledJob, Cron } from "../../decorators";
-import { makeLogger } from "../../logger";
-import { ReminderRepository } from "../../repository/ReminderRepository";
-import { processReminder } from "../../service/reminders";
-import { isSome } from "../../util/guard";
+import { ScheduledJob, Cron } from "../../decorators/index.js";
+import { makeLogger } from "../../logger.js";
+import { ReminderRepository } from "../../repository/ReminderRepository.js";
+import { processReminder } from "../../service/reminders.js";
+import { isSome } from "../../util/guard.js";
 
 const logger = makeLogger(import.meta);
 

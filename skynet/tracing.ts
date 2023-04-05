@@ -16,7 +16,7 @@ import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 import manifest from "../package.json" assert { type: "json" };
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { DjsInstrumentation } from "./djsInstrumentation";
+import { DjsInstrumentation } from "./djsInstrumentation.js";
 
 new AsyncLocalStorageContextManager().enable();
 

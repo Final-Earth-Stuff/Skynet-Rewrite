@@ -3,27 +3,27 @@ import {
     ScheduledJob,
     Cron,
     DiscordEvent,
-} from "../../decorators";
+} from "../../decorators/index.js";
 import { Client, GuildMember, PartialGuildMember, Guild } from "discord.js";
 
-import { UserRankRepository } from "../../repository/UserRankRepository";
-import { AppDataSource } from "../..";
+import { UserRankRepository } from "../../repository/UserRankRepository.js";
+import { AppDataSource } from "../../index.js";
 
-import { processUser } from "../../service/verifyService";
-import { makeLogger } from "../../logger";
-import { UserRank } from "../../entity/UserRank";
-import { removeMembers } from "../../service/nicknameService";
-import { isSome } from "../../util/guard";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { ApiError } from "../../error";
+import { processUser } from "../../service/verifyService.js";
+import { makeLogger } from "../../logger.js";
+import { UserRank } from "../../entity/UserRank.js";
+import { removeMembers } from "../../service/nicknameService.js";
+import { isSome } from "../../util/guard.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { ApiError } from "../../error.js";
 
 import {
     getGuild,
     sendMessage,
     updateRoleAndNickname,
-} from "../../service/verifyService";
-import { Color } from "../../service/util/constants";
-import { isRoundOver } from "../../service/util/team";
+} from "../../service/verifyService.js";
+import { Color } from "../../service/util/constants.js";
+import { isRoundOver } from "../../service/util/team.js";
 
 const logger = makeLogger(import.meta);
 

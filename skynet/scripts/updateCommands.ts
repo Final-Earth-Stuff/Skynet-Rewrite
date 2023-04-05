@@ -5,13 +5,13 @@ import {
     APIApplicationCommand,
 } from "discord-api-types/v10";
 
-import { AppDataSource } from "..";
-import { config } from "../config";
-import { makeLogger } from "../logger";
-import { loadHandlers } from "../decorators";
+import { AppDataSource } from "../index.js";
+import { config } from "../config.js";
+import { makeLogger } from "../logger.js";
+import { loadHandlers } from "../decorators/index.js";
 
-import { Guild } from "../entity/Guild";
-import { CommandRepository } from "../repository/CommandRepository";
+import { Guild } from "../entity/Guild.js";
+import { CommandRepository } from "../repository/CommandRepository.js";
 
 const logger = makeLogger(import.meta);
 

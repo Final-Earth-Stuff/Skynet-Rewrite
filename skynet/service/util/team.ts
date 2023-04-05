@@ -1,5 +1,5 @@
-import { CountryData } from "skynet/wrapper/models/country";
-import { Icon } from "./constants";
+import { CountryData } from "skynet/wrapper/models/country.js";
+import { Icon } from "./constants.js";
 
 export function getIcon(team: number) {
     if (team === 1) {

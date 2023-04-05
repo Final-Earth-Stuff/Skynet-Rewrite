@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any*/
 import type { Client } from "discord.js";
-import { Constructor, ensureBaseScope } from "./BaseScope";
+import { Constructor, ensureBaseScope } from "./BaseScope.js";
 
 export type JobBody = (guild: Client) => Promise<void>;
 
@@ -60,9 +60,9 @@ export const ScheduledJob =
                     [...cronMap.entries()].map(([cron, handles]) => [
                         cron,
                         handles.map((handle) => {
-                            const handler = Reflect.get(this, handle.key).bind(
-                                this
-                            );
+                            const handler = (
+                                Reflect.get(this, handle.key) as any
+                            ).bind(this);
                             handler.label = handle.label;
 
                             return handler;

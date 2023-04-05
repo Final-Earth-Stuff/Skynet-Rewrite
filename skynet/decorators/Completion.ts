@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ApplicationCommandOptionChoiceData } from "discord.js";
-import { Constructor, ensureBaseScope } from "./BaseScope";
+import { Constructor, ensureBaseScope } from "./BaseScope.js";
 
 type AutocompleteHandler = (
     value: string
@@ -76,7 +76,7 @@ export const CompletionProvider =
                     throw new Error(`Unknown completion with id \`${id}\``);
                 }
 
-                return await Reflect.get(this, key).call(this, value);
+                return await (Reflect.get(this, key) as any).call(this, value);
             }
         };
     };

@@ -7,7 +7,7 @@ registerInstrumentations({
 
 import { DataSource } from "typeorm";
 
-import { config } from "./config";
+import { config } from "./config.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",

@@ -1,16 +1,16 @@
 import glob from "glob";
 
-import { isCommandHandler } from "./CommandHandler";
-import { isEventHandler } from "./EventHandler";
-import { isButtonHandler } from "./Button";
-import { isCompletionProvider } from "./Completion";
-import { isScheduledJob, JobHandle } from "./ScheduledJob";
+import { isCommandHandler } from "./CommandHandler.js";
+import { isEventHandler } from "./EventHandler.js";
+import { isButtonHandler } from "./Button.js";
+import { isCompletionProvider } from "./Completion.js";
+import { isScheduledJob, JobHandle } from "./ScheduledJob.js";
 
-export * from "./Button";
-export * from "./EventHandler";
-export * from "./CommandHandler";
-export * from "./ScheduledJob";
-export * from "./Completion";
+export * from "./Button.js";
+export * from "./EventHandler.js";
+export * from "./CommandHandler.js";
+export * from "./ScheduledJob.js";
+export * from "./Completion.js";
 
 export async function loadHandlers() {
     const exports = [];

@@ -1,8 +1,8 @@
-import { LandAndFacilities } from "../entity/LandAndFacilities";
-import { Country, Region } from "../entity/Country";
-import { unwrap } from "../util/assert";
+import { LandAndFacilities } from "../entity/LandAndFacilities.js";
+import { Country, Region } from "../entity/Country.js";
+import { unwrap } from "../util/assert.js";
 
-import { AppDataSource } from "../";
+import { AppDataSource } from "../index.js";
 
 export interface FacQueryRow {
     country: number;

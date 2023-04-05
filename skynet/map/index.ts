@@ -7,10 +7,10 @@ const { prepare } = fuzzysort;
 
 import { MapQueryEngine } from "helpers";
 
-import { CountryData } from "../wrapper/models/country";
-import { assertIsSome } from "../util/assert";
+import { CountryData } from "../wrapper/models/country.js";
+import { assertIsSome } from "../util/assert.js";
 
-import { RADIUS_EARTH } from "./geometry";
+import { RADIUS_EARTH } from "./geometry.js";
 
 type Prepared = ReturnType<typeof prepare>;
 

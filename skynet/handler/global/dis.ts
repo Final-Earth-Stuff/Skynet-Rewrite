@@ -3,15 +3,19 @@ import {
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
-import { defaultTravelPoints } from "../../service/mapCommands";
+import { defaultTravelPoints } from "../../service/mapCommands.js";
 
-import { Command, CommandData, CommandHandler } from "../../decorators";
-import { BotError } from "../../error";
+import {
+    Command,
+    CommandData,
+    CommandHandler,
+} from "../../decorators/index.js";
+import { BotError } from "../../error.js";
 
-import { Data } from "../../map";
-import { greatCircleDist } from "../../map/geometry";
-import { travelTime } from "../../map/util";
-import { Color } from "../../service/util/constants";
+import { Data } from "../../map/index.js";
+import { greatCircleDist } from "../../map/geometry.js";
+import { travelTime } from "../../map/util.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "dis" })
 export class Dis {

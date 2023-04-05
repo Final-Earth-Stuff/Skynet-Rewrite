@@ -9,7 +9,7 @@ import type {
     ApplicationCommandData,
 } from "discord.js";
 
-import { Constructor, ensureBaseScope } from "./BaseScope";
+import { Constructor, ensureBaseScope } from "./BaseScope.js";
 
 export type CommandHandlerBody = (
     interaction: ChatInputCommandInteraction
@@ -205,7 +205,10 @@ export const CommandHandler =
                     if (guard.guildOnly && !interaction.guild) continue;
                     await guard.body(interaction);
                 }
-                const handler = Reflect.get(this, resolveHandler(interaction));
+                const handler = Reflect.get(
+                    this,
+                    resolveHandler(interaction)
+                ) as any;
                 await Reflect.apply(handler, this, [interaction]);
             }
         };

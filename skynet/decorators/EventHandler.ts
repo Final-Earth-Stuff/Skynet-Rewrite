@@ -6,9 +6,9 @@
 import type { EventEmitter } from "node:events";
 import type { ClientEvents } from "discord.js";
 
-import { Constructor, ensureBaseScope } from "./BaseScope";
+import { Constructor, ensureBaseScope } from "./BaseScope.js";
 
-import { makeLogger } from "../logger";
+import { makeLogger } from "../logger.js";
 
 const logger = makeLogger(import.meta);
 
@@ -93,7 +93,7 @@ export const EventHandler =
                         target.prototype,
                         handler
                     );
-                    const body = Reflect.get(this, handler);
+                    const body = Reflect.get(this, handler) as any;
 
                     emitter.on(event, (...args) => {
                         Promise.resolve({
@@ -123,7 +123,7 @@ export const EventHandler =
                         target.prototype,
                         handler
                     );
-                    const body = Reflect.get(this, handler);
+                    const body = Reflect.get(this, handler) as any;
 
                     emitter.on(event, (...args) => {
                         Promise.resolve({

@@ -1,5 +1,5 @@
 import { Column, PrimaryGeneratedColumn, Entity, ManyToOne } from "typeorm";
-import { UserSettings } from "./UserSettings";
+import { UserSettings } from "./UserSettings.js";
 
 @Entity()
 export class Reminder {

@@ -1,5 +1,5 @@
-import { Data } from "../map";
-import { greatCircleDist } from "../map/geometry";
+import { Data } from "../map/index.js";
+import { greatCircleDist } from "../map/geometry.js";
 
 export function travelTime(
     distKm: number,

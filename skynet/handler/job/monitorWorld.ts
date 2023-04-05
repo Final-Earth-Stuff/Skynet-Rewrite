@@ -1,23 +1,23 @@
 import { Client } from "discord.js";
 
-import { ScheduledJob, Cron } from "../../decorators";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { makeLogger } from "../../logger";
-import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
-import { CountryData } from "../../wrapper/models/country";
-import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
+import { ScheduledJob, Cron } from "../../decorators/index.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { makeLogger } from "../../logger.js";
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository.js";
+import { CountryData } from "../../wrapper/models/country.js";
+import { UnitChangeRepository } from "../../repository/UnitChangeRepository.js";
 
 import {
     changedUnitsFromWorld,
     prepareAndSendMessage,
-} from "../../service/troopMovements";
+} from "../../service/troopMovements.js";
 
 import {
     convertWorld,
     compareCountry,
     logChangesToChannel,
-} from "../../service/facilitiesChanges";
-import { LandAndFacilities } from "skynet/entity/LandAndFacilities";
+} from "../../service/facilitiesChanges.js";
+import { LandAndFacilities } from "skynet/entity/LandAndFacilities.js";
 
 const logger = makeLogger(import.meta);
 

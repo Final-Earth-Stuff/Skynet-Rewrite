@@ -1,8 +1,8 @@
 import { Collection, CommandInteraction } from "discord.js";
 
-import { AppDataSource } from "..";
-import { BotError } from "../error";
-import { Guild } from "../entity/Guild";
+import { AppDataSource } from "../index.js";
+import { BotError } from "../error.js";
+import { Guild } from "../entity/Guild.js";
 
 export const verifyGuard = async (interaction: CommandInteraction) => {
     const guild = await AppDataSource.getRepository(Guild).findOneOrFail({

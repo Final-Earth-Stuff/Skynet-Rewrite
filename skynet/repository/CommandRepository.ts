@@ -3,8 +3,8 @@ import { In } from "typeorm";
 import { ApplicationCommand } from "discord.js";
 import { APIApplicationCommand } from "discord-api-types/v10";
 
-import { Command } from "../entity/Command";
-import { AppDataSource } from "../";
+import { Command } from "../entity/Command.js";
+import { AppDataSource } from "../index.js";
 
 export const CommandRepository = AppDataSource.getRepository(Command).extend({
     async getGuildCommandIdsByName(

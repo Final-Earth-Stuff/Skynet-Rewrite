@@ -1,24 +1,24 @@
 import * as t from "io-ts";
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/lib/TaskEither.js";
+import * as E from "fp-ts/lib/Either.js";
 
-import func from "fp-ts/function";
+import func from "fp-ts/lib/function.js";
 
 import fetch from "node-fetch";
 
 import { IsNull, Not } from "typeorm";
 
-import { UserData, PrivateUserData } from "./models/user";
-import { NotificationData } from "./models/notification";
-import { CountryData } from "./models/country";
-import { FormationData } from "./models/formation";
-import { UnitsData } from "./models/units";
-import { AllUnitsData } from "./models/allunits";
-import { feResponse } from "./models/common";
-import { ApiError, NoKeyError } from "../error";
-import { config } from "../config";
-import { AppDataSource } from "../datasource";
-import { UserSettings } from "../entity/UserSettings";
+import { UserData, PrivateUserData } from "./models/user.js";
+import { NotificationData } from "./models/notification.js";
+import { CountryData } from "./models/country.js";
+import { FormationData } from "./models/formation.js";
+import { UnitsData } from "./models/units.js";
+import { AllUnitsData } from "./models/allunits.js";
+import { feResponse } from "./models/common.js";
+import { ApiError, NoKeyError } from "../error.js";
+import { config } from "../config.js";
+import { AppDataSource } from "../datasource.js";
+import { UserSettings } from "../entity/UserSettings.js";
 
 const mapError = (e: unknown): Error =>
     e instanceof Error ? e : new Error("This should never happen");

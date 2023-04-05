@@ -6,8 +6,8 @@ import {
     ButtonStyle,
     SlashCommandBuilder,
 } from "discord.js";
-import { UserSettings } from "skynet/entity/UserSettings";
-import { BotError } from "../../error";
+import { UserSettings } from "skynet/entity/UserSettings.js";
+import { BotError } from "../../error.js";
 
 import {
     Command,
@@ -15,11 +15,11 @@ import {
     CommandHandler,
     Button,
     ButtonHandler,
-} from "../../decorators";
+} from "../../decorators/index.js";
 import {
     UserSettingsRepository,
     Toggles,
-} from "../../repository/UserSettingsRepository";
+} from "../../repository/UserSettingsRepository.js";
 
 @CommandHandler({ name: "settings" })
 @ButtonHandler()

@@ -4,8 +4,12 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "help" })
 export class Help {

@@ -4,12 +4,16 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { BotError } from "../../error";
-import { Data } from "../../map";
-import { travelTime, getDistance } from "../../map/util";
-import { Color } from "../../service/util/constants";
-import { defaultTravelPoints } from "../../service/mapCommands";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { BotError } from "../../error.js";
+import { Data } from "../../map/index.js";
+import { travelTime, getDistance } from "../../map/util.js";
+import { Color } from "../../service/util/constants.js";
+import { defaultTravelPoints } from "../../service/mapCommands.js";
 
 @CommandHandler({ name: "route" })
 export class Route {

@@ -4,19 +4,23 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
 
-import { Color } from "../../service/util/constants";
-import type { FormationData } from "../../wrapper/models/formation";
+import { Color } from "../../service/util/constants.js";
+import type { FormationData } from "../../wrapper/models/formation.js";
 import type {
     ReimbursementInfo,
     Skills,
     UserData,
     PrivateUserData,
-} from "../../wrapper/models/user";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { rankMap } from "../../service/util/constants";
-import { makeLogger } from "../../logger";
+} from "../../wrapper/models/user.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { rankMap } from "../../service/util/constants.js";
+import { makeLogger } from "../../logger.js";
 
 const logger = makeLogger(import.meta);
 
@@ -181,7 +185,10 @@ async function calculateNetworth(
 function checkForSoldUnits(info: ReimbursementInfo[]): number {
     const now = Date.now() / 1000;
     const amountSold = info
-        .filter((reimb) => reimb.type === "SELL_UNITS" && reimb.time > now)
+        .filter(
+            (reimb) =>
+                reimb.type === "SELL_UNITS" && reimb.time && reimb.time > now
+        )
         .reduce((acc, curr) => acc + curr.amount, 0);
     return amountSold;
 }

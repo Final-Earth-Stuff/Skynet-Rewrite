@@ -6,18 +6,18 @@ import {
     ChannelType,
     DiscordAPIError,
 } from "discord.js";
-import { Guild as GuildEntity } from "../entity/Guild";
+import { Guild as GuildEntity } from "../entity/Guild.js";
 
-import { Team } from "../service/util/constants";
-import { getNicknameIfChanged } from "./nicknameService";
-import { UserData } from "../wrapper/models/user";
-import { ApiError, BotError } from "../error";
-import { AppDataSource } from "..";
-import { makeLogger } from "../logger";
-import { Color } from "../service/util/constants";
-import { UserRank } from "../entity/UserRank";
-import { ApiWrapper } from "../wrapper/wrapper";
-import { UserRankRepository } from "../repository/UserRankRepository";
+import { Team } from "../service/util/constants.js";
+import { getNicknameIfChanged } from "./nicknameService.js";
+import { UserData } from "../wrapper/models/user.js";
+import { ApiError, BotError } from "../error.js";
+import { AppDataSource } from "../index.js";
+import { makeLogger } from "../logger.js";
+import { Color } from "../service/util/constants.js";
+import { UserRank } from "../entity/UserRank.js";
+import { ApiWrapper } from "../wrapper/wrapper.js";
+import { UserRankRepository } from "../repository/UserRankRepository.js";
 
 const logger = makeLogger(import.meta);
 
