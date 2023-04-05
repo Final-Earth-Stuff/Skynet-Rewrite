@@ -121,7 +121,7 @@ export async function prepareAndSendMessage(
                 const copy = [...embeds];
                 while (copy.length) {
                     const embeds = copy.splice(0, 10);
-                    await channel.send({ embeds });
+                    await channel.send({ embeds }).catch();
                 }
             }
         })
