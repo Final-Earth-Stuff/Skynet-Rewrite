@@ -1,6 +1,5 @@
 import { UnitChange } from "../entity/UnitChange.js";
-import { Region, Country } from "../entity/Country.js";
-import { LandAndFacilities } from "../entity/LandAndFacilities.js";
+import { Region } from "../entity/Country.js";
 import { Team } from "../service/util/constants.js";
 
 import { AppDataSource } from "../index.js";
