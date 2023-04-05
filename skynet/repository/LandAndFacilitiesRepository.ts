@@ -1,6 +1,5 @@
 import { LandAndFacilities } from "../entity/LandAndFacilities.js";
-import { Country, Region } from "../entity/Country.js";
-import { unwrap } from "../util/assert.js";
+import { Region } from "../entity/Country.js";
 
 import { AppDataSource } from "../index.js";
 
@@ -48,126 +47,53 @@ export const LandAndFacilitiesRepository = AppDataSource.getRepository(
         return this.manager.insert(LandAndFacilities, world);
     },
 
-    getLastWorld() {
-        return this.manager
-            .createQueryBuilder(LandAndFacilities, "land_and_facilities")
-            .distinctOn(["land_and_facilities.country"])
-            .select()
-            .orderBy("land_and_facilities.country")
-            .addOrderBy("land_and_facilities.timestamp", "DESC")
-            .getMany();
+    async getLastWorld(): Promise<LandAndFacilities[]> {
+        const query = `select current.* from country, 
+lateral (select * from land_and_facilities where country=country.id order by timestamp desc limit 1) as current`;
+
+        return (await AppDataSource.query(query)) as LandAndFacilities[];
     },
 
     async getSpawnFactories(timestamp: Date): Promise<FacQueryRow[]> {
-        const past = AppDataSource.createQueryBuilder()
-            .from(LandAndFacilities, "laf")
-            .addSelect("laf.country", "country")
-            .addSelect("laf.facs", "facs")
-            .distinctOn(["laf.country"])
-            .where("timestamp < :timestamp", { timestamp })
-            .addOrderBy("laf.country")
-            .addOrderBy("laf.timestamp", "DESC");
-
-        const current = AppDataSource.createQueryBuilder()
-            .from(LandAndFacilities, "laf")
-            .addSelect("laf.country", "country")
-            .addSelect("laf.facs", "facs")
-            .addSelect("laf.is_active_spawn", "is_active_spawn")
-            .addSelect("laf.control", "control")
-            .distinctOn(["laf.country"])
-            .addOrderBy("laf.country")
-            .addOrderBy("laf.timestamp", "DESC");
-
-        const query = AppDataSource.createQueryBuilder()
-            .from("current", "current")
-            .innerJoin("past", "past", "past.country=current.country")
-            .innerJoin(Country, "country", "country.id=current.country")
-            .addCommonTableExpression(past, "past")
-            .addCommonTableExpression(current, "current")
-            .addSelect("current.country", "country")
-            .addSelect("current.facs - past.facs", "diff")
-            .addSelect("current.control", "control")
-            .addSelect("country.name", "name")
-            .where("current.is_active_spawn");
-
-        return await query.getRawMany();
+        const query = `with current as (
+select c.country, c.facs, country.name, c.control from country, 
+lateral (select * from land_and_facilities where country.id=country order by timestamp desc limit 1) as c where c.is_active_spawn
+)
+select current.facs - old.facs as diff, current.country, current.name, current.control from current, 
+lateral (select facs from land_and_facilities where timestamp < $1 and country=current.country order by timestamp desc limit 1) as old
+`;
+        return (await AppDataSource.query(query, [timestamp])) as FacQueryRow[];
     },
 
     async totals(region?: Region): Promise<TotalsQueryRow> {
-        const lastFacilities = AppDataSource.createQueryBuilder()
-            .from("land_and_facilities", "laf")
-            .addSelect("laf.country", "country")
-            .addSelect("laf.facs", "facs")
-            .addSelect("laf.rigs", "rigs")
-            .addSelect("laf.mines", "mines")
-            .addSelect("laf.control", "control")
-            .distinctOn(["laf.country"])
-            .addOrderBy("laf.country")
-            .addOrderBy("laf.timestamp", "DESC");
-
-        const lastUnits = AppDataSource.createQueryBuilder()
-            .from("unit_change", "uc")
-            .addSelect("uc.allies", "allies")
-            .addSelect("uc.axis", "axis")
-            .addSelect("uc.country", "country")
-            .distinctOn(["uc.country"])
-            .addOrderBy("uc.country")
-            .addOrderBy("uc.timestamp", "DESC");
-
-        const query = AppDataSource.createQueryBuilder()
-            .addCommonTableExpression(lastFacilities, "lf")
-            .addCommonTableExpression(lastUnits, "lu")
-            .addSelect(
-                "coalesce(sum(case lf.control when 0 then lf.facs end), 0)",
-                "total_axis_facs"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 100 then lf.facs end), 0)",
-                "total_allies_facs"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 0 then lf.mines end), 0)",
-                "total_axis_mines"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 100 then lf.mines end), 0)",
-                "total_allies_mines"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 0 then lf.rigs end), 0)",
-                "total_axis_rigs"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 100 then lf.rigs end), 0)",
-                "total_allies_rigs"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 0 then 1 end), 0)",
-                "axis_capped"
-            )
-            .addSelect(
-                "coalesce(sum(case lf.control when 100 then 1 end), 0)",
-                "allies_capped"
-            )
-            .addSelect(
-                "coalesce(sum(case when lf.control between 1 and 49 then 1 end), 0)",
-                "axis_uncapped"
-            )
-            .addSelect(
-                "coalesce(sum(case when lf.control between 51 and 99 then 1 end), 0)",
-                "allies_uncapped"
-            )
-            .addSelect("sum(lu.axis)", "total_axis")
-            .addSelect("sum(lu.allies)", "total_allies")
-            .from(Country, "country")
-            .innerJoin("lf", "lf", "country.id=lf.country")
-            .leftJoin("lu", "lu", "country.id=lu.country");
+        let query = `select 
+coalesce(sum(lu.axis)) as total_axis,
+coalesce(sum(lu.allies)) as total_allies,
+coalesce(sum(case lf.control when 0 then 1 end), 0) as axis_capped,
+coalesce(sum(case lf.control when 100 then 1 end), 0) as allies_capped,
+coalesce(sum(case when lf.control between 1 and 49 then 1 end), 0) as axis_uncapped,
+coalesce(sum(case when lf.control between 51 and 99 then 1 end), 0) as allies_uncapped,
+coalesce(sum(case lf.control when 0 then lf.rigs end), 0) as total_axis_rigs,
+coalesce(sum(case lf.control when 100 then lf.rigs end), 0) as total_allies_rigs,
+coalesce(sum(case lf.control when 0 then lf.facs end), 0) as total_axis_facs,
+coalesce(sum(case lf.control when 100 then lf.facs end), 0) as total_allies_facs,
+coalesce(sum(case lf.control when 0 then lf.mines end), 0) as total_axis_mines,
+coalesce(sum(case lf.control when 100 then lf.mines end), 0) as total_allies_mines
+from country,
+lateral (select * from unit_change where country=country.id order by timestamp desc limit 1) as lu,
+lateral (select * from land_and_facilities where country=country.id order by timestamp desc limit 1) as lf`;
 
         if (region) {
-            query.where("country.region=:region", { region });
+            query += `
+            where region=$1`;
         }
 
-        return unwrap(await query.getRawOne());
+        return (
+            (await AppDataSource.query(
+                query,
+                region ? [region] : undefined
+            )) as TotalsQueryRow[]
+        )[0];
     },
 
     async getFactories(): Promise<IncomeQuery[]> {
