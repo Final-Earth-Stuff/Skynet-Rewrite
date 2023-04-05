@@ -4,11 +4,15 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { ApiError, BotError } from "../../error";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { ApiError, BotError } from "../../error.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "start" })
 export class Start {

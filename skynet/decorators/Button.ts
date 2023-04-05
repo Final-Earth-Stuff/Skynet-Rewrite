@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ButtonInteraction } from "discord.js";
 
-import { Constructor, ensureBaseScope } from "./BaseScope";
+import { Constructor, ensureBaseScope } from "./BaseScope.js";
 
 export interface ButtonOptions {
     customId: string;
@@ -54,7 +54,7 @@ export const ButtonHandler =
                 const key = handlerMap.get(interaction.customId);
                 if (!key) return;
 
-                await Reflect.get(this, key).call(this, interaction);
+                await (Reflect.get(this, key) as any).call(this, interaction);
             }
         };
     };

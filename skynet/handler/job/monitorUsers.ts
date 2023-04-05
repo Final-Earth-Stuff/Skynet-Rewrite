@@ -1,18 +1,18 @@
 import { Client, User } from "discord.js";
 
-import { ScheduledJob, Cron } from "../../decorators";
+import { ScheduledJob, Cron } from "../../decorators/index.js";
 
 import {
     UserSettingsRepository,
     Timers,
     Counts,
-} from "../../repository/UserSettingsRepository";
-import { UserSettings } from "../../entity/UserSettings";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { makeLogger } from "../../logger";
-import { NotificationData } from "../../wrapper/models/notification";
-import { Team } from "../../service/util/constants";
-import { ApiError } from "../../error";
+} from "../../repository/UserSettingsRepository.js";
+import { UserSettings } from "../../entity/UserSettings.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { makeLogger } from "../../logger.js";
+import { NotificationData } from "../../wrapper/models/notification.js";
+import { Team } from "../../service/util/constants.js";
+import { ApiError } from "../../error.js";
 
 const logger = makeLogger(import.meta);
 

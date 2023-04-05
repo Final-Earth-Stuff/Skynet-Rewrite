@@ -1,9 +1,9 @@
-import { UnitChange } from "../entity/UnitChange";
-import { Region, Country } from "../entity/Country";
-import { LandAndFacilities } from "../entity/LandAndFacilities";
-import { Team } from "../service/util/constants";
+import { UnitChange } from "../entity/UnitChange.js";
+import { Region, Country } from "../entity/Country.js";
+import { LandAndFacilities } from "../entity/LandAndFacilities.js";
+import { Team } from "../service/util/constants.js";
 
-import { AppDataSource } from "../";
+import { AppDataSource } from "../index.js";
 
 export interface RegionQueryRow {
     allies: number;

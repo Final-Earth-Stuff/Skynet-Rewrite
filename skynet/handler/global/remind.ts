@@ -1,10 +1,14 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { Reminder } from "../../entity/Reminder";
-import { AppDataSource } from "../..";
-import { UserSettings } from "../../entity/UserSettings";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { Reminder } from "../../entity/Reminder.js";
+import { AppDataSource } from "../../index.js";
+import { UserSettings } from "../../entity/UserSettings.js";
 
 @CommandHandler({ name: "remind" })
 export class Remind {

@@ -1,10 +1,14 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
 
-import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
-import { buildIncome } from "../../service/mapCommands";
-import { FacilityIncome } from "../../service/util/constants";
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository.js";
+import { buildIncome } from "../../service/mapCommands.js";
+import { FacilityIncome } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "mines" })
 export class Mines {

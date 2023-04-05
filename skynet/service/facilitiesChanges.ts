@@ -1,12 +1,12 @@
-import { CountryData } from "../wrapper/models/country";
-import { LandAndFacilities } from "../entity/LandAndFacilities";
+import { CountryData } from "../wrapper/models/country.js";
+import { LandAndFacilities } from "../entity/LandAndFacilities.js";
 import { Client, EmbedBuilder, ChannelType } from "discord.js";
-import { AppDataSource } from "..";
-import { Guild } from "../entity/Guild";
-import { getIcon, convertAxisControl } from "./util/team";
-import { Color } from "./util/constants";
-import { unwrap } from "../util/assert";
-import { isSome } from "../util/guard";
+import { AppDataSource } from "../index.js";
+import { Guild } from "../entity/Guild.js";
+import { getIcon, convertAxisControl } from "./util/team.js";
+import { Color } from "./util/constants.js";
+import { unwrap } from "../util/assert.js";
+import { isSome } from "../util/guard.js";
 
 type Laf = Omit<LandAndFacilities, "id">;
 

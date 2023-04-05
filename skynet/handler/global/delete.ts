@@ -4,9 +4,13 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { UserSettingsRepository } from "../../repository/UserSettingsRepository";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { UserSettingsRepository } from "../../repository/UserSettingsRepository.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "delete" })
 export class Delete {

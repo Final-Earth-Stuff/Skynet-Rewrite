@@ -1,6 +1,6 @@
 import { Column, PrimaryColumn, Entity, OneToMany } from "typeorm";
-import { Team } from "../service/util/constants";
-import { Reminder } from "./Reminder";
+import { Team } from "../service/util/constants.js";
+import { Reminder } from "./Reminder.js";
 
 @Entity()
 export class UserSettings {

@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-import { Statistics, Timers, Team } from "./common";
+import { Statistics, Timers, Team } from "./common.js";
 
 export const PersonalStats = t.type({
     units: t.type({

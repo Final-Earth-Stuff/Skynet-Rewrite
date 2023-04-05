@@ -11,16 +11,16 @@ const { schedule } = node_cron;
 
 import { ROOT_CONTEXT, SpanKind, SpanStatusCode } from "@opentelemetry/api";
 
-import { config } from "./config";
-import { makeLogger } from "./logger";
-import { ApiError, BotError, NoKeyError } from "./error";
-import { Data } from "./map/index";
+import { config } from "./config.js";
+import { makeLogger } from "./logger.js";
+import { ApiError, BotError, NoKeyError } from "./error.js";
+import { Data } from "./map/index.js";
 
-import { loadHandlers } from "./decorators/index";
-import { Color } from "./service/util/constants";
-import { withNewSpan } from "./tracing";
+import { loadHandlers } from "./decorators/index.js";
+import { Color } from "./service/util/constants.js";
+import { withNewSpan } from "./tracing.js";
 
-import { ApiWrapper } from "./wrapper/wrapper";
+import { ApiWrapper } from "./wrapper/wrapper.js";
 
 ApiWrapper.forRaw("");
 

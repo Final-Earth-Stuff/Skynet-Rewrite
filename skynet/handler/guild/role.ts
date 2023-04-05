@@ -12,14 +12,14 @@ import {
     CommandData,
     EventHandler,
     DiscordEvent,
-} from "../../decorators";
+} from "../../decorators/index.js";
 
-import { AppDataSource } from "../..";
-import { CommandRepository } from "../../repository/CommandRepository";
-import { Guild as GuildEntity } from "../../entity/Guild";
-import { Color } from "../../service/util/constants";
+import { AppDataSource } from "../../index.js";
+import { CommandRepository } from "../../repository/CommandRepository.js";
+import { Guild as GuildEntity } from "../../entity/Guild.js";
+import { Color } from "../../service/util/constants.js";
 
-import { handlers } from "../../bot";
+import { handlers } from "../../bot.js";
 
 @CommandHandler({ name: "role" })
 @EventHandler()

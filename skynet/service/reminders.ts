@@ -1,8 +1,8 @@
 import { Client, DiscordAPIError, EmbedBuilder } from "discord.js";
-import { Reminder } from "../entity/Reminder";
-import { makeLogger } from "../logger";
-import { ReminderRepository } from "../repository/ReminderRepository";
-import { Color } from "./util/constants";
+import { Reminder } from "../entity/Reminder.js";
+import { makeLogger } from "../logger.js";
+import { ReminderRepository } from "../repository/ReminderRepository.js";
+import { Color } from "./util/constants.js";
 
 const logger = makeLogger(import.meta);
 

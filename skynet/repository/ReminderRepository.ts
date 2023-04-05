@@ -1,5 +1,5 @@
-import { AppDataSource } from "../";
-import { Reminder } from "../entity/Reminder";
+import { AppDataSource } from "../index.js";
+import { Reminder } from "../entity/Reminder.js";
 
 export const ReminderRepository = AppDataSource.getRepository(Reminder).extend({
     getReminders(now: Date): Promise<Reminder[]> {

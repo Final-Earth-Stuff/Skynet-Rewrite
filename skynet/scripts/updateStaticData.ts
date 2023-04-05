@@ -1,9 +1,9 @@
-import { AppDataSource } from "..";
-import { makeLogger } from "../logger";
+import { AppDataSource } from "../index.js";
+import { makeLogger } from "../logger.js";
 
-import { Data } from "../map";
-import { Country, Region } from "../entity/Country";
-import { ApiWrapper } from "../wrapper/wrapper";
+import { Data } from "../map/index.js";
+import { Country, Region } from "../entity/Country.js";
+import { ApiWrapper } from "../wrapper/wrapper.js";
 
 const logger = makeLogger(import.meta);
 

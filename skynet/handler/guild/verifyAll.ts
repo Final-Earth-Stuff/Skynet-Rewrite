@@ -7,18 +7,22 @@ import {
     ChannelType,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { UserData } from "../../wrapper/models/user";
-import { BotError, ApiError } from "../../error";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { UserData } from "../../wrapper/models/user.js";
+import { BotError, ApiError } from "../../error.js";
 
-import { Color } from "../../service/util/constants";
+import { Color } from "../../service/util/constants.js";
 import {
     updateRoleAndNickname,
     getGuild,
     resetMember,
-} from "../../service/verifyService";
-import { isRoundOver } from "../../service/util/team";
+} from "../../service/verifyService.js";
+import { isRoundOver } from "../../service/util/team.js";
 
 @CommandHandler({ name: "verify-all" })
 export class VerifyAll {

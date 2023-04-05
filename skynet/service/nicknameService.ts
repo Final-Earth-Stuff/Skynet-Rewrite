@@ -1,11 +1,11 @@
 import { GuildMember, PartialGuildMember } from "discord.js";
 
-import { rankMap } from "./util/constants";
-import { UserRankRepository } from "../repository/UserRankRepository";
-import { UserRank } from "../entity/UserRank";
-import { UserData } from "../wrapper/models/user";
+import { rankMap } from "./util/constants.js";
+import { UserRankRepository } from "../repository/UserRankRepository.js";
+import { UserRank } from "../entity/UserRank.js";
+import { UserData } from "../wrapper/models/user.js";
 import { Repository } from "typeorm";
-import { AppDataSource } from "..";
+import { AppDataSource } from "../index.js";
 
 export async function getNicknameIfChanged(
     member: GuildMember,

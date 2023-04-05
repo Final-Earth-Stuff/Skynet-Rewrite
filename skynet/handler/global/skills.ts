@@ -4,11 +4,15 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
 
-import { Color } from "../../service/util/constants";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { rankMap } from "../../service/util/constants";
+import { Color } from "../../service/util/constants.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { rankMap } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "skills" })
 export class Skills {

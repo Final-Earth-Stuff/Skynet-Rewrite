@@ -4,11 +4,15 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { BotError } from "../../error";
-import { Data } from "../../map";
-import { greatCircleDist } from "../../map/geometry";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { BotError } from "../../error.js";
+import { Data } from "../../map/index.js";
+import { greatCircleDist } from "../../map/geometry.js";
+import { Color } from "../../service/util/constants.js";
 
 function rangeLimit(tech: string): number {
     switch (tech) {

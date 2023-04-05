@@ -4,19 +4,24 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData, Guard } from "../../decorators";
-import { ApiWrapper } from "../../wrapper/wrapper";
-import { BotError, ApiError } from "../../error";
-import { verifyGuard } from "../../guard/verifyGuard";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+    Guard,
+} from "../../decorators/index.js";
+import { ApiWrapper } from "../../wrapper/wrapper.js";
+import { BotError, ApiError } from "../../error.js";
+import { verifyGuard } from "../../guard/verifyGuard.js";
 
-import { Color } from "../../service/util/constants";
+import { Color } from "../../service/util/constants.js";
 import {
     updateRoleAndNickname,
     getGuild,
     resetMember,
-} from "../../service/verifyService";
-import { isRoundOver } from "../../service/util/team";
-import { UserData } from "../../wrapper/models/user";
+} from "../../service/verifyService.js";
+import { isRoundOver } from "../../service/util/team.js";
+import { UserData } from "../../wrapper/models/user.js";
 
 @CommandHandler({ name: "verify" })
 @Guard(verifyGuard)

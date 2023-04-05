@@ -4,15 +4,19 @@ import {
     EmbedBuilder,
 } from "discord.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
 
-import { UnitChangeRepository } from "../../repository/UnitChangeRepository";
-import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
-import { Region as RegionEnum } from "../../entity/Country";
-import { Team } from "../../service/util/constants";
-import { buildTotals, buildRegionUnitList } from "../../service/mapCommands";
-import { Color } from "../../service/util/constants";
-import { BotError } from "../../error";
+import { UnitChangeRepository } from "../../repository/UnitChangeRepository.js";
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository.js";
+import { Region as RegionEnum } from "../../entity/Country.js";
+import { Team } from "../../service/util/constants.js";
+import { buildTotals, buildRegionUnitList } from "../../service/mapCommands.js";
+import { Color } from "../../service/util/constants.js";
+import { BotError } from "../../error.js";
 
 @CommandHandler({ name: "region" })
 export class Region {

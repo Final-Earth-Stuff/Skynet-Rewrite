@@ -4,9 +4,9 @@ import fuzzysort from "fuzzysort";
 /* eslint-disable-next-line @typescript-eslint/unbound-method */
 const { go } = fuzzysort;
 
-import { unwrap } from "../../util/assert";
-import { CompletionProvider, Completion } from "../../decorators";
-import { Data } from "../../map";
+import { unwrap } from "../../util/assert.js";
+import { CompletionProvider, Completion } from "../../decorators/index.js";
+import { Data } from "../../map/index.js";
 
 @CompletionProvider()
 export class CountryComplete {

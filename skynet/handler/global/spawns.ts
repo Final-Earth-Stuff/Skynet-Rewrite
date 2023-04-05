@@ -3,11 +3,15 @@ import {
     EmbedBuilder,
     SlashCommandBuilder,
 } from "discord.js";
-import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository";
+import { LandAndFacilitiesRepository } from "../../repository/LandAndFacilitiesRepository.js";
 
-import { CommandHandler, Command, CommandData } from "../../decorators";
-import { BotError } from "../../error";
-import { Color } from "../../service/util/constants";
+import {
+    CommandHandler,
+    Command,
+    CommandData,
+} from "../../decorators/index.js";
+import { BotError } from "../../error.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "spawns" })
 export class Spawns {

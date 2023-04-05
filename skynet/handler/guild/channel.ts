@@ -6,11 +6,15 @@ import {
     PermissionFlagsBits,
 } from "discord.js";
 
-import { CommandHandler, SubCommand, CommandData } from "../../decorators";
+import {
+    CommandHandler,
+    SubCommand,
+    CommandData,
+} from "../../decorators/index.js";
 
-import { AppDataSource } from "../..";
-import { Guild as GuildEntity } from "../../entity/Guild";
-import { Color } from "../../service/util/constants";
+import { AppDataSource } from "../../index.js";
+import { Guild as GuildEntity } from "../../entity/Guild.js";
+import { Color } from "../../service/util/constants.js";
 
 @CommandHandler({ name: "channel" })
 export class Channel {

@@ -1,7 +1,7 @@
-import { UserSettings } from "../entity/UserSettings";
-import { Team } from "../service/util/constants";
+import { UserSettings } from "../entity/UserSettings.js";
+import { Team } from "../service/util/constants.js";
 
-import { AppDataSource } from "../";
+import { AppDataSource } from "../index.js";
 
 export enum Toggles {
     WAR = "war_flag",

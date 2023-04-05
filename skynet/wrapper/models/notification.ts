@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { Statistics, Timers } from "./common";
+import { Statistics, Timers } from "./common.js";
 
 export const QueuedTrain = t.type({
     ID: t.string,
