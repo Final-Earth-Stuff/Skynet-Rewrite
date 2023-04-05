@@ -78,7 +78,9 @@ export async function logChangesToChannel(
                 const copy = [...embeds];
                 while (copy.length) {
                     const embeds = copy.splice(0, 10);
-                    await channel.send({ embeds }).catch();
+                    await channel.send({ embeds }).catch(() => {
+                        /* do nothing */
+                    });
                 }
             }
         })

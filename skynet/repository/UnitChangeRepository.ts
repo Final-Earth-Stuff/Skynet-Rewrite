@@ -1,6 +1,5 @@
 import { UnitChange } from "../entity/UnitChange.js";
-import { Region, Country } from "../entity/Country.js";
-import { LandAndFacilities } from "../entity/LandAndFacilities.js";
+import { Region } from "../entity/Country.js";
 import { Team } from "../service/util/constants.js";
 
 import { AppDataSource } from "../index.js";
@@ -32,64 +31,38 @@ export const UnitChangeRepository = AppDataSource.getRepository(
         return this.manager.insert(UnitChange, world);
     },
 
-    getLastWorld(): Promise<UnitChange[]> {
-        return this.manager
-            .createQueryBuilder(UnitChange, "units")
-            .distinctOn(["units.country"])
-            .select()
-            .orderBy("units.country")
-            .addOrderBy("units.timestamp", "DESC")
-            .getMany();
+    async getLastWorld(): Promise<UnitChange[]> {
+        const query = `select current.* from country, 
+lateral (select * from unit_change where country=country.id order by timestamp desc limit 1) as current`;
+
+        return (await AppDataSource.query(query)) as UnitChange[];
     },
 
     async getRegion(region: Region, team?: Team): Promise<RegionQueryRow[]> {
-        const current = AppDataSource.createQueryBuilder()
-            .distinctOn(["uc.country"])
-            .from(UnitChange, "uc")
-            .addSelect("uc.country", "country")
-            .addSelect("uc.allies", "allies")
-            .addSelect("uc.axis", "axis")
-            .orderBy("uc.country")
-            .addOrderBy("uc.timestamp", "DESC");
-
-        const query = AppDataSource.createQueryBuilder()
-            .addCommonTableExpression(current, "current")
-            .from("current", "current")
-            .innerJoin(Country, "country", "country.id=current.country")
-            .addSelect("country.name", "name")
-            .addSelect("current.allies", "allies")
-            .addSelect("current.axis", "axis")
-            .addSelect(
-                (qb) =>
-                    qb
-                        .from(LandAndFacilities, "laf")
-                        .select("laf.control", "control")
-                        .where("laf.country=current.country")
-                        .orderBy("timestamp", "DESC")
-                        .limit(1),
-                "control"
-            )
-            .where("country.region=:region", { region });
+        let query = `select
+country.name,
+lc.control,
+uc.allies,
+uc.axis,
+uc.allies + uc.axis as total
+from country,
+lateral (select allies, axis from unit_change where country.id=country order by timestamp desc limit 1) as uc,
+lateral (select control from land_and_facilities where country.id=country order by timestamp desc limit 1) as lc 
+where region=$1
+`;
 
         switch (team) {
             case Team.ALLIES:
-                query
-                    .andWhere("current.allies <> 0")
-                    .orderBy("current.allies", "DESC");
+                query += ` and allies <> 0 order by allies desc`;
                 break;
             case Team.AXIS:
-                query
-                    .andWhere("current.axis <> 0")
-                    .orderBy("current.axis", "DESC");
+                query += ` and axis <> 0 order by axis desc`;
                 break;
             default:
-                query
-                    .addSelect("current.allies + current.axis", "total")
-                    .andWhere("not (current.allies=0 and current.axis=0)")
-                    .orderBy("total", "DESC");
+                query += ` and (allies <> 0 or axis <> 0) order by total desc`;
         }
 
-        return await query.getRawMany();
+        return (await AppDataSource.query(query, [region])) as RegionQueryRow[];
     },
 
     async getUnitsForCountries(
