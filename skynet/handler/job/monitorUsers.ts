@@ -20,12 +20,10 @@ const logger = makeLogger(import.meta);
 export class MonitorUsers {
     @Cron({ cron: "*/30 * * * * *", label: "monitor_users" })
     async checkUsers(client: Client) {
-        logger.debug("checking all users...");
         const values = await UserSettingsRepository.getAllUserSettings();
         await Promise.all(
             values.map(async (user) => {
                 if (user.api_key) {
-                    logger.debug("checking %s", user.user_id);
                     try {
                         const notifsData = await ApiWrapper.forUser(
                             user
